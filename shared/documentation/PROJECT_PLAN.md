@@ -243,14 +243,14 @@ Program/
 *   ✅ **Smart File Management:** Preserves original filenames with timestamp-based unique naming
 
 ### ✅ **M4: Animation Enhancement** - COMPLETED ✨
-*Theatre-Ready Visual Effects System*
+*Theatre-Ready Visual Effects System with Configurable Parameters*
    
 **📋 DETAILED TRACKING:** See [VISUAL_EFFECTS_DEVELOPMENT.md](./VISUAL_EFFECTS_DEVELOPMENT.md)
 
-**Status: 100% Complete - All 3 Phases Implemented** 🎉
-- ✅ **Phase 1: Pure Particle System** - Enhanced sphere particles with depth-based brightness
-  - Advanced particle system with 150 particles spawning from center
-  - Omnidirectional emission with lifetime-based fading
+**Status: 100% Complete - All 3 Phases + Configuration System Implemented** 🎉
+- ✅ **Phase 1: Pure Particle System** - Enhanced sphere particles with configurable parameters
+  - Advanced particle system with configurable count (500), size (0.01), and lifetime (6-8s)
+  - Omnidirectional emission with customizable speed ranges (1-4)
   - Delta time-based smooth animation at 60fps
   - THREE.InstancedMesh optimization for performance
   - Automatic phase transition detection
@@ -258,32 +258,52 @@ Program/
 
 - ✅ **Phase 2: Eye-Textured Shapes + Particle Attraction** - Dynamic eye shape integration
   - EyeShape class with texture loading from real eye images
-  - 3 geometric shapes (cube, bipyramid, pentagon) with eye textures
-  - Orbital animation system with random planes and radii
-  - Particle attraction forces toward orbiting shapes
+  - 3 configurable geometric shapes (cube: 0.5, bipyramid: 0.4, pentagon: 0.4x0.4) with eye textures
+  - Orbital animation system with configurable radius ranges (1.5-3.5) and speeds (0.3-0.8)
+  - Particle attraction forces with customizable strength and drag parameters
   - Dynamic shape creation/removal based on available eye images
-  - Real-time shape management with 20-shape limit
+  - Real-time shape management with configurable limits (30-shape max)
 
-- ✅ **Phase 3: Convergence Animation** - Dramatic finale with completion detection
-  - 8-second convergence animation with theatrical timing
+- ✅ **Phase 3: Convergence Animation** - Dramatic finale with configurable timing
+  - Customizable convergence duration (10 seconds) with theatrical timing control
   - Gradual radius shrinking with smooth easing functions
-  - Speed acceleration from 1x to 5x during convergence
-  - Enhanced particle attraction with 3x intensity
+  - Configurable speed acceleration and target radius (0.5)
+  - Enhanced particle attraction with configurable intensity multipliers
   - Completion detection and reset capability
   - Manual trigger via debug panel controls
 
+- ✅ **🔧 Configuration System** - Easy parameter customization interface
+  - **Centralized Configuration**: All visual parameters controlled via `VISUAL_CONFIG` object
+  - **Particle Customization**: Count, size, lifetime, speed, reset distance, depth effects
+  - **Shape Configuration**: Sizes, orbital parameters, rotation speeds, convergence settings
+  - **Attraction Forces**: Strength, drag, intensity thresholds fully configurable
+  - **System Limits**: Maximum shapes, eye images, performance tuning parameters
+  - **Real-time Tweaking**: Changes apply on page refresh - no compilation needed
+  - **Production Optimization**: Current settings optimized for dramatic theatrical effects
+
 **✨ Production-Ready Features:**
 - **Complete 3-Phase Interactive Experience**: Automatic transitions based on eye image availability
-- **Professional Performance**: Stable 60fps with 150 particles + 20 eye shapes
+- **🔧 Easy Parameter Customization**: All visual effects configurable via centralized interface
+- **Professional Performance**: Stable 60fps with 500 particles + 30 eye shapes
+- **Optimized Settings**: 500 smaller particles, longer lifetimes, closer orbits, extended convergence
 - **Manual Controls**: Test triggers and reset functionality for live theatre
 - **Error Handling**: Graceful texture loading and resource management
 - **Debug Integration**: Real-time status monitoring and progress tracking
+
+**🎛️ Current Optimized Configuration:**
+- **500 particles** (0.01 size) for denser, more cinematic effects
+- **6-8 second lifetimes** for sustained visual presence  
+- **1-4 speed range** for dynamic movement
+- **1.5-3.5 orbital radius** for tighter, focused animations
+- **10-second convergence** for dramatic theatrical timing
+- **30 shape/image limit** for larger audience capacity
 
 **Technical Foundation:**
 - Modular class-based architecture (Particle, ParticleSystem, EyeShape, ShapeManager)
 - Non-breaking integration maintaining existing functionality
 - Progressive enhancement with automatic phase transitions
 - Performance-optimized with proper memory management and disposal
+- **🔧 Centralized configuration system** for easy parameter tweaking without code diving
 
 ### 🔄 **M5: Keyboard Trigger System** - NEXT PRIORITY
 *Final automation feature for complete theatre readiness*
@@ -311,24 +331,33 @@ Program/
 3. **Web Server**: Flask application with Socket.IO support running on port 5000
 4. **Client Interface**: Beautiful HTML/CSS interface with theatrical theme and collapsible debug panel
 5. **Real-time Communication**: Socket.IO connection established between server and client
-6. **🎭 3D Visual Effects System**: Complete 3-phase interactive animation with eye-textured shapes
-7. **Image Processing**: Complete OpenCV face/eye detection with file monitoring
-8. **Eye Images Display**: Automatic loading of existing images with real-time updates
-9. **Debug Tools**: Connection status, test buttons, message logging, and manual refresh capabilities
-10. **SD Card System**: 🌟 **COMPLETE AUTO-IMPORT PIPELINE** with detection, import, and real-time UI
-11. **Auto-Import Configuration**: Professional toggle controls and live status indicators
-12. **🎭 Animation Controls**: Manual triggers and reset functionality for convergence effects
-13. **Documentation**: Comprehensive README and setup instructions
+6. **🎭 3D Visual Effects System**: Complete 3-phase interactive animation with configurable eye-textured shapes
+7. **🔧 Visual Effects Configuration**: Centralized parameter system for easy customization without code diving
+8. **Image Processing**: Complete OpenCV face/eye detection with file monitoring
+9. **Eye Images Display**: Automatic loading of existing images with real-time updates
+10. **Debug Tools**: Connection status, test buttons, message logging, and manual refresh capabilities
+11. **SD Card System**: 🌟 **COMPLETE AUTO-IMPORT PIPELINE** with detection, import, and real-time UI
+12. **Auto-Import Configuration**: Professional toggle controls and live status indicators
+13. **🎭 Animation Controls**: Manual triggers and reset functionality for convergence effects with configurable parameters
+14. **Documentation**: Comprehensive README and setup instructions with configuration guides
 
-### 🎯 **Major Recent Achievement - Complete Visual Effects System:**
+### 🎯 **Major Recent Achievement - Configurable Visual Effects System:**
 
-**✅ 3-Phase Interactive Animation System Implemented:**
-- **🎭 Phase 1 - Particle Foundation**: 150 sphere particles with depth-based brightness and smooth 60fps performance
-- **🎭 Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on orbiting 3D shapes with particle attraction
-- **🎭 Phase 3 - Convergence Animation**: Dramatic 8-second convergence with speed acceleration and completion detection
+**✅ Easy Parameter Customization Interface Implemented:**
+- **🔧 Centralized Configuration**: All visual parameters controlled via single `VISUAL_CONFIG` object
+- **🎛️ Production Optimization**: Current settings optimized for 500 particles, 30 shapes, 10s convergence
+- **⚡ Real-time Tweaking**: Changes apply immediately on page refresh - no compilation needed
+- **🎨 Comprehensive Coverage**: Particle counts, sizes, lifetimes, speeds, attraction forces, orbital dynamics
+- **📊 Performance Tuning**: Built-in examples for dramatic effects, subtle ambience, or performance optimization
+- **🎪 Theatre-Ready**: Optimized settings for dramatic theatrical timing and larger audience capacity
+
+**✅ 3-Phase Interactive Animation System (Enhanced):**
+- **🎭 Phase 1 - Particle Foundation**: 500 configurable sphere particles with depth-based brightness and smooth 60fps performance
+- **🎭 Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on configurable 3D shapes with particle attraction
+- **🎭 Phase 3 - Convergence Animation**: Dramatic 10-second convergence with configurable speed acceleration and completion detection
 - **Automatic Phase Transitions**: System intelligently responds to eye image availability
 - **Manual Controls**: Test triggers and reset functionality via debug panel
-- **Production-Ready Performance**: Optimized rendering with stable 60fps performance
+- **Production-Ready Performance**: Optimized rendering with configurable performance tuning
 
 ### 🎯 **Major Achievement - Auto-Import System:**
 
@@ -360,24 +389,33 @@ Program/
 3. **Web Server**: Flask application with Socket.IO support running on port 5000
 4. **Client Interface**: Beautiful HTML/CSS interface with theatrical theme and collapsible debug panel
 5. **Real-time Communication**: Socket.IO connection established between server and client
-6. **🎭 3D Visual Effects System**: Complete 3-phase interactive animation with eye-textured shapes
-7. **Image Processing**: Complete OpenCV face/eye detection with file monitoring
-8. **Eye Images Display**: Automatic loading of existing images with real-time updates
-9. **Debug Tools**: Connection status, test buttons, message logging, and manual refresh capabilities
-10. **SD Card System**: 🌟 **COMPLETE AUTO-IMPORT PIPELINE** with detection, import, and real-time UI
-11. **Auto-Import Configuration**: Professional toggle controls and live status indicators
-12. **🎭 Animation Controls**: Manual triggers and reset functionality for convergence effects
-13. **Documentation**: Comprehensive README and setup instructions
+6. **🎭 3D Visual Effects System**: Complete 3-phase interactive animation with configurable eye-textured shapes
+7. **🔧 Visual Effects Configuration**: Centralized parameter system for easy customization without code diving
+8. **Image Processing**: Complete OpenCV face/eye detection with file monitoring
+9. **Eye Images Display**: Automatic loading of existing images with real-time updates
+10. **Debug Tools**: Connection status, test buttons, message logging, and manual refresh capabilities
+11. **SD Card System**: 🌟 **COMPLETE AUTO-IMPORT PIPELINE** with detection, import, and real-time UI
+12. **Auto-Import Configuration**: Professional toggle controls and live status indicators
+13. **🎭 Animation Controls**: Manual triggers and reset functionality for convergence effects with configurable parameters
+14. **Documentation**: Comprehensive README and setup instructions with configuration guides
 
-### 🎯 **Major Recent Achievement - Complete Visual Effects System:**
+### 🎯 **Major Recent Achievement - Configurable Visual Effects System:**
 
-**✅ 3-Phase Interactive Animation System Implemented:**
-- **🎭 Phase 1 - Particle Foundation**: 150 sphere particles with depth-based brightness and smooth 60fps performance
-- **🎭 Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on orbiting 3D shapes with particle attraction
-- **🎭 Phase 3 - Convergence Animation**: Dramatic 8-second convergence with speed acceleration and completion detection
+**✅ Easy Parameter Customization Interface Implemented:**
+- **🔧 Centralized Configuration**: All visual parameters controlled via single `VISUAL_CONFIG` object
+- **🎛️ Production Optimization**: Current settings optimized for 500 particles, 30 shapes, 10s convergence
+- **⚡ Real-time Tweaking**: Changes apply immediately on page refresh - no compilation needed
+- **🎨 Comprehensive Coverage**: Particle counts, sizes, lifetimes, speeds, attraction forces, orbital dynamics
+- **📊 Performance Tuning**: Built-in examples for dramatic effects, subtle ambience, or performance optimization
+- **🎪 Theatre-Ready**: Optimized settings for dramatic theatrical timing and larger audience capacity
+
+**✅ 3-Phase Interactive Animation System (Enhanced):**
+- **🎭 Phase 1 - Particle Foundation**: 500 configurable sphere particles with depth-based brightness and smooth 60fps performance
+- **🎭 Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on configurable 3D shapes with particle attraction
+- **🎭 Phase 3 - Convergence Animation**: Dramatic 10-second convergence with configurable speed acceleration and completion detection
 - **Automatic Phase Transitions**: System intelligently responds to eye image availability
 - **Manual Controls**: Test triggers and reset functionality via debug panel
-- **Production-Ready Performance**: Optimized rendering with stable 60fps performance
+- **Production-Ready Performance**: Optimized rendering with configurable performance tuning
 
 ### 🎯 **Major Achievement - Auto-Import System:**
 
@@ -432,8 +470,10 @@ Program/
 - Complete auto-import testing capability
 - 🎭 Production-ready 3D animation system with manual triggers
 
-**🎉 Major Milestone Achieved: The system now provides a complete theatre production pipeline from SD card insertion to sophisticated 3D visual effects with eye-textured animations!**
+**🎉 Major Milestone Achieved: The system now provides a complete theatre production pipeline from SD card insertion to sophisticated 3D visual effects with configurable eye-textured animations!**
 
 **🎭 Theatre Production Status: 95% Complete - Only global keyboard triggers remain for full automation**
+
+**🔧 New Feature: Complete visual effects configuration system implemented for easy parameter customization without code diving!**
 
 This plan provides a comprehensive roadmap. We can adjust and elaborate on specific sections as development progresses. 

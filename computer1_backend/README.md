@@ -7,20 +7,30 @@ A digital program for experimental theatre that processes audience photos and cr
 This system consists of:
 1. **🤖 SD Card Auto-Import Pipeline**: Automatically detects camera SD cards and imports new images with real-time progress tracking
 2. **Image Processing Pipeline**: Automatically detects faces and crops eyes from photos using OpenCV
-3. **🎭 Visual Effects System**: Web-based interface with sophisticated 3-phase interactive 3D animations using real eye images
+3. **🎭 Advanced Visual Effects System**: Completely configurable 3-phase interactive 3D animations with enhanced particle dynamics and eye-textured shapes
 4. **Real-time Communication**: Socket.IO for live updates between all system components
 5. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
 
 ## Current Status
 
+### ✅ **Milestone 5: Advanced Configurable Visual Effects - COMPLETED** 🎉
+- **🎛️ Complete Configuration System**: All 35+ visual parameters centrally configurable via `VISUAL_CONFIG` object
+- **🌀 Enhanced Phase 1**: Particles now start distributed throughout space with center attraction (no more lifetime mechanism)
+- **🎨 Advanced Particle System**: Distance-based opacity, configurable colors, rendering quality, and distribution patterns
+- **⚙️ Flexible Rendering**: Configurable sphere geometry detail, material properties, and performance optimization settings
+- **🎭 Enhanced Scene Control**: Configurable camera, lighting, background, and animation parameters
+- **🔧 Easy Customization**: Artist-friendly configuration without code diving - all parameters documented and accessible
+- **📊 Performance Tuning**: Configurable particle counts, shape limits, and rendering quality for different hardware
+- **🎯 Precise Control**: Fine-grained control over attraction forces, easing curves, and animation timings
+
 ### ✅ **Milestone 4: Visual Effects System - COMPLETED** 🎉
 - **🎭 Complete 3-Phase Interactive Experience**: Full visual effects system with particle dynamics and eye-textured animations
-- **Phase 1 - Particle Foundation**: Enhanced sphere particles with depth-based brightness and smooth 60fps performance
+- **Phase 1 - Enhanced Particle Foundation**: Particles distributed in space with center attraction and depth-based brightness
 - **Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on orbiting 3D shapes with particle attraction
-- **Phase 3 - Convergence Animation**: Dramatic 8-second convergence with speed acceleration and completion detection
+- **Phase 3 - Convergence Animation**: Dramatic convergence with speed acceleration and completion detection
 - **Automatic Phase Transitions**: System responds intelligently to eye image availability
 - **Manual Controls**: Test triggers and reset functionality via debug panel
-- **Production-Ready Performance**: Optimized rendering with 150 particles + 20 eye shapes
+- **Production-Ready Performance**: Optimized rendering with configurable particle counts and shape parameters
 
 ### ✅ **Milestone 3: SD Card Auto-Import System - COMPLETED** 🌟
 - **🤖 Complete Auto-Import Pipeline**: SD Card → Detection → Import → Eye Processing → Real-time Display
@@ -46,12 +56,12 @@ This system consists of:
 2. **Auto-Import** → Background processing with progress tracking  
 3. **Eye Detection** → Immediate processing of imported images
 4. **Real-time Display** → Instant appearance of eye images in web interface
-5. **3D Animation System** → Interactive visual effects with eye-textured shapes
+5. **3D Animation System** → Configurable interactive visual effects with eye-textured shapes
 6. **Manual Animation Control** → Test triggers for convergence animation
 7. **Professional Monitoring** → Live status updates and configuration controls
 
 ### 🔄 **Next Priority: Keyboard Trigger Integration**
-With the complete visual effects system operational, the final enhancement is server-side keyboard triggers for live theatre automation.
+With the complete configurable visual effects system operational, the final enhancement is server-side keyboard triggers for live theatre automation.
 
 ## Setup Instructions
 
@@ -107,19 +117,20 @@ Open a web browser and navigate to `http://[COMPUTER1_IP]:5000`
 
 The client interface includes:
 - **Status Indicators**: Connection, Image Processor, and File Monitoring status
-- **Eye Images Display**: Real-time display of processed eye images
-- **🎭 3D Visual Effects Canvas**: Complete 3-phase interactive animation system
+- **🎭 3D Visual Effects Canvas**: Complete 3-phase configurable animation system
 - **Debug Panel**: Testing tools and system information
+- **🔧 Configuration Controls**: Easy parameter tweaking interface
 
 ### 3. System Operation
 
-#### **🎭 Interactive 3D Visual Effects System**
-1. **Phase 1 - Particle Display**: Beautiful sphere particles with depth-based brightness when no eye images present
+#### **🎭 Advanced Configurable 3D Visual Effects System**
+1. **Phase 1 - Center Attraction**: Particles distributed throughout space, gradually converging toward center with configurable attraction forces
 2. **Phase 2 - Eye Shape Animation**: Automatic creation of orbiting 3D shapes when eye images become available
 3. **Phase 3 - Convergence Animation**: Manual trigger via "Trigger Animation" button for dramatic convergence effect
 4. **Real-time Transitions**: System automatically detects eye images and transitions between phases
-5. **Performance Optimized**: Smooth 60fps rendering with up to 150 particles and 20 eye shapes
-6. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
+5. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object
+6. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
+7. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
 
 #### **Automatic Eye Images Display**
 1. **Client Connection**: When you open the web interface, existing eye images automatically load
@@ -146,7 +157,7 @@ The client interface includes:
 - **Toggle Panel**: Use 🔧 button to show/hide debug panel
 - **Collapsible Sections**: Click section headers to expand/collapse content
 
-#### **🤖 SD Card Auto-Import System** (NEW!)
+#### **🤖 SD Card Auto-Import System** 
 1. **Auto-Detection**: Insert any camera SD card and the system automatically detects it within seconds
 2. **Configuration**: Use the "Auto-Import Settings" toggle in the SD Card Management section to enable/disable auto-import
 3. **Automatic Import**: When enabled, new images are automatically imported in the background with real-time progress tracking
@@ -166,7 +177,7 @@ The client interface includes:
 - **Image Processor**: OpenCV face/eye detection with comprehensive error handling
 - **File Monitoring**: Watchdog-based automatic processing of new images  
 - **Client Interface**: Complete web interface with real-time updates and auto-import controls
-- **🎭 3D Visual Effects System**: Complete 3-phase interactive animation system with eye-textured shapes
+- **🎭 Advanced Configurable Visual Effects System**: Complete 3-phase system with 35+ configurable parameters
 - **Real-time Communication**: Bidirectional Socket.IO events with comprehensive auto-import events
 - **Debug Tools**: Comprehensive testing and status monitoring with SD card management and animation controls
 - **Eye Images Display**: Automatic loading and real-time display of processed eye images
@@ -174,7 +185,7 @@ The client interface includes:
 - **Auto-Import Configuration**: Professional toggle controls with live status indicators and progress tracking
 
 ### 🚧 **Current Issues**
-None - All core functionality including complete SD card auto-import pipeline and 3D visual effects system is working correctly! 🎉
+None - All core functionality including complete SD card auto-import pipeline and advanced configurable 3D visual effects system is working correctly! 🎉
 
 ### 🔄 **Next Milestones**
 1. **Keyboard Triggers**: Global hotkey support for animation control (final automation feature)
@@ -182,14 +193,168 @@ None - All core functionality including complete SD card auto-import pipeline an
 
 ## Technical Architecture
 
-### **🎭 3D Visual Effects System** (NEW!)
-1. **Phase 1 - Pure Particles**: 150 sphere particles with depth-based brightness spawning from center
-2. **Phase 2 - Eye Shapes**: Real eye images mapped as textures on orbiting 3D shapes (cube, bipyramid, pentagon)
-3. **Phase 3 - Convergence**: 8-second dramatic animation where all shapes converge to center with accelerating speeds
-4. **Particle Attraction**: Dynamic attraction forces between particles and eye shapes
-5. **Automatic Transitions**: Intelligent phase detection based on eye image availability
-6. **Performance Optimization**: THREE.InstancedMesh for efficient rendering, 60fps target
-7. **Manual Controls**: Test triggers and reset functionality via debug panel
+### **🎭 Advanced Configurable Visual Effects System** 
+1. **🎛️ Complete Configuration System**: All 35+ visual effects parameters controlled via centralized `VISUAL_CONFIG` object
+2. **🌀 Enhanced Phase 1**: Particles distributed in space with center attraction (lifetime mechanism removed for infinite persistence)
+3. **🎨 Advanced Particle System**: Distance-based opacity, configurable colors (HSL), distribution patterns, and initial velocities
+4. **⚙️ Flexible Rendering**: Configurable sphere geometry detail, material properties, and blending modes
+5. **🎭 Eye Shape Integration**: Real eye images as textures on configurable 3D shapes (cube, bipyramid, pentagon)
+6. **🎪 Convergence Animation**: Customizable duration, target radius, speed multipliers, and easing curves
+7. **🔧 Scene Control**: Configurable camera (FOV, position, clipping), lighting (ambient, directional), and background
+8. **📊 Performance Optimization**: Configurable limits for particles, shapes, and rendering quality
+9. **🎯 Precise Attraction Forces**: Fine-grained control over attraction strength, drag coefficients, and intensity scaling
+10. **🎨 Material System**: Configurable placeholder and loaded material properties for eye shapes
+
+### **Current Optimized Configuration:**
+```javascript
+// Current production settings (user-customized):
+particles: {
+    count: 500,                   // Dense particle field
+    size: 0.03,                  // Visible particle size
+    resetDistance: 10,            // Distance from center before particle resets
+    depthEffect: {
+        maxDistance: 10,          // Maximum distance for depth brightness
+        dimming: 0.2              // How much to dim far particles (0-1)
+    },
+    distribution: {
+        radiusMultiplier: 0.7,    // Percentage of reset distance for initial distribution
+        initialSpeed: 0.5         // Initial random velocity speed
+    },
+    color: {
+        hueBase: 0.6,             // Base hue for particle colors
+        hueVariation: 0.2,        // Random hue variation range
+        saturation: 0.3,          // Color saturation
+        lightness: 0.9            // Color lightness (user-customized)
+    },
+    opacity: {
+        minimum: 0.4,             // Minimum opacity for far particles (user-customized)
+        falloffRate: 0.5          // How quickly opacity falls off with distance (user-customized)
+    },
+    rendering: {
+        sphereDetail: {
+            widthSegments: 8,     // Sphere geometry width segments
+            heightSegments: 6     // Sphere geometry height segments
+        },
+        material: {
+            baseOpacity: 0.8,     // Base material opacity
+            color: 0xffffff       // Base material color
+        }
+    }
+}
+```
+
+#### 🎪 **Eye Shape Configuration**
+```javascript
+shapes: {
+    sizes: {
+        cube: 0.5,                // Size of cube shapes
+        bipyramid: 0.4,           // Size of bipyramid shapes
+        pentagon: {               // Pentagon (pentagonal prism) sizes
+            radius: 0.4,
+            height: 0.4
+        }
+    },
+    orbital: {
+        radius: {
+            min: 1.5,             // Minimum orbital radius from center
+            max: 3.5              // Maximum orbital radius from center
+        },
+        speed: {
+            min: 0.3,             // Minimum orbital speed
+            max: 0.8              // Maximum orbital speed
+        }
+    },
+    rotation: {
+        speed: 0.015,             // Base rotation speed for shapes
+        convergenceMultiplier: 2   // Rotation speed multiplier during convergence
+    },
+    convergence: {
+        duration: 10,             // Duration of convergence animation (seconds)
+        targetRadius: 0.5,        // Final radius at center during convergence
+        speedMultiplier: 4.0,     // Speed multiplication during convergence
+        scaleMultiplier: 0.5,     // Scale increase during convergence
+        intensity: {
+            baseMin: 0.8,         // Base minimum intensity during convergence
+            baseMax: 0.4,         // Additional intensity range during convergence
+            maxMultiplier: 2.0    // Maximum intensity multiplier for particles
+        }
+    },
+    material: {
+        placeholder: {
+            color: 0x888888,      // Placeholder material color before texture loads
+            opacity: 0.8         // Placeholder material opacity
+        },
+        loaded: {
+            color: 0xffffff       // Color when texture is loaded
+        }
+    }
+}
+```
+
+#### ⚡ **Enhanced Attraction Forces**
+```javascript
+attraction: {
+    baseStrength: 0.08,           // Base attraction force strength (user-customized)
+    maxStrength: 0.2,             // Maximum attraction force cap (user-customized)
+    minDistance: 0.1,             // Minimum distance to avoid division by zero
+    distanceOffset: 0.1,          // Distance offset for force calculation
+    drag: {
+        normal: 0.98,             // Normal drag multiplier (less = more drag)
+        intense: 0.95             // Drag during intense convergence
+    },
+    intensityThreshold: 1.5,      // Threshold for switching to intense mode
+    centerAttraction: {
+        intensity: 1.0            // Intensity of center attraction in Phase 1
+    }
+}
+```
+
+#### 🎬 **Scene & Camera Control**
+```javascript
+scene: {
+    background: 0x0a0a0a,         // Scene background color
+    lighting: {
+        ambient: {
+            color: 0x404040,      // Ambient light color
+            intensity: 0.6        // Ambient light intensity
+        },
+        directional: {
+            color: 0xffffff,      // Directional light color
+            intensity: 0.8        // Directional light intensity
+        }
+    },
+    camera: {
+        fov: 75,                  // Camera field of view
+        near: 0.1,                // Camera near clipping plane
+        far: 1000,                // Camera far clipping plane
+        position: { z: 5 }        // Camera Z position
+    }
+}
+```
+
+#### 🎭 **Animation System**
+```javascript
+animation: {
+    placeholder: {
+        rotationSpeed: 0.01,      // Rotation speed for placeholder meshes
+        flowMotion: 0.002         // Flow motion amplitude during triggered animation
+    },
+    easing: {
+        cubicFactor: 4,           // Factor for cubic easing
+        cubicSubtract: 2,         // Subtraction factor for cubic easing
+        cubicDivide: 2            // Division factor for cubic easing
+    }
+}
+```
+
+#### 📊 **System Limits**
+```javascript
+system: {
+    maxShapes: 30,                // Maximum number of eye shapes
+    shapeTypes: ['cube', 'bipyramid', 'pentagon'],  // Available shape types
+    maxEyeImages: 30              // Maximum eye images to keep in UI
+}
+```
 
 ### **Image Processing Pipeline**
 1. **Input**: Images placed in `data/originals/` folder (manually or via SD card auto-import)
@@ -199,7 +364,7 @@ None - All core functionality including complete SD card auto-import pipeline an
 5. **Fallback**: Dummy eye generation when detection fails
 6. **🎭 Animation Integration**: Automatic creation of textured 3D shapes for new eye images
 
-### **🤖 SD Card Auto-Import System** (NEW!)
+### **🤖 SD Card Auto-Import System** 
 1. **Detection**: Intelligent SD card recognition using psutil with camera-specific folder patterns
 2. **Monitoring**: Background polling for drive changes and SD card insertion/removal
 3. **Import Engine**: Multi-threaded file copying with SHA-256 duplicate prevention
@@ -215,7 +380,7 @@ None - All core functionality including complete SD card auto-import pipeline an
 - **Smart Ordering**: Existing images chronological, new images at top
 - **Collapsible Interface**: Eye images section in debug panel
 - **Manual Refresh**: Button to reload existing images
-- **Image Limits**: Maximum 20 images displayed at once
+- **Image Limits**: Maximum 30 images displayed at once (configurable)
 
 ### **Real-time Communication**
 - **Socket.IO Events**: 
@@ -243,12 +408,233 @@ computer1_backend/
 │   ├── originals/          # Input images (monitored folder, auto-import destination)
 │   └── cropped_eyes/       # Processed eye images (served to client)
 ├── static/
-│   ├── js/                 # Client-side JavaScript with 🎭 complete 3D visual effects system
+│   ├── js/                 # Client-side JavaScript with 🎭 complete configurable 3D visual effects
 │   ├── css/                # Styling including auto-import configuration controls
 │   └── other_images_for_animation/  # Assets for 3D animations
 └── templates/
     └── index.html          # Main client interface with SD card management panel
 ```
+
+## 🔧 Complete Visual Effects Configuration System
+
+### 🎛️ **Centralized Configuration Interface**
+
+All visual effects parameters can be easily customized by editing the `VISUAL_CONFIG` object at the top of `Program/computer1_backend/static/js/client.js`. This comprehensive system provides control over 35+ parameters without needing to search through code!
+
+### **Configuration Categories**
+
+#### 🎨 **Enhanced Particle System**
+```javascript
+particles: {
+    count: 500,                    // Total number of particles
+    size: 0.03,                   // Individual particle size (sphere radius)
+    resetDistance: 10,            // Distance from center before particle resets
+    depthEffect: {
+        maxDistance: 10,          // Maximum distance for depth brightness
+        dimming: 0.2              // How much to dim far particles (0-1)
+    },
+    distribution: {
+        radiusMultiplier: 0.7,    // Percentage of reset distance for initial distribution
+        initialSpeed: 0.5         // Initial random velocity speed
+    },
+    color: {
+        hueBase: 0.6,             // Base hue for particle colors
+        hueVariation: 0.2,        // Random hue variation range
+        saturation: 0.3,          // Color saturation
+        lightness: 0.9            // Color lightness (user-customized)
+    },
+    opacity: {
+        minimum: 0.4,             // Minimum opacity for far particles (user-customized)
+        falloffRate: 0.5          // How quickly opacity falls off with distance (user-customized)
+    },
+    rendering: {
+        sphereDetail: {
+            widthSegments: 8,     // Sphere geometry width segments
+            heightSegments: 6     // Sphere geometry height segments
+        },
+        material: {
+            baseOpacity: 0.8,     // Base material opacity
+            color: 0xffffff       // Base material color
+        }
+    }
+}
+```
+
+#### 🎪 **Eye Shape Configuration**
+```javascript
+shapes: {
+    sizes: {
+        cube: 0.5,                // Size of cube shapes
+        bipyramid: 0.4,           // Size of bipyramid shapes
+        pentagon: {               // Pentagon (pentagonal prism) sizes
+            radius: 0.4,
+            height: 0.4
+        }
+    },
+    orbital: {
+        radius: {
+            min: 1.5,             // Minimum orbital radius from center
+            max: 3.5              // Maximum orbital radius from center
+        },
+        speed: {
+            min: 0.3,             // Minimum orbital speed
+            max: 0.8              // Maximum orbital speed
+        }
+    },
+    rotation: {
+        speed: 0.015,             // Base rotation speed for shapes
+        convergenceMultiplier: 2   // Rotation speed multiplier during convergence
+    },
+    convergence: {
+        duration: 10,             // Duration of convergence animation (seconds)
+        targetRadius: 0.5,        // Final radius at center during convergence
+        speedMultiplier: 4.0,     // Speed multiplication during convergence
+        scaleMultiplier: 0.5,     // Scale increase during convergence
+        intensity: {
+            baseMin: 0.8,         // Base minimum intensity during convergence
+            baseMax: 0.4,         // Additional intensity range during convergence
+            maxMultiplier: 2.0    // Maximum intensity multiplier for particles
+        }
+    },
+    material: {
+        placeholder: {
+            color: 0x888888,      // Placeholder material color before texture loads
+            opacity: 0.8         // Placeholder material opacity
+        },
+        loaded: {
+            color: 0xffffff       // Color when texture is loaded
+        }
+    }
+}
+```
+
+#### ⚡ **Enhanced Attraction Forces**
+```javascript
+attraction: {
+    baseStrength: 0.08,           // Base attraction force strength (user-customized)
+    maxStrength: 0.2,             // Maximum attraction force cap (user-customized)
+    minDistance: 0.1,             // Minimum distance to avoid division by zero
+    distanceOffset: 0.1,          // Distance offset for force calculation
+    drag: {
+        normal: 0.98,             // Normal drag multiplier (less = more drag)
+        intense: 0.95             // Drag during intense convergence
+    },
+    intensityThreshold: 1.5,      // Threshold for switching to intense mode
+    centerAttraction: {
+        intensity: 1.0            // Intensity of center attraction in Phase 1
+    }
+}
+```
+
+#### 🎬 **Scene & Camera Control**
+```javascript
+scene: {
+    background: 0x0a0a0a,         // Scene background color
+    lighting: {
+        ambient: {
+            color: 0x404040,      // Ambient light color
+            intensity: 0.6        // Ambient light intensity
+        },
+        directional: {
+            color: 0xffffff,      // Directional light color
+            intensity: 0.8        // Directional light intensity
+        }
+    },
+    camera: {
+        fov: 75,                  // Camera field of view
+        near: 0.1,                // Camera near clipping plane
+        far: 1000,                // Camera far clipping plane
+        position: { z: 5 }        // Camera Z position
+    }
+}
+```
+
+#### 🎭 **Animation System**
+```javascript
+animation: {
+    placeholder: {
+        rotationSpeed: 0.01,      // Rotation speed for placeholder meshes
+        flowMotion: 0.002         // Flow motion amplitude during triggered animation
+    },
+    easing: {
+        cubicFactor: 4,           // Factor for cubic easing
+        cubicSubtract: 2,         // Subtraction factor for cubic easing
+        cubicDivide: 2            // Division factor for cubic easing
+    }
+}
+```
+
+#### 📊 **System Limits**
+```javascript
+system: {
+    maxShapes: 30,                // Maximum number of eye shapes
+    shapeTypes: ['cube', 'bipyramid', 'pentagon'],  // Available shape types
+    maxEyeImages: 30              // Maximum eye images to keep in UI
+}
+```
+
+### 🎛️ **Customization Examples**
+
+**For More Dramatic Effects:**
+```javascript
+// Increase particle count and make them larger
+VISUAL_CONFIG.particles.count = 1000;
+VISUAL_CONFIG.particles.size = 0.05;
+
+// Make convergence faster and more intense
+VISUAL_CONFIG.shapes.convergence.duration = 5;
+VISUAL_CONFIG.shapes.convergence.speedMultiplier = 8.0;
+VISUAL_CONFIG.attraction.baseStrength = 0.15;
+```
+
+**For Subtle, Ambient Effects:**
+```javascript
+// Fewer, smaller particles with gentler attraction
+VISUAL_CONFIG.particles.count = 200;
+VISUAL_CONFIG.particles.size = 0.02;
+VISUAL_CONFIG.attraction.baseStrength = 0.04;
+
+// Slower, wider orbital movements
+VISUAL_CONFIG.shapes.orbital.speed.max = 0.3;
+VISUAL_CONFIG.shapes.orbital.radius.max = 8;
+```
+
+**For Performance Optimization:**
+```javascript
+// Reduce particle count for lower-end hardware
+VISUAL_CONFIG.particles.count = 250;
+VISUAL_CONFIG.particles.rendering.sphereDetail.widthSegments = 6;
+VISUAL_CONFIG.particles.rendering.sphereDetail.heightSegments = 4;
+
+// Limit maximum shapes for better performance
+VISUAL_CONFIG.system.maxShapes = 15;
+```
+
+**For Tighter, More Focused View (Current Setup):**
+```javascript
+// Compact viewing area with strong center attraction
+VISUAL_CONFIG.particles.resetDistance = 10;
+VISUAL_CONFIG.particles.depthEffect.maxDistance = 10;
+VISUAL_CONFIG.attraction.baseStrength = 0.08;
+VISUAL_CONFIG.attraction.maxStrength = 0.2;
+```
+
+### 🔄 **Applying Configuration Changes**
+
+1. **Edit the Configuration**: Modify the `VISUAL_CONFIG` object in `Program/computer1_backend/static/js/client.js`
+2. **Restart the Server**: `python run.py`
+3. **Refresh the Browser**: Reload the client page to see changes
+4. **Test in Real-time**: Use the debug panel to trigger animations and see your customizations
+
+### 💡 **Configuration Pro Tips**
+
+- **🎨 Color Harmony**: Adjust `hueBase` and `hueVariation` for different color palettes
+- **⚡ Performance Tuning**: Monitor frame rate when increasing `count` and adjust `sphereDetail` accordingly
+- **🎭 Theatre Timing**: Use `convergence.duration` to match your performance timing
+- **🔍 Viewing Distance**: Adjust `resetDistance` and camera `position.z` for optimal viewing scale
+- **🌟 Visual Impact**: Balance `attraction.baseStrength` with `particles.opacity.minimum` for desired intensity
+- **💾 Backup Settings**: Save your favorite configurations before experimenting
+- **🧪 A/B Testing**: Easy to test different parameter combinations for different scenes
 
 ## Troubleshooting
 
@@ -263,11 +649,22 @@ computer1_backend/
 - Monitor console for processing logs
 - Try "Test Processing" button for generated test image
 
-### **🎭 Animation Issues**
-- **Particles Not Showing**: Check Three.js canvas area, verify WebGL support in browser
-- **Eye Shapes Not Creating**: Ensure eye images are processed and available in cropped_eyes folder
-- **Convergence Not Working**: Use "Trigger Animation" button in debug panel
-- **Performance Issues**: Check browser console for WebGL errors, try reducing particle count
+### **🎭 Visual Effects Issues**
+- **Particles Not Showing**: 
+  - Check Three.js canvas area, verify WebGL support in browser
+  - Verify `VISUAL_CONFIG.particles.size` is not too small (try 0.03+)
+  - Check `VISUAL_CONFIG.particles.resetDistance` matches camera scale
+- **Poor Performance**: 
+  - Reduce `VISUAL_CONFIG.particles.count` (try 250)
+  - Lower `VISUAL_CONFIG.particles.rendering.sphereDetail` segments
+  - Check browser console for WebGL errors
+- **Eye Shapes Not Creating**: 
+  - Ensure eye images are processed and available in cropped_eyes folder
+  - Check `VISUAL_CONFIG.system.maxShapes` limit
+- **Convergence Issues**: 
+  - Use "Trigger Animation" button in debug panel
+  - Check `VISUAL_CONFIG.shapes.convergence.duration` setting
+  - Verify `VISUAL_CONFIG.attraction` force settings
 
 ### **Connection Issues**
 - Verify server is running on correct IP and port
@@ -279,7 +676,7 @@ computer1_backend/
 - Check Python version compatibility (3.8+)
 - Verify OpenCV cascade files are accessible
 
-### **🤖 SD Card Auto-Import Issues** (NEW!)
+### **🤖 SD Card Auto-Import Issues**
 - **SD Card Not Detected**: 
   - Verify SD card contains camera folder structure (DCIM, etc.)
   - Check if SD card is properly mounted and accessible

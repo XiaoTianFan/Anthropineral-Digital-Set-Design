@@ -17,13 +17,22 @@
       "sd_card_id": "Unknown_F_",
       "original_filename": "_I0A1355.JPG",
       "target_filename": "_I0A1355_imported_20250529_004220.JPG"
+    },
+    "9639218e03d622f1721d213b1686daa97cd6fbb17df680cfa26aca2fe6383a0f": {
+      "original_path": "F:\\DCIM\\102EOS5D\\_I0A1357.JPG",
+      "imported_path": "C:\\Users\\20378\\OneDrive\\\u684c\u9762\\NYUAD\\Make Art Here\\Project 2\\Program\\Program\\computer1_backend\\data\\originals\\_I0A1357_imported_20250529_012050.JPG",
+      "import_timestamp": "2025-05-29T01:20:50.338396",
+      "file_size": 414577,
+      "sd_card_id": "Unknown_F_",
+      "original_filename": "_I0A1357.JPG",
+      "target_filename": "_I0A1357_imported_20250529_012050.JPG"
     }
   },
   "sd_cards_seen": {
     "Unknown_F_": {
       "first_seen": "2025-05-29T00:42:17.740470",
-      "last_seen": "2025-05-29T00:42:17.740470",
-      "total_imports": 2
+      "last_seen": "2025-05-29T01:20:48.120224",
+      "total_imports": 3
     }
   }
 }

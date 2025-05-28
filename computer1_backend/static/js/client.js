@@ -7,72 +7,152 @@ const VISUAL_CONFIG = {
     // Particle System Configuration
     particles: {
         count: 500,                    // Number of particles in the system
-        size: 0.01,                   // Size of individual particles (sphere radius)
-        lifetime: {
-            min: 6,                   // Minimum particle lifetime (seconds)
-            max: 8                    // Maximum particle lifetime (seconds)
-        },
-        speed: {
-            min: 0.5,                 // Minimum initial particle speed
-            max: 1.5                  // Maximum initial particle speed (min + range)
-        },
-        resetDistance: 20,            // Distance from center before particle resets
+        size: 0.01,                   // Size of individual particles (sphere radius) - increased for visibility
+        resetDistance: 8,            // Distance from center before particle resets - reduced for camera scale
         depthEffect: {
-            maxDistance: 20,          // Maximum distance for depth brightness calculation
-            dimming: 0.7              // How much to dim far particles (0-1)
+            maxDistance: 8,          // Maximum distance for depth brightness calculation
+            dimming: 0.2              // How much to dim far particles (0-1)
+        },
+        distribution: {
+            radiusMultiplier: 0.5,    // Percentage of reset distance for initial distribution
+            initialSpeed: 0.8         // Initial random velocity speed
+        },
+        color: {
+            hueBase: 0.6,             // Base hue for particle colors
+            hueVariation: 0.2,        // Random hue variation range
+            saturation: 0.3,          // Color saturation
+            lightness: 0.9            // Color lightness
+        },
+        opacity: {
+            minimum: 0.4,             // Minimum opacity for far particles
+            falloffRate: 0.5          // How quickly opacity falls off with distance
+        },
+        rendering: {
+            sphereDetail: {
+                widthSegments: 8,     // Sphere geometry width segments
+                heightSegments: 6     // Sphere geometry height segments
+            },
+            material: {
+                baseOpacity: 0.8,     // Base material opacity
+                color: 0xffffff       // Base material color
+            }
         }
     },
     
     // Particle Attraction Configuration
     attraction: {
-        baseStrength: 0.02,           // Base attraction force strength
-        maxStrength: 0.1,             // Maximum attraction force cap
+        baseStrength: 0.03,           // Base attraction force strength - increased from 0.02
+        maxStrength: 0.12,             // Maximum attraction force cap - increased from 0.1
         minDistance: 0.1,             // Minimum distance to avoid division by zero
         distanceOffset: 0.1,          // Distance offset for force calculation
         drag: {
-            normal: 0.98,             // Normal drag multiplier (less = more drag)
+            normal: 0.85,             // Normal drag multiplier (less = more drag)
             intense: 0.95             // Drag during intense convergence
         },
-        intensityThreshold: 1.5       // Threshold for switching to intense mode
+        intensityThreshold: 1.5,      // Threshold for switching to intense mode
+        centerAttraction: {
+            intensity: 1.0            // Intensity of center attraction in Phase 1
+        }
     },
     
     // Eye Shape Configuration
     shapes: {
         sizes: {
-            cube: 0.8,                // Size of cube shapes
-            bipyramid: 0.5,           // Size of bipyramid shapes
+            cube: 0.5,                // Size of cube shapes
+            bipyramid: 0.4,           // Size of bipyramid shapes
             pentagon: {               // Pentagon (pentagonal prism) sizes
-                radius: 0.5,
-                height: 0.6
+                radius: 0.4,
+                height: 0.4
             }
         },
         orbital: {
             radius: {
                 min: 1.5,               // Minimum orbital radius from center
-                max: 3.5                // Maximum orbital radius from center
+                max: 3                // Maximum orbital radius from center
             },
             speed: {
-                min: 0.3,             // Minimum orbital speed
+                min: 0.6,             // Minimum orbital speed
                 max: 0.8              // Maximum orbital speed (min + range)
             }
         },
         rotation: {
-            speed: 0.02,              // Base rotation speed for shapes
-            convergenceMultiplier: 3   // Rotation speed multiplier during convergence
+            speed: 0.015,              // Base rotation speed for shapes
+            convergenceMultiplier: 2   // Rotation speed multiplier during convergence
         },
         convergence: {
             duration: 10,              // Duration of convergence animation (seconds)
-            targetRadius: 0.3,        // Final radius at center during convergence
+            targetRadius: 0.5,        // Final radius at center during convergence
             speedMultiplier: 4.0,     // Speed multiplication during convergence (up to 5x)
-            scaleMultiplier: 0.5      // Scale increase during convergence
+            scaleMultiplier: 0.5,     // Scale increase during convergence
+            intensity: {
+                baseMin: 0.8,         // Base minimum intensity during convergence
+                baseMax: 0.4,         // Additional intensity range during convergence
+                maxMultiplier: 2.0    // Maximum intensity multiplier for particles
+            }
+        },
+        material: {
+            placeholder: {
+                color: 0x888888,      // Placeholder material color before texture loads
+                opacity: 0.8         // Placeholder material opacity
+            },
+            loaded: {
+                color: 0xffffff       // Color when texture is loaded (white for proper texture display)
+            }
+        }
+    },
+    
+    // Scene and Camera Configuration
+    scene: {
+        background: 0x0a0a0a,         // Scene background color
+        lighting: {
+            ambient: {
+                color: 0x404040,      // Ambient light color - reduced for better contrast
+                intensity: 0.6        // Ambient light intensity
+            },
+            directional: {
+                color: 0xffffff,      // Directional light color
+                intensity: 0.8        // Directional light intensity
+            }
+        },
+        camera: {
+            fov: 75,                  // Camera field of view
+            near: 0.1,                // Camera near clipping plane
+            far: 1000,                // Camera far clipping plane
+            position: {
+                z: 5                  // Camera Z position
+            }
+        },
+        // Orbital Controls Configuration
+        controls: {
+            enableDamping: true,      // Enable smooth damping (inertia)
+            dampingFactor: 0.05,      // Damping factor for smooth interactions
+            screenSpacePanning: false, // Disable screen space panning
+            minDistance: 1,           // Minimum zoom distance
+            maxDistance: 20,          // Maximum zoom distance
+            maxPolarAngle: Math.PI,   // Allow full vertical rotation
+            autoRotate: false,        // Auto-rotate the camera
+            autoRotateSpeed: 2.0      // Auto-rotation speed (if enabled)
+        }
+    },
+    
+    // Animation Configuration
+    animation: {
+        placeholder: {
+            rotationSpeed: 0.01,      // Rotation speed for placeholder meshes
+            flowMotion: 0.002         // Flow motion amplitude during triggered animation
+        },
+        easing: {
+            cubicFactor: 4,           // Factor for cubic easing (4 * t * t * t)
+            cubicSubtract: 2,         // Subtraction factor for cubic easing
+            cubicDivide: 2            // Division factor for cubic easing
         }
     },
     
     // System Configuration
     system: {
-        maxShapes: 20,                // Maximum number of eye shapes
+        maxShapes: 30,                // Maximum number of eye shapes
         shapeTypes: ['cube', 'bipyramid', 'pentagon'],  // Available shape types
-        maxEyeImages: 20              // Maximum eye images to keep in UI
+        maxEyeImages: 30              // Maximum eye images to keep in UI
     }
 };
 
@@ -85,36 +165,42 @@ class Particle {
     constructor() {
         this.position = new THREE.Vector3();
         this.velocity = new THREE.Vector3();
-        this.life = 0;
-        this.maxLife = 0;
         this.originalColor = new THREE.Color();
         this.reset();
     }
 
     reset() {
-        // Reset particle at center with random velocity
-        this.position.set(0, 0, 0);
+        // Reset particle at random position in 3D space instead of center
+        const distributionRadius = VISUAL_CONFIG.particles.resetDistance * VISUAL_CONFIG.particles.distribution.radiusMultiplier;
         
-        // Random omnidirectional velocity
-        const speed = VISUAL_CONFIG.particles.speed.min + Math.random() * (VISUAL_CONFIG.particles.speed.max - VISUAL_CONFIG.particles.speed.min);
+        // Random position within a sphere
+        const theta = Math.random() * Math.PI * 2; // Azimuth angle
+        const phi = Math.acos(2 * Math.random() - 1); // Polar angle for uniform distribution
+        const radius = Math.cbrt(Math.random()) * distributionRadius; // Cube root for uniform volume distribution
+        
+        this.position.set(
+            radius * Math.sin(phi) * Math.cos(theta),
+            radius * Math.sin(phi) * Math.sin(theta),
+            radius * Math.cos(phi)
+        );
+        
+        // Start with configurable initial velocity
+        const initialSpeed = VISUAL_CONFIG.particles.distribution.initialSpeed;
         this.velocity.set(
-            (Math.random() - 0.5) * speed,
-            (Math.random() - 0.5) * speed,
-            (Math.random() - 0.5) * speed
-        ).normalize().multiplyScalar(speed);
+            (Math.random() - 0.5) * initialSpeed,
+            (Math.random() - 0.5) * initialSpeed,
+            (Math.random() - 0.5) * initialSpeed
+        );
         
-        // Random lifetime between configured min-max seconds
-        this.maxLife = VISUAL_CONFIG.particles.lifetime.min + Math.random() * (VISUAL_CONFIG.particles.lifetime.max - VISUAL_CONFIG.particles.lifetime.min);
-        this.life = this.maxLife;
-        
-        // Set original color (white with some variation)
-        this.originalColor.setHSL(0.6 + Math.random() * 0.2, 0.3, 0.8);
+        // Set original color using configurable parameters
+        this.originalColor.setHSL(
+            VISUAL_CONFIG.particles.color.hueBase + Math.random() * VISUAL_CONFIG.particles.color.hueVariation, 
+            VISUAL_CONFIG.particles.color.saturation, 
+            VISUAL_CONFIG.particles.color.lightness
+        );
     }
 
     update(deltaTime, attractors = []) {
-        // Age the particle
-        this.life -= deltaTime;
-        
         // Apply attraction forces if in attraction mode
         if (attractors.length > 0) {
             const attractionForce = new THREE.Vector3();
@@ -148,19 +234,23 @@ class Particle {
         // Update position
         this.position.add(new THREE.Vector3().copy(this.velocity).multiplyScalar(deltaTime));
         
-        // Check if particle should be reset
-        if (this.life <= 0 || this.position.length() > VISUAL_CONFIG.particles.resetDistance) {
+        // Check if particle should be reset (only distance-based now)
+        if (this.position.length() > VISUAL_CONFIG.particles.resetDistance) {
             this.reset();
         }
     }
 
-    isDead() {
-        return this.life <= 0;
-    }
-
     getOpacity() {
-        // Fade out as particle ages
-        return Math.max(0, this.life / this.maxLife);
+        // Distance-based opacity instead of lifetime-based
+        const distanceFromCenter = this.position.length();
+        const maxDistance = VISUAL_CONFIG.particles.resetDistance;
+        const normalizedDistance = Math.min(distanceFromCenter / maxDistance, 1.0);
+        
+        // Particles closer to center are more opaque, farther ones fade out
+        return Math.max(
+            VISUAL_CONFIG.particles.opacity.minimum, 
+            1.0 - (normalizedDistance * VISUAL_CONFIG.particles.opacity.falloffRate)
+        );
     }
 }
 
@@ -178,11 +268,15 @@ class ParticleSystem {
         }
         
         // Create Three.js geometry and material for spheres
-        this.sphereGeometry = new THREE.SphereGeometry(VISUAL_CONFIG.particles.size, 8, 6); // Small spheres with low detail for performance
+        this.sphereGeometry = new THREE.SphereGeometry(
+            VISUAL_CONFIG.particles.size, 
+            VISUAL_CONFIG.particles.rendering.sphereDetail.widthSegments, 
+            VISUAL_CONFIG.particles.rendering.sphereDetail.heightSegments
+        );
         this.material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
+            color: VISUAL_CONFIG.particles.rendering.material.color,
             transparent: true,
-            opacity: 0.8,
+            opacity: VISUAL_CONFIG.particles.rendering.material.baseOpacity,
             blending: THREE.AdditiveBlending
         });
         
@@ -336,9 +430,9 @@ class EyeShape {
         
         // Create material with placeholder until texture loads
         const material = new THREE.MeshLambertMaterial({
-            color: 0x888888,
+            color: VISUAL_CONFIG.shapes.material.placeholder.color,
             transparent: true,
-            opacity: 0.8
+            opacity: VISUAL_CONFIG.shapes.material.placeholder.opacity
         });
 
         this.mesh = new THREE.Mesh(geometry, material);
@@ -368,7 +462,7 @@ class EyeShape {
                 
                 // Update material with the eye texture
                 this.mesh.material.map = texture;
-                this.mesh.material.color.setHex(0xffffff); // Reset to white for proper texture display
+                this.mesh.material.color.setHex(VISUAL_CONFIG.shapes.material.loaded.color);
                 this.mesh.material.needsUpdate = true;
                 
                 this.isLoaded = true;
@@ -440,8 +534,8 @@ class EyeShape {
         
         // Add intensity effects as convergence progresses
         if (this.mesh && this.mesh.material) {
-            // Increase opacity and add glow effect
-            const intensity = 0.8 + (easedProgress * 0.4); // 0.8 to 1.2
+            // Increase opacity and add glow effect using configurable parameters
+            const intensity = VISUAL_CONFIG.shapes.convergence.intensity.baseMin + (easedProgress * VISUAL_CONFIG.shapes.convergence.intensity.baseMax);
             this.mesh.material.opacity = Math.min(intensity, 1.0);
             
             // Scale effect - slightly larger as it converges
@@ -451,7 +545,9 @@ class EyeShape {
     }
 
     easeInOutCubic(t) {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        return t < 0.5 ? 
+            VISUAL_CONFIG.animation.easing.cubicFactor * t * t * t : 
+            1 - Math.pow(-VISUAL_CONFIG.animation.easing.cubicSubtract * t + VISUAL_CONFIG.animation.easing.cubicSubtract, 3) / VISUAL_CONFIG.animation.easing.cubicDivide;
     }
 
     isConvergenceComplete() {
@@ -467,7 +563,7 @@ class EyeShape {
         if (this.mesh) {
             this.mesh.scale.setScalar(1.0);
             if (this.mesh.material) {
-                this.mesh.material.opacity = 0.8;
+                this.mesh.material.opacity = VISUAL_CONFIG.shapes.material.placeholder.opacity;
             }
         }
         
@@ -648,7 +744,7 @@ class ShapeManager {
         return this.getAllShapes().map(shape => ({
             position: shape.getAttractionPosition(),
             id: shape.id,
-            intensity: shape.isConverging ? (1.0 + shape.convergenceProgress * 2.0) : 1.0
+            intensity: shape.isConverging ? (1.0 + shape.convergenceProgress * VISUAL_CONFIG.shapes.convergence.intensity.maxMultiplier) : 1.0
         }));
     }
 }
@@ -857,16 +953,16 @@ class TheatreClient {
         
         // Scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x0a0a0a);
+        this.scene.background = new THREE.Color(VISUAL_CONFIG.scene.background);
 
         // Camera
         this.camera = new THREE.PerspectiveCamera(
-            75, 
+            VISUAL_CONFIG.scene.camera.fov, 
             container.clientWidth / container.clientHeight, 
-            0.1, 
-            1000
+            VISUAL_CONFIG.scene.camera.near, 
+            VISUAL_CONFIG.scene.camera.far
         );
-        this.camera.position.z = 5;
+        this.camera.position.z = VISUAL_CONFIG.scene.camera.position.z;
 
         // Renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -874,11 +970,28 @@ class TheatreClient {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(this.renderer.domElement);
 
-        // Add some initial lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        // Add OrbitControls for mouse grab orbital view
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = VISUAL_CONFIG.scene.controls.enableDamping;
+        this.controls.dampingFactor = VISUAL_CONFIG.scene.controls.dampingFactor;
+        this.controls.screenSpacePanning = VISUAL_CONFIG.scene.controls.screenSpacePanning;
+        this.controls.minDistance = VISUAL_CONFIG.scene.controls.minDistance;
+        this.controls.maxDistance = VISUAL_CONFIG.scene.controls.maxDistance;
+        this.controls.maxPolarAngle = VISUAL_CONFIG.scene.controls.maxPolarAngle;
+        
+        console.log('OrbitControls initialized - Mouse grab orbital view enabled');
+
+        // Add configurable lighting
+        const ambientLight = new THREE.AmbientLight(
+            VISUAL_CONFIG.scene.lighting.ambient.color, 
+            VISUAL_CONFIG.scene.lighting.ambient.intensity
+        );
         this.scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        const directionalLight = new THREE.DirectionalLight(
+            VISUAL_CONFIG.scene.lighting.directional.color, 
+            VISUAL_CONFIG.scene.lighting.directional.intensity
+        );
         directionalLight.position.set(1, 1, 1);
         this.scene.add(directionalLight);
 
@@ -907,7 +1020,7 @@ class TheatreClient {
         this.visualPhase = 1;
         this.lastTime = performance.now();
         
-        console.log('Visual effects system initialized - Phase 1: Particle system active, ShapeManager ready');
+        console.log('Visual effects system initialized - Phase 1: Particles with center attraction active, ShapeManager ready');
     }
 
     setPlaceholderMeshesVisibility(visible) {
@@ -1092,8 +1205,8 @@ class TheatreClient {
             this.visualPhase = 2; // Back to particle + shapes phase
             this.addDebugMessage('Reset to Phase 2: Particles + Eye Shapes');
         } else {
-            this.visualPhase = 1; // Back to particles only
-            this.addDebugMessage('Reset to Phase 1: Particles Only');
+            this.visualPhase = 1; // Back to center attraction phase
+            this.addDebugMessage('Reset to Phase 1: Particles with Center Attraction');
         }
         
         this.isAnimationTriggered = false;
@@ -1130,6 +1243,11 @@ class TheatreClient {
         const deltaTime = (currentTime - this.lastTime) / 1000; // Convert to seconds
         this.lastTime = currentTime;
 
+        // Update orbital controls
+        if (this.controls) {
+            this.controls.update();
+        }
+
         // Update visual effects based on current phase
         this.updateVisualEffects(deltaTime);
 
@@ -1141,10 +1259,20 @@ class TheatreClient {
 
     updateVisualEffects(deltaTime) {
         switch (this.visualPhase) {
-            case 1: // Particles only
+            case 1: // Particles with center attraction
                 if (this.particleSystem) {
                     // Update camera position for depth-based brightness
                     this.particleSystem.setCameraPosition(this.camera.position);
+                    
+                    // Create center attractor point
+                    const centerAttractor = [{
+                        position: new THREE.Vector3(0, 0, 0),
+                        id: 'center',
+                        intensity: VISUAL_CONFIG.attraction.centerAttraction.intensity
+                    }];
+                    
+                    // Enable attraction to center
+                    this.particleSystem.setAttractionMode(true, centerAttractor);
                     this.particleSystem.update(deltaTime);
                 }
                 break;
@@ -1203,14 +1331,14 @@ class TheatreClient {
     updatePlaceholderMeshes(deltaTime) {
         // Keep existing placeholder mesh animation as backup
         this.animationMeshes.forEach((mesh, index) => {
-            mesh.rotation.x += 0.01;
-            mesh.rotation.y += 0.01;
+            mesh.rotation.x += VISUAL_CONFIG.animation.placeholder.rotationSpeed;
+            mesh.rotation.y += VISUAL_CONFIG.animation.placeholder.rotationSpeed;
             
             if (this.isAnimationTriggered) {
                 // Add flowing motion
                 const time = Date.now() * 0.001;
-                mesh.position.x += Math.sin(time + index) * 0.002;
-                mesh.position.y += Math.cos(time + index) * 0.002;
+                mesh.position.x += Math.sin(time + index) * VISUAL_CONFIG.animation.placeholder.flowMotion;
+                mesh.position.y += Math.cos(time + index) * VISUAL_CONFIG.animation.placeholder.flowMotion;
             }
         });
     }
@@ -1220,6 +1348,11 @@ class TheatreClient {
         this.camera.aspect = container.clientWidth / container.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(container.clientWidth, container.clientHeight);
+        
+        // Update controls if they exist
+        if (this.controls) {
+            this.controls.handleResize();
+        }
     }
 
     setupEventListeners() {
@@ -1582,6 +1715,11 @@ class TheatreClient {
         if (this.shapeManager) {
             this.shapeManager.dispose();
             this.shapeManager = null;
+        }
+        
+        if (this.controls) {
+            this.controls.dispose();
+            this.controls = null;
         }
         
         // Clear status update interval
