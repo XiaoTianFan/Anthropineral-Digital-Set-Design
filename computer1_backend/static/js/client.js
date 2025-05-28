@@ -1,5 +1,658 @@
 // Experimental Theatre Digital Program - Client-side JavaScript
 
+// =============================================================================
+// VISUAL EFFECTS CONFIGURATION - Easy parameter tweaking interface
+// =============================================================================
+const VISUAL_CONFIG = {
+    // Particle System Configuration
+    particles: {
+        count: 500,                    // Number of particles in the system
+        size: 0.01,                   // Size of individual particles (sphere radius)
+        lifetime: {
+            min: 6,                   // Minimum particle lifetime (seconds)
+            max: 8                    // Maximum particle lifetime (seconds)
+        },
+        speed: {
+            min: 0.5,                 // Minimum initial particle speed
+            max: 1.5                  // Maximum initial particle speed (min + range)
+        },
+        resetDistance: 20,            // Distance from center before particle resets
+        depthEffect: {
+            maxDistance: 20,          // Maximum distance for depth brightness calculation
+            dimming: 0.7              // How much to dim far particles (0-1)
+        }
+    },
+    
+    // Particle Attraction Configuration
+    attraction: {
+        baseStrength: 0.02,           // Base attraction force strength
+        maxStrength: 0.1,             // Maximum attraction force cap
+        minDistance: 0.1,             // Minimum distance to avoid division by zero
+        distanceOffset: 0.1,          // Distance offset for force calculation
+        drag: {
+            normal: 0.98,             // Normal drag multiplier (less = more drag)
+            intense: 0.95             // Drag during intense convergence
+        },
+        intensityThreshold: 1.5       // Threshold for switching to intense mode
+    },
+    
+    // Eye Shape Configuration
+    shapes: {
+        sizes: {
+            cube: 0.8,                // Size of cube shapes
+            bipyramid: 0.5,           // Size of bipyramid shapes
+            pentagon: {               // Pentagon (pentagonal prism) sizes
+                radius: 0.5,
+                height: 0.6
+            }
+        },
+        orbital: {
+            radius: {
+                min: 1.5,               // Minimum orbital radius from center
+                max: 3.5                // Maximum orbital radius from center
+            },
+            speed: {
+                min: 0.3,             // Minimum orbital speed
+                max: 0.8              // Maximum orbital speed (min + range)
+            }
+        },
+        rotation: {
+            speed: 0.02,              // Base rotation speed for shapes
+            convergenceMultiplier: 3   // Rotation speed multiplier during convergence
+        },
+        convergence: {
+            duration: 10,              // Duration of convergence animation (seconds)
+            targetRadius: 0.3,        // Final radius at center during convergence
+            speedMultiplier: 4.0,     // Speed multiplication during convergence (up to 5x)
+            scaleMultiplier: 0.5      // Scale increase during convergence
+        }
+    },
+    
+    // System Configuration
+    system: {
+        maxShapes: 20,                // Maximum number of eye shapes
+        shapeTypes: ['cube', 'bipyramid', 'pentagon'],  // Available shape types
+        maxEyeImages: 20              // Maximum eye images to keep in UI
+    }
+};
+
+// =============================================================================
+// END CONFIGURATION - Classes and implementation below
+// =============================================================================
+
+// Particle class for individual particles
+class Particle {
+    constructor() {
+        this.position = new THREE.Vector3();
+        this.velocity = new THREE.Vector3();
+        this.life = 0;
+        this.maxLife = 0;
+        this.originalColor = new THREE.Color();
+        this.reset();
+    }
+
+    reset() {
+        // Reset particle at center with random velocity
+        this.position.set(0, 0, 0);
+        
+        // Random omnidirectional velocity
+        const speed = VISUAL_CONFIG.particles.speed.min + Math.random() * (VISUAL_CONFIG.particles.speed.max - VISUAL_CONFIG.particles.speed.min);
+        this.velocity.set(
+            (Math.random() - 0.5) * speed,
+            (Math.random() - 0.5) * speed,
+            (Math.random() - 0.5) * speed
+        ).normalize().multiplyScalar(speed);
+        
+        // Random lifetime between configured min-max seconds
+        this.maxLife = VISUAL_CONFIG.particles.lifetime.min + Math.random() * (VISUAL_CONFIG.particles.lifetime.max - VISUAL_CONFIG.particles.lifetime.min);
+        this.life = this.maxLife;
+        
+        // Set original color (white with some variation)
+        this.originalColor.setHSL(0.6 + Math.random() * 0.2, 0.3, 0.8);
+    }
+
+    update(deltaTime, attractors = []) {
+        // Age the particle
+        this.life -= deltaTime;
+        
+        // Apply attraction forces if in attraction mode
+        if (attractors.length > 0) {
+            const attractionForce = new THREE.Vector3();
+            
+            attractors.forEach(attractor => {
+                const direction = new THREE.Vector3().subVectors(attractor.position, this.position);
+                const distance = direction.length();
+                
+                if (distance > VISUAL_CONFIG.attraction.minDistance) { // Avoid division by zero
+                    direction.normalize();
+                    
+                    // Base attraction strength
+                    let strength = Math.min(VISUAL_CONFIG.attraction.baseStrength / (distance * distance + VISUAL_CONFIG.attraction.distanceOffset), VISUAL_CONFIG.attraction.maxStrength);
+                    
+                    // Apply intensity multiplier for convergence
+                    const intensity = attractor.intensity || 1.0;
+                    strength *= intensity;
+                    
+                    attractionForce.add(direction.multiplyScalar(strength));
+                }
+            });
+            
+            this.velocity.add(attractionForce);
+            
+            // Apply drag to prevent infinite acceleration (less drag during intense attraction)
+            const maxIntensity = Math.max(...attractors.map(a => a.intensity || 1.0));
+            const dragMultiplier = maxIntensity > VISUAL_CONFIG.attraction.intensityThreshold ? VISUAL_CONFIG.attraction.drag.intense : VISUAL_CONFIG.attraction.drag.normal;
+            this.velocity.multiplyScalar(dragMultiplier);
+        }
+        
+        // Update position
+        this.position.add(new THREE.Vector3().copy(this.velocity).multiplyScalar(deltaTime));
+        
+        // Check if particle should be reset
+        if (this.life <= 0 || this.position.length() > VISUAL_CONFIG.particles.resetDistance) {
+            this.reset();
+        }
+    }
+
+    isDead() {
+        return this.life <= 0;
+    }
+
+    getOpacity() {
+        // Fade out as particle ages
+        return Math.max(0, this.life / this.maxLife);
+    }
+}
+
+// ParticleSystem class to manage all particles
+class ParticleSystem {
+    constructor(count = VISUAL_CONFIG.particles.count) {
+        this.particles = [];
+        this.attractionMode = false;
+        this.attractors = [];
+        this.cameraPosition = new THREE.Vector3();
+        
+        // Create particles
+        for (let i = 0; i < count; i++) {
+            this.particles.push(new Particle());
+        }
+        
+        // Create Three.js geometry and material for spheres
+        this.sphereGeometry = new THREE.SphereGeometry(VISUAL_CONFIG.particles.size, 8, 6); // Small spheres with low detail for performance
+        this.material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        
+        // Create instanced mesh for efficient rendering of many spheres
+        this.instancedMesh = new THREE.InstancedMesh(this.sphereGeometry, this.material, count);
+        
+        // Initialize matrices and colors for each instance
+        this.dummy = new THREE.Object3D();
+        this.colorArray = new Float32Array(count * 3);
+        this.opacityArray = new Float32Array(count);
+        
+        // Set up instance color attribute
+        this.instancedMesh.instanceColor = new THREE.InstancedBufferAttribute(this.colorArray, 3);
+        
+        console.log(`Created particle system with ${count} sphere particles`);
+    }
+
+    setCameraPosition(position) {
+        this.cameraPosition.copy(position);
+    }
+
+    update(deltaTime) {
+        const maxDepth = VISUAL_CONFIG.particles.depthEffect.maxDistance; // Maximum distance from camera for depth calculation
+        
+        // Update each particle
+        this.particles.forEach((particle, index) => {
+            particle.update(deltaTime, this.attractionMode ? this.attractors : []);
+            
+            // Update instance matrix (position and scale)
+            this.dummy.position.copy(particle.position);
+            this.dummy.updateMatrix();
+            this.instancedMesh.setMatrixAt(index, this.dummy.matrix);
+            
+            // Calculate depth-based brightness
+            const distanceFromCamera = this.cameraPosition.distanceTo(particle.position);
+            const normalizedDepth = Math.min(distanceFromCamera / maxDepth, 1.0);
+            const depthBrightness = 1.0 - (normalizedDepth * VISUAL_CONFIG.particles.depthEffect.dimming); // Closer = brighter, further = dimmer
+            
+            // Combine original color with depth brightness and life opacity
+            const lifeOpacity = particle.getOpacity();
+            
+            // Enhanced brightness during intense attraction (convergence)
+            let intensityMultiplier = 1.0;
+            if (this.attractionMode && this.attractors.length > 0) {
+                // Check if any attractor has intensity (convergence mode)
+                const maxIntensity = Math.max(...this.attractors.map(a => a.intensity || 1.0));
+                intensityMultiplier = maxIntensity;
+            }
+            
+            const finalBrightness = depthBrightness * lifeOpacity * intensityMultiplier;
+            
+            // Update instance color with enhanced brightness
+            const i3 = index * 3;
+            this.colorArray[i3] = particle.originalColor.r * finalBrightness;
+            this.colorArray[i3 + 1] = particle.originalColor.g * finalBrightness;
+            this.colorArray[i3 + 2] = particle.originalColor.b * finalBrightness;
+        });
+        
+        // Mark attributes as needing update
+        this.instancedMesh.instanceMatrix.needsUpdate = true;
+        this.instancedMesh.instanceColor.needsUpdate = true;
+    }
+
+    addToScene(scene) {
+        scene.add(this.instancedMesh);
+        console.log('Sphere particle system added to scene');
+    }
+
+    removeFromScene(scene) {
+        scene.remove(this.instancedMesh);
+        console.log('Sphere particle system removed from scene');
+    }
+
+    setAttractionMode(enabled, attractors = []) {
+        this.attractionMode = enabled;
+        this.attractors = attractors;
+        console.log(`Particle attraction mode: ${enabled ? 'enabled' : 'disabled'}`);
+    }
+
+    dispose() {
+        this.sphereGeometry.dispose();
+        this.material.dispose();
+        this.instancedMesh.dispose();
+    }
+}
+
+// EyeShape class for individual eye-textured 3D shapes
+class EyeShape {
+    constructor(textureUrl, shapeType = 'cube') {
+        this.textureUrl = textureUrl;
+        this.shapeType = shapeType;
+        this.mesh = null;
+        this.position = new THREE.Vector3();
+        this.orbitalRadius = VISUAL_CONFIG.shapes.orbital.radius.min + Math.random() * (VISUAL_CONFIG.shapes.orbital.radius.max - VISUAL_CONFIG.shapes.orbital.radius.min); // Random radius between configured min-max
+        this.orbitalSpeed = VISUAL_CONFIG.shapes.orbital.speed.min + Math.random() * (VISUAL_CONFIG.shapes.orbital.speed.max - VISUAL_CONFIG.shapes.orbital.speed.min); // Random speed
+        this.orbitalPlane = this.generateRandomPlane();
+        this.orbitalAngle = Math.random() * Math.PI * 2; // Random starting angle
+        this.rotationSpeed = new THREE.Vector3(
+            (Math.random() - 0.5) * VISUAL_CONFIG.shapes.rotation.speed,
+            (Math.random() - 0.5) * VISUAL_CONFIG.shapes.rotation.speed,
+            (Math.random() - 0.5) * VISUAL_CONFIG.shapes.rotation.speed
+        );
+        this.isLoaded = false;
+        this.id = `eye_shape_${Date.now()}_${Math.random()}`;
+        
+        // Convergence animation properties
+        this.isConverging = false;
+        this.convergenceProgress = 0; // 0 to 1
+        this.convergenceDuration = VISUAL_CONFIG.shapes.convergence.duration; // seconds
+        this.initialRadius = this.orbitalRadius;
+        this.initialSpeed = this.orbitalSpeed;
+        this.convergenceStartTime = 0;
+        this.targetRadius = VISUAL_CONFIG.shapes.convergence.targetRadius; // Final radius at center
+        this.speedMultiplier = 1.0;
+        
+        this.createShape();
+    }
+
+    generateRandomPlane() {
+        // Generate a random orbital plane by creating two orthogonal vectors
+        const normal = new THREE.Vector3(
+            Math.random() - 0.5,
+            Math.random() - 0.5,
+            Math.random() - 0.5
+        ).normalize();
+        
+        // Create a tangent vector perpendicular to the normal
+        const tangent = new THREE.Vector3();
+        if (Math.abs(normal.x) < 0.9) {
+            tangent.set(1, 0, 0);
+        } else {
+            tangent.set(0, 1, 0);
+        }
+        tangent.cross(normal).normalize();
+        
+        // Create binormal vector
+        const binormal = new THREE.Vector3().crossVectors(normal, tangent);
+        
+        return { normal, tangent, binormal };
+    }
+
+    createShape() {
+        // Define different geometric shapes
+        const geometries = {
+            cube: new THREE.BoxGeometry(VISUAL_CONFIG.shapes.sizes.cube, VISUAL_CONFIG.shapes.sizes.cube, VISUAL_CONFIG.shapes.sizes.cube),
+            bipyramid: this.createBipyramidGeometry(),
+            pentagon: new THREE.CylinderGeometry(VISUAL_CONFIG.shapes.sizes.pentagon.radius, VISUAL_CONFIG.shapes.sizes.pentagon.radius, VISUAL_CONFIG.shapes.sizes.pentagon.height, 5) // 3D pentagon (pentagonal prism)
+        };
+
+        const geometry = geometries[this.shapeType] || geometries.cube;
+        
+        // Create material with placeholder until texture loads
+        const material = new THREE.MeshLambertMaterial({
+            color: 0x888888,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        this.mesh = new THREE.Mesh(geometry, material);
+        
+        // Load the eye texture
+        this.loadTexture();
+    }
+
+    createBipyramidGeometry() {
+        // Create a bipyramid (two pyramids joined at their base)
+        // This is essentially an octahedron, but we'll create it explicitly as two pyramids
+        const geometry = new THREE.OctahedronGeometry(VISUAL_CONFIG.shapes.sizes.bipyramid);
+        return geometry;
+    }
+
+    loadTexture() {
+        const loader = new THREE.TextureLoader();
+        
+        loader.load(
+            this.textureUrl,
+            (texture) => {
+                // Texture loaded successfully
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.minFilter = THREE.LinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                
+                // Update material with the eye texture
+                this.mesh.material.map = texture;
+                this.mesh.material.color.setHex(0xffffff); // Reset to white for proper texture display
+                this.mesh.material.needsUpdate = true;
+                
+                this.isLoaded = true;
+                console.log(`Eye texture loaded for shape: ${this.id}`);
+            },
+            (progress) => {
+                // Loading progress (optional)
+            },
+            (error) => {
+                console.error(`Failed to load eye texture: ${this.textureUrl}`, error);
+                // Keep the placeholder material
+            }
+        );
+    }
+
+    update(deltaTime) {
+        if (!this.mesh) return;
+
+        // Handle convergence animation
+        if (this.isConverging) {
+            this.updateConvergence(deltaTime);
+        }
+
+        // Update orbital position
+        this.orbitalAngle += (this.orbitalSpeed * this.speedMultiplier) * deltaTime;
+        
+        // Calculate position on the orbital plane
+        const x = Math.cos(this.orbitalAngle) * this.orbitalRadius;
+        const z = Math.sin(this.orbitalAngle) * this.orbitalRadius;
+        
+        // Transform to the random orbital plane
+        this.position.copy(this.orbitalPlane.tangent).multiplyScalar(x);
+        this.position.add(new THREE.Vector3().copy(this.orbitalPlane.binormal).multiplyScalar(z));
+        
+        // Apply position to mesh
+        this.mesh.position.copy(this.position);
+        
+        // Apply rotation (faster during convergence)
+        const rotationMultiplier = this.isConverging ? (1 + this.convergenceProgress * VISUAL_CONFIG.shapes.rotation.convergenceMultiplier) : 1;
+        this.mesh.rotation.x += this.rotationSpeed.x * rotationMultiplier;
+        this.mesh.rotation.y += this.rotationSpeed.y * rotationMultiplier;
+        this.mesh.rotation.z += this.rotationSpeed.z * rotationMultiplier;
+    }
+
+    startConvergence(currentTime) {
+        if (!this.isConverging) {
+            this.isConverging = true;
+            this.convergenceStartTime = currentTime;
+            this.convergenceProgress = 0;
+            console.log(`Starting convergence for shape: ${this.id}`);
+        }
+    }
+
+    updateConvergence(deltaTime) {
+        const currentTime = performance.now() / 1000; // Convert to seconds
+        const elapsed = currentTime - this.convergenceStartTime;
+        
+        // Calculate progress (0 to 1)
+        this.convergenceProgress = Math.min(elapsed / this.convergenceDuration, 1);
+        
+        // Easing function for smooth convergence (ease-in-out)
+        const easedProgress = this.easeInOutCubic(this.convergenceProgress);
+        
+        // Animate radius shrinking
+        this.orbitalRadius = this.initialRadius + (this.targetRadius - this.initialRadius) * easedProgress;
+        
+        // Animate speed acceleration (speeds up as it converges)
+        this.speedMultiplier = 1.0 + (easedProgress * VISUAL_CONFIG.shapes.convergence.speedMultiplier); // Up to configured max speed
+        
+        // Add intensity effects as convergence progresses
+        if (this.mesh && this.mesh.material) {
+            // Increase opacity and add glow effect
+            const intensity = 0.8 + (easedProgress * 0.4); // 0.8 to 1.2
+            this.mesh.material.opacity = Math.min(intensity, 1.0);
+            
+            // Scale effect - slightly larger as it converges
+            const scale = 1.0 + (easedProgress * VISUAL_CONFIG.shapes.convergence.scaleMultiplier);
+            this.mesh.scale.setScalar(scale);
+        }
+    }
+
+    easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    isConvergenceComplete() {
+        return this.isConverging && this.convergenceProgress >= 1.0;
+    }
+
+    resetConvergence() {
+        this.isConverging = false;
+        this.convergenceProgress = 0;
+        this.orbitalRadius = this.initialRadius;
+        this.speedMultiplier = 1.0;
+        
+        if (this.mesh) {
+            this.mesh.scale.setScalar(1.0);
+            if (this.mesh.material) {
+                this.mesh.material.opacity = 0.8;
+            }
+        }
+        
+        console.log(`Reset convergence for shape: ${this.id}`);
+    }
+
+    addToScene(scene) {
+        if (this.mesh) {
+            scene.add(this.mesh);
+        }
+    }
+
+    removeFromScene(scene) {
+        if (this.mesh) {
+            scene.remove(this.mesh);
+        }
+    }
+
+    dispose() {
+        if (this.mesh) {
+            if (this.mesh.material.map) {
+                this.mesh.material.map.dispose();
+            }
+            this.mesh.material.dispose();
+            this.mesh.geometry.dispose();
+        }
+    }
+
+    // Get position for particle attraction
+    getAttractionPosition() {
+        return this.position;
+    }
+}
+
+// ShapeManager class to handle dynamic eye shape lifecycle
+class ShapeManager {
+    constructor() {
+        this.shapes = new Map(); // Map of eye image URL to EyeShape
+        this.scene = null;
+        this.maxShapes = VISUAL_CONFIG.system.maxShapes; // Maximum number of shapes
+        this.shapeTypes = VISUAL_CONFIG.system.shapeTypes;
+    }
+
+    setScene(scene) {
+        this.scene = scene;
+    }
+
+    addEyeShape(eyeImageUrl, filename) {
+        // Don't add if we already have a shape for this eye image
+        if (this.shapes.has(eyeImageUrl)) {
+            console.log(`Shape already exists for: ${filename}`);
+            return null;
+        }
+
+        // Check if we've reached the maximum number of shapes
+        if (this.shapes.size >= this.maxShapes) {
+            console.log(`Maximum shapes reached (${this.maxShapes}), not adding new shape`);
+            return null;
+        }
+
+        // Create new eye shape with random geometry type
+        const randomShapeType = this.shapeTypes[Math.floor(Math.random() * this.shapeTypes.length)];
+        const eyeShape = new EyeShape(eyeImageUrl, randomShapeType);
+        
+        // Add to scene
+        if (this.scene) {
+            eyeShape.addToScene(this.scene);
+        }
+        
+        // Store the shape
+        this.shapes.set(eyeImageUrl, eyeShape);
+        
+        console.log(`Created new eye shape: ${eyeShape.id} (${randomShapeType}) for ${filename}`);
+        return eyeShape;
+    }
+
+    removeEyeShape(eyeImageUrl) {
+        const shape = this.shapes.get(eyeImageUrl);
+        if (shape) {
+            // Remove from scene
+            if (this.scene) {
+                shape.removeFromScene(this.scene);
+            }
+            
+            // Dispose resources
+            shape.dispose();
+            
+            // Remove from map
+            this.shapes.delete(eyeImageUrl);
+            
+            console.log(`Removed eye shape: ${shape.id}`);
+            return true;
+        }
+        return false;
+    }
+
+    update(deltaTime) {
+        // Update all shapes
+        for (const shape of this.shapes.values()) {
+            shape.update(deltaTime);
+        }
+    }
+
+    getAllShapes() {
+        return Array.from(this.shapes.values());
+    }
+
+    getAttractionPoints() {
+        // Return positions of all shapes for particle attraction
+        return this.getAllShapes().map(shape => ({
+            position: shape.getAttractionPosition(),
+            id: shape.id
+        }));
+    }
+
+    clearAllShapes() {
+        // Remove and dispose all shapes
+        for (const [url, shape] of this.shapes) {
+            if (this.scene) {
+                shape.removeFromScene(this.scene);
+            }
+            shape.dispose();
+        }
+        this.shapes.clear();
+        console.log('Cleared all eye shapes');
+    }
+
+    getShapeCount() {
+        return this.shapes.size;
+    }
+
+    dispose() {
+        this.clearAllShapes();
+    }
+
+    // Convergence animation methods
+    startConvergence() {
+        const currentTime = performance.now() / 1000;
+        
+        for (const shape of this.shapes.values()) {
+            shape.startConvergence(currentTime);
+        }
+        
+        console.log(`Started convergence animation for ${this.shapes.size} shapes`);
+    }
+
+    isConvergenceComplete() {
+        if (this.shapes.size === 0) return true;
+        
+        for (const shape of this.shapes.values()) {
+            if (!shape.isConvergenceComplete()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    resetConvergence() {
+        for (const shape of this.shapes.values()) {
+            shape.resetConvergence();
+        }
+        
+        console.log(`Reset convergence for ${this.shapes.size} shapes`);
+    }
+
+    getConvergenceProgress() {
+        if (this.shapes.size === 0) return 1.0;
+        
+        let totalProgress = 0;
+        for (const shape of this.shapes.values()) {
+            totalProgress += shape.convergenceProgress || 0;
+        }
+        return totalProgress / this.shapes.size;
+    }
+
+    // Enhanced attraction during convergence
+    getIntenseAttractionPoints() {
+        return this.getAllShapes().map(shape => ({
+            position: shape.getAttractionPosition(),
+            id: shape.id,
+            intensity: shape.isConverging ? (1.0 + shape.convergenceProgress * 2.0) : 1.0
+        }));
+    }
+}
+
 class TheatreClient {
     constructor() {
         this.socket = null;
@@ -8,6 +661,13 @@ class TheatreClient {
         this.renderer = null;
         this.animationMeshes = [];
         this.isAnimationTriggered = false;
+        
+        // Visual effects system
+        this.particleSystem = null;
+        this.shapeManager = null; // New shape manager for eye-textured shapes
+        this.eyeShapes = []; // Legacy - keeping for compatibility
+        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence
+        this.lastTime = 0;
         
         this.init();
     }
@@ -222,8 +882,38 @@ class TheatreClient {
         directionalLight.position.set(1, 1, 1);
         this.scene.add(directionalLight);
 
-        // Create some placeholder meshes for the animation
+        // Initialize visual effects system
+        this.initVisualEffects();
+
+        // Create some placeholder meshes for the animation (keep as backup)
         this.createPlaceholderMeshes();
+        
+        // Hide placeholder meshes initially since we start with particles
+        this.setPlaceholderMeshesVisibility(false);
+    }
+
+    initVisualEffects() {
+        console.log('Initializing visual effects system...');
+        
+        // Initialize particle system (Phase 1)
+        this.particleSystem = new ParticleSystem(VISUAL_CONFIG.particles.count); // Start with configured particle count
+        this.particleSystem.addToScene(this.scene);
+        
+        // Initialize shape manager (Phase 2)
+        this.shapeManager = new ShapeManager();
+        this.shapeManager.setScene(this.scene);
+        
+        // Set initial visual phase
+        this.visualPhase = 1;
+        this.lastTime = performance.now();
+        
+        console.log('Visual effects system initialized - Phase 1: Particle system active, ShapeManager ready');
+    }
+
+    setPlaceholderMeshesVisibility(visible) {
+        this.animationMeshes.forEach(mesh => {
+            mesh.visible = visible;
+        });
     }
 
     createPlaceholderMeshes() {
@@ -292,17 +982,85 @@ class TheatreClient {
             container.insertBefore(img, container.firstChild);
         }
         
-        // Keep only last 20 eye images
-        while (container.children.length > 20) {
+        // Keep only last configured number of eye images
+        while (container.children.length > VISUAL_CONFIG.system.maxEyeImages) {
             container.removeChild(container.lastChild);
         }
+
+        // Create 3D eye shape if we're in Phase 2 or higher
+        if (this.visualPhase >= 2 && this.shapeManager) {
+            const eyeShape = this.shapeManager.addEyeShape(url, filename);
+            if (eyeShape) {
+                this.addDebugMessage(`Created 3D eye shape: ${eyeShape.shapeType} for ${filename}`, 'success');
+            }
+        }
+
+        // Check if we should transition to Phase 2 (eye shapes)
+        this.checkVisualPhaseTransition();
+    }
+
+    checkVisualPhaseTransition() {
+        const eyeImages = document.querySelectorAll('#eye-images-container .eye-image');
+        
+        // Transition to Phase 2 when we have at least one eye image
+        if (this.visualPhase === 1 && eyeImages.length > 0) {
+            this.transitionToPhase2();
+        }
+    }
+
+    transitionToPhase2() {
+        console.log('Transitioning to Phase 2: Particles + Eye Shapes');
+        this.visualPhase = 2;
+        
+        // Create eye shapes for existing eye images
+        if (this.shapeManager) {
+            const eyeImages = document.querySelectorAll('#eye-images-container .eye-image');
+            eyeImages.forEach(img => {
+                const eyeShape = this.shapeManager.addEyeShape(img.src, img.alt);
+                if (eyeShape) {
+                    console.log(`Created eye shape for existing image: ${eyeShape.shapeType}`);
+                }
+            });
+            
+            // Enable particle attraction to eye shapes
+            if (this.particleSystem) {
+                const attractionPoints = this.shapeManager.getAttractionPoints();
+                this.particleSystem.setAttractionMode(true, attractionPoints);
+                console.log(`Enabled particle attraction to ${attractionPoints.length} eye shapes`);
+            }
+        }
+        
+        this.addDebugMessage(`Visual Phase 2: Eye shapes system activated (${this.shapeManager ? this.shapeManager.getShapeCount() : 0} shapes)`, 'success');
+    }
+
+    // Method to be called by external animation trigger
+    transitionToPhase3() {
+        console.log('Transitioning to Phase 3: Convergence Animation');
+        this.visualPhase = 3;
+        
+        // Start convergence animation for all eye shapes
+        if (this.shapeManager) {
+            this.shapeManager.startConvergence();
+            
+            // Enable intense particle attraction
+            if (this.particleSystem) {
+                const intenseAttractionPoints = this.shapeManager.getIntenseAttractionPoints();
+                this.particleSystem.setAttractionMode(true, intenseAttractionPoints);
+                console.log(`Enabled intense particle attraction with ${intenseAttractionPoints.length} convergence points`);
+            }
+        }
+        
+        this.addDebugMessage(`Visual Phase 3: Convergence animation started (${this.shapeManager ? this.shapeManager.getShapeCount() : 0} shapes converging)`, 'success');
     }
 
     triggerFinalAnimation() {
         console.log('Starting final animation...');
         this.isAnimationTriggered = true;
         
-        // Animate meshes forming into a sphere and flowing
+        // Transition to Phase 3 (convergence animation) 
+        this.transitionToPhase3();
+        
+        // Keep existing placeholder mesh animation as backup
         this.animationMeshes.forEach((mesh, index) => {
             // Calculate position on sphere
             const phi = Math.acos(-1 + (2 * index) / this.animationMeshes.length);
@@ -317,7 +1075,29 @@ class TheatreClient {
             this.animateToPosition(mesh, targetX, targetY, targetZ, 2000);
         });
 
-        this.addDebugMessage('Final animation triggered');
+        this.addDebugMessage('Final animation triggered - convergence animation started');
+    }
+
+    resetAnimation() {
+        console.log('Resetting convergence animation...');
+        
+        // Reset convergence state
+        if (this.shapeManager) {
+            this.shapeManager.resetConvergence();
+        }
+        
+        // Reset to appropriate phase based on eye images
+        const eyeImages = document.querySelectorAll('#eye-images-container .eye-image');
+        if (eyeImages.length > 0) {
+            this.visualPhase = 2; // Back to particle + shapes phase
+            this.addDebugMessage('Reset to Phase 2: Particles + Eye Shapes');
+        } else {
+            this.visualPhase = 1; // Back to particles only
+            this.addDebugMessage('Reset to Phase 1: Particles Only');
+        }
+        
+        this.isAnimationTriggered = false;
+        this.addDebugMessage('Animation reset complete');
     }
 
     animateToPosition(mesh, x, y, z, duration) {
@@ -345,7 +1125,83 @@ class TheatreClient {
     animate() {
         requestAnimationFrame(() => this.animate());
 
-        // Rotate meshes
+        // Calculate delta time for smooth animation
+        const currentTime = performance.now();
+        const deltaTime = (currentTime - this.lastTime) / 1000; // Convert to seconds
+        this.lastTime = currentTime;
+
+        // Update visual effects based on current phase
+        this.updateVisualEffects(deltaTime);
+
+        // Update placeholder meshes (backup system)
+        this.updatePlaceholderMeshes(deltaTime);
+
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    updateVisualEffects(deltaTime) {
+        switch (this.visualPhase) {
+            case 1: // Particles only
+                if (this.particleSystem) {
+                    // Update camera position for depth-based brightness
+                    this.particleSystem.setCameraPosition(this.camera.position);
+                    this.particleSystem.update(deltaTime);
+                }
+                break;
+                
+            case 2: // Particles + Eye shapes
+                if (this.particleSystem) {
+                    // Update camera position for depth-based brightness
+                    this.particleSystem.setCameraPosition(this.camera.position);
+                    
+                    // Update attraction points from orbiting eye shapes
+                    if (this.shapeManager) {
+                        const attractionPoints = this.shapeManager.getAttractionPoints();
+                        this.particleSystem.setAttractionMode(true, attractionPoints);
+                    }
+                    
+                    this.particleSystem.update(deltaTime);
+                }
+                
+                // Update eye shapes (orbital animation)
+                if (this.shapeManager) {
+                    this.shapeManager.update(deltaTime);
+                }
+                break;
+                
+            case 3: // Convergence animation
+                if (this.particleSystem) {
+                    // Update camera position for depth-based brightness
+                    this.particleSystem.setCameraPosition(this.camera.position);
+                    
+                    // Use intense attraction points during convergence
+                    if (this.shapeManager) {
+                        const intenseAttractionPoints = this.shapeManager.getIntenseAttractionPoints();
+                        this.particleSystem.setAttractionMode(true, intenseAttractionPoints);
+                        
+                        // Check if convergence is complete
+                        if (this.shapeManager.isConvergenceComplete()) {
+                            const progress = this.shapeManager.getConvergenceProgress();
+                            if (progress >= 1.0) {
+                                this.addDebugMessage('Convergence animation completed! All shapes have reached the center.', 'success');
+                                // Optional: Could transition to a new phase or loop
+                            }
+                        }
+                    }
+                    
+                    this.particleSystem.update(deltaTime);
+                }
+                
+                // Update eye shapes during convergence
+                if (this.shapeManager) {
+                    this.shapeManager.update(deltaTime);
+                }
+                break;
+        }
+    }
+
+    updatePlaceholderMeshes(deltaTime) {
+        // Keep existing placeholder mesh animation as backup
         this.animationMeshes.forEach((mesh, index) => {
             mesh.rotation.x += 0.01;
             mesh.rotation.y += 0.01;
@@ -357,8 +1213,6 @@ class TheatreClient {
                 mesh.position.y += Math.cos(time + index) * 0.002;
             }
         });
-
-        this.renderer.render(this.scene, this.camera);
     }
 
     onWindowResize() {
@@ -396,6 +1250,15 @@ class TheatreClient {
             this.socket.emit('trigger_animation_test');
             this.addDebugMessage('Requested animation trigger from server');
         });
+
+        // Reset animation button
+        const resetAnimationBtn = document.getElementById('reset-animation');
+        if (resetAnimationBtn) {
+            resetAnimationBtn.addEventListener('click', () => {
+                this.resetAnimation();
+                this.addDebugMessage('Reset convergence animation');
+            });
+        }
 
         // Test image processing button
         const testProcessingBtn = document.getElementById('test-processing');
@@ -707,6 +1570,26 @@ class TheatreClient {
     requestExistingEyes() {
         this.socket.emit('request_existing_eyes');
         this.addDebugMessage('Requested existing eye images');
+    }
+
+    // Visual effects cleanup
+    dispose() {
+        if (this.particleSystem) {
+            this.particleSystem.dispose();
+            this.particleSystem = null;
+        }
+        
+        if (this.shapeManager) {
+            this.shapeManager.dispose();
+            this.shapeManager = null;
+        }
+        
+        // Clear status update interval
+        if (this.statusUpdateInterval) {
+            clearInterval(this.statusUpdateInterval);
+        }
+        
+        console.log('Theatre client disposed');
     }
 }
 
