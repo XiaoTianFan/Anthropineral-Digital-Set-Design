@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experimental Theatre - Digital Program</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <h1>Experimental Theatre</h1>
+            <div id="connection-status">Connecting...</div>
+        </header>
+
+        <!-- Eye Images Display Area -->
+        <section id="eye-display-section">
+            <h2>Eyes from the Audience</h2>
+            <div id="eye-images-container">
+                <!-- Eye images will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Three.js Animation Canvas -->
+        <section id="animation-section">
+            <div id="three-canvas-container">
+                <!-- Three.js canvas will be inserted here -->
+            </div>
+        </section>
+
+        <!-- Debug Panel (can be hidden in production) -->
+        <section id="debug-panel">
+            <h3>Debug Panel</h3>
+            <div id="debug-messages"></div>
+            <button id="test-connection">Test Connection</button>
+            <button id="test-animation">Test Animation Trigger</button>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/client.js') }}"></script>
+</body>
+</html> 

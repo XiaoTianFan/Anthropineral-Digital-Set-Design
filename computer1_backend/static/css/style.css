@@ -1,0 +1,200 @@
+/* Experimental Theatre Digital Program - Stylesheet */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+    color: #ffffff;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+#app {
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    padding: 20px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid #444;
+}
+
+header h1 {
+    font-size: 2.5em;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    margin-bottom: 10px;
+}
+
+#connection-status {
+    font-size: 1.1em;
+    padding: 5px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+#connection-status.connected {
+    background: #4CAF50;
+    color: white;
+}
+
+#connection-status.disconnected {
+    background: #f44336;
+    color: white;
+}
+
+#connection-status.connecting {
+    background: #ff9800;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* Eye Display Section */
+#eye-display-section {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+#eye-display-section h2 {
+    font-size: 2em;
+    margin-bottom: 30px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+#eye-images-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.eye-image {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #444;
+    transition: all 0.5s ease;
+    opacity: 0;
+    transform: scale(0.8);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.eye-image.loaded {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.eye-image:hover {
+    border-color: #fff;
+    box-shadow: 0 6px 25px rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+/* Animation Section */
+#animation-section {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    overflow: hidden;
+}
+
+#three-canvas-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#three-canvas-container canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Debug Panel */
+#debug-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #444;
+    max-width: 300px;
+    font-size: 0.9em;
+}
+
+#debug-panel h3 {
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+#debug-messages {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.8em;
+}
+
+#debug-panel button {
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    padding: 8px 12px;
+    margin: 5px 5px 5px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#debug-panel button:hover {
+    background: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2em;
+    }
+    
+    #eye-images-container {
+        gap: 10px;
+    }
+    
+    .eye-image {
+        width: 100px;
+        height: 70px;
+    }
+    
+    #debug-panel {
+        bottom: 10px;
+        right: 10px;
+        max-width: 250px;
+    }
+}
+
+/* Hide debug panel in production */
+body.production #debug-panel {
+    display: none;
+} 
