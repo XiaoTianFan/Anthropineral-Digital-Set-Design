@@ -5,29 +5,42 @@ A digital program for experimental theatre that processes audience photos and cr
 ## Project Overview
 
 This system consists of:
-1. **Image Processing Pipeline**: Automatically detects faces and crops eyes from photos using OpenCV
-2. **Visual Client**: Web-based interface that displays processed eye images and creates animated 3D visualizations
-3. **Real-time Communication**: Socket.IO for live updates between image processing and visual display
-4. **File Monitoring**: Automatic processing of new images added to the originals folder
+1. **🤖 SD Card Auto-Import Pipeline**: Automatically detects camera SD cards and imports new images with real-time progress tracking
+2. **Image Processing Pipeline**: Automatically detects faces and crops eyes from photos using OpenCV
+3. **Visual Client**: Web-based interface that displays processed eye images and creates animated 3D visualizations
+4. **Real-time Communication**: Socket.IO for live updates between all system components
+5. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
 
 ## Current Status
 
-### ✅ **Milestone 2: Image Processing Core - COMPLETED**
-- **Image Processor**: Complete OpenCV face/eye detection with fallback generation
-- **File Monitoring**: Automatic processing using watchdog when new images are added
-- **Real-time Updates**: Socket.IO integration for live status and image notifications
-- **Client Interface**: Responsive web client with status indicators and debugging tools
-- **Error Handling**: Comprehensive logging and fallback mechanisms
+### ✅ **Milestone 3: SD Card Auto-Import System - COMPLETED** 🌟
+- **🤖 Complete Auto-Import Pipeline**: SD Card → Detection → Import → Eye Processing → Real-time Display
+- **Intelligent SD Card Detection**: Camera-specific folder recognition (DCIM, 102EOS5D, etc.) using psutil
+- **Background Import System**: Multi-threaded file copying with concurrent processing and real-time progress
+- **Duplicate Prevention**: SHA-256 hash-based detection prevents re-importing same files
+- **Professional UI**: Configuration panel with toggle switches, progress bars, and live status indicators
+- **Auto-Import Configuration**: Web-based controls with robot emoji indicators (🤖) for auto-import operations
+- **Error Handling**: Comprehensive recovery mechanisms and retry logic
+- **Seamless Integration**: Automatic trigger of eye detection pipeline when images are imported
 
-### ✅ **Status Communication Bug - FIXED**
-**Previous Issue**: When using `run.py`, the image processor status showed as "Error" in the web client, even though the processor initialized correctly when running `main_server.py` directly.
+### ✅ **All Previous Milestones Completed**
+- **Image Processor**: Complete OpenCV face/eye detection with fallback generation ✅
+- **File Monitoring**: Automatic processing using watchdog when new images are added ✅
+- **Real-time Updates**: Socket.IO integration for live status and image notifications ✅
+- **Client Interface**: Responsive web client with status indicators and debugging tools ✅
+- **Eye Images Display**: Automatic loading of existing eye images with real-time updates ✅
+- **Status Communication**: All initialization bugs resolved, both startup methods work correctly ✅
 
-**Root Cause**: The `run.py` script imported the Flask app but didn't trigger the startup sequence that initializes the image processor.
+### 🎉 **Production-Ready Auto-Workflow**
+**Complete Automated Theatre Experience:**
+1. **Insert SD Card** → Automatic detection within seconds
+2. **Auto-Import** → Background processing with progress tracking  
+3. **Eye Detection** → Immediate processing of imported images
+4. **Real-time Display** → Instant appearance of eye images in web interface
+5. **Professional Monitoring** → Live status updates and configuration controls
 
-**Solution**: Updated `run.py` to properly trigger the startup sequence, ensuring it behaves identically to running `main_server.py` directly.
-
-### 🔄 **Next Priority: SD Card Integration**
-With the core image processing pipeline working reliably, the next milestone is implementing automatic SD card detection and image import functionality.
+### 🔄 **Next Priority: Animation Enhancement**
+With the complete auto-import pipeline operational, the next milestone is integrating real eye images into Three.js animations for the final theatre experience.
 
 ## Setup Instructions
 
@@ -89,6 +102,12 @@ The client interface includes:
 
 ### 3. System Operation
 
+#### **Automatic Eye Images Display**
+1. **Client Connection**: When you open the web interface, existing eye images automatically load
+2. **Real-time Updates**: New processed eye images appear immediately in the debug panel
+3. **Collapsible View**: Eye images section can be expanded/collapsed in the debug panel
+4. **Manual Refresh**: Use "Refresh Eye Images" button to reload existing images
+
 #### **Testing the Image Processing**
 1. **Add Test Images**: Copy any images with faces to `Program/computer1_backend/data/originals/`
 2. **Automatic Processing**: The system will automatically detect and process new images
@@ -100,59 +119,103 @@ The client interface includes:
 - **Test Processing**: Generate and process a test face image
 - **Refresh Status**: Manually request status updates
 - **Clear Images**: Remove displayed eye images
+- **Refresh Eye Images**: Clear and reload existing eye images from server
 - **Clear Debug**: Clear debug message history
+- **Toggle Panel**: Use 🔧 button to show/hide debug panel
+- **Collapsible Sections**: Click section headers to expand/collapse content
+
+#### **🤖 SD Card Auto-Import System** (NEW!)
+1. **Auto-Detection**: Insert any camera SD card and the system automatically detects it within seconds
+2. **Configuration**: Use the "Auto-Import Settings" toggle in the SD Card Management section to enable/disable auto-import
+3. **Automatic Import**: When enabled, new images are automatically imported in the background with real-time progress tracking
+4. **Progress Monitoring**: Watch live progress bars and status updates during import operations
+5. **Manual Control**: Use "Import New" or "Import All" buttons for manual import control
+6. **Status Indicators**: 
+   - 🤖 Robot emoji indicates auto-import operations
+   - Live card detection with size, image count, and mount point information
+   - Real-time import status (Ready/Importing/Error)
+7. **Seamless Pipeline**: Imported images automatically trigger eye detection and appear in the display
 
 ## Implementation Status
 
 ### ✅ **Completed Components**
 - **Flask Server**: Full Socket.IO integration with status tracking
+- **🌟 SD Card Auto-Import System**: Complete pipeline with intelligent detection, background processing, and professional UI
 - **Image Processor**: OpenCV face/eye detection with comprehensive error handling
 - **File Monitoring**: Watchdog-based automatic processing of new images  
-- **Client Interface**: Complete web interface with real-time updates
+- **Client Interface**: Complete web interface with real-time updates and auto-import controls
 - **Three.js Integration**: Basic 3D scene setup for future animations
-- **Real-time Communication**: Bidirectional Socket.IO events
-- **Debug Tools**: Comprehensive testing and status monitoring
+- **Real-time Communication**: Bidirectional Socket.IO events with comprehensive auto-import events
+- **Debug Tools**: Comprehensive testing and status monitoring with SD card management
+- **Eye Images Display**: Automatic loading and real-time display of processed eye images
+- **UI Layout**: Clean performance interface with collapsible debug panel and auto-import configuration
+- **Auto-Import Configuration**: Professional toggle controls with live status indicators and progress tracking
 
 ### 🚧 **Current Issues**
-None - All core functionality is working correctly.
+None - All core functionality including complete SD card auto-import pipeline is working correctly! 🎉
 
 ### 🔄 **Next Milestones**
-1. **SD Card Integration**: Automatic SD card detection and image import  
-2. **Animation Enhancement**: Integrate real eye images into Three.js animations
-3. **Keyboard Triggers**: Global hotkey support for animation control
+1. **Animation Enhancement**: Integrate real eye images into Three.js animations for the final theatre experience
+2. **Keyboard Triggers**: Global hotkey support for animation control
+3. **Final Polish**: Performance optimization and production deployment features
 
 ## Technical Architecture
 
 ### **Image Processing Pipeline**
-1. **Input**: Images placed in `data/originals/` folder
+1. **Input**: Images placed in `data/originals/` folder (manually or via SD card auto-import)
 2. **Processing**: OpenCV Haar cascade face/eye detection
 3. **Output**: Cropped eye images saved to `data/cropped_eyes/`
 4. **Notification**: Real-time Socket.IO events to connected clients
 5. **Fallback**: Dummy eye generation when detection fails
 
+### **🤖 SD Card Auto-Import System** (NEW!)
+1. **Detection**: Intelligent SD card recognition using psutil with camera-specific folder patterns
+2. **Monitoring**: Background polling for drive changes and SD card insertion/removal
+3. **Import Engine**: Multi-threaded file copying with SHA-256 duplicate prevention
+4. **Progress Tracking**: Real-time status updates via Socket.IO with progress bars
+5. **Configuration**: Web-based toggle controls with live status indicators
+6. **Integration**: Seamless trigger of image processing pipeline for imported files
+7. **Error Handling**: Comprehensive recovery mechanisms and user feedback
+
+### **Eye Images Display System**
+- **Automatic Loading**: Existing eye images load when clients connect
+- **Real-time Updates**: New processed images appear immediately
+- **Smart Ordering**: Existing images chronological, new images at top
+- **Collapsible Interface**: Eye images section in debug panel
+- **Manual Refresh**: Button to reload existing images
+- **Image Limits**: Maximum 20 images displayed at once
+
 ### **Real-time Communication**
 - **Socket.IO Events**: 
-  - `connection_status`: System status updates
+  - `connection_status`: System status updates including SD card monitoring status
   - `new_eye_image_available`: New processed eye images
   - `trigger_final_animation`: Animation trigger events
-  - Client request events for testing and status
+  - `sd_card_detected`: SD card insertion with card information
+  - `sd_card_removed`: SD card removal notifications
+  - `auto_import_started`: 🤖 Auto-import initiation with card details
+  - `auto_import_completed`: 🤖 Auto-import completion with import statistics
+  - `auto_import_error`: 🤖 Auto-import error notifications
+  - `import_progress`: Real-time import progress updates with file counts and percentages
+  - Client request events for testing, status, and manual SD card operations
 
 ### **File Structure**
 ```
 computer1_backend/
-├── main_server.py          # Main Flask server with image processor integration
+├── main_server.py          # Main Flask server with image processor and SD card integration
 ├── image_processor.py      # OpenCV face/eye detection and file monitoring  
-├── run.py                  # Server startup script (has bug)
+├── sd_card_monitor.py      # 🤖 SD card detection, monitoring, and auto-import system
+├── run.py                  # Server startup script (recommended)
+├── test_auto_import.py     # Test script for SD card auto-import functionality
 ├── requirements.txt        # Python dependencies
 ├── data/
-│   ├── originals/          # Input images (monitored folder)
+│   ├── originals/          # Input images (monitored folder, auto-import destination)
 │   └── cropped_eyes/       # Processed eye images (served to client)
 ├── static/
-│   ├── js/                 # Client-side JavaScript
-│   ├── css/                # Styling
+│   ├── js/                 # Client-side JavaScript with auto-import UI
+│   ├── css/                # Styling including auto-import configuration controls
 │   └── other_images_for_animation/  # Assets for 3D animations
 └── templates/
-    └── index.html          # Main client interface
+    └── index.html          # Main client interface with SD card management panel
 ```
 
 ## Troubleshooting
@@ -177,6 +240,23 @@ computer1_backend/
 - Ensure all dependencies installed: `pip install -r requirements.txt`
 - Check Python version compatibility (3.8+)
 - Verify OpenCV cascade files are accessible
+
+### **🤖 SD Card Auto-Import Issues** (NEW!)
+- **SD Card Not Detected**: 
+  - Verify SD card contains camera folder structure (DCIM, etc.)
+  - Check if SD card is properly mounted and accessible
+  - Use "Scan for Cards" button to manually trigger detection
+  - Ensure SD card size is within supported range (32MB - 512GB)
+- **Auto-Import Not Working**:
+  - Check auto-import toggle is enabled in SD Card Management section
+  - Verify SD card contains image files with supported extensions
+  - Monitor console for import error messages
+  - Use manual "Import New" button to test import functionality
+- **Import Progress Stuck**:
+  - Check file permissions on SD card and originals folder
+  - Verify sufficient disk space for import operation
+  - Monitor console for file copy errors
+  - Try refreshing the page and checking import status
 
 ---
 

@@ -4,6 +4,7 @@ import os
 import threading
 import time
 from image_processor import ImageProcessor
+from sd_card_monitor import SDCardMonitor
 import socket
 
 app = Flask(__name__)
@@ -16,8 +17,9 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')
 CROPPED_EYES_DIR = os.path.join(DATA_DIR, 'cropped_eyes')
 ORIGINALS_DIR = os.path.join(DATA_DIR, 'originals')
 
-# Global image processor instance
+# Global instances
 image_processor = None
+sd_card_monitor = None
 
 @app.route('/')
 def index():
@@ -29,13 +31,40 @@ def serve_eye_image(filename):
     """Serve cropped eye images to the client"""
     return send_from_directory(CROPPED_EYES_DIR, filename)
 
+@app.route('/get_existing_eyes')
+def get_existing_eyes():
+    """Get list of existing eye images"""
+    try:
+        eye_files = []
+        if os.path.exists(CROPPED_EYES_DIR):
+            files = os.listdir(CROPPED_EYES_DIR)
+            # Filter for image files and sort by modification time (newest first)
+            image_files = [f for f in files if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+            image_files.sort(key=lambda f: os.path.getmtime(os.path.join(CROPPED_EYES_DIR, f)), reverse=True)
+            
+            # Limit to most recent 20 images
+            for filename in image_files[:20]:
+                eye_files.append({
+                    'filename': filename,
+                    'url': f'/eyes/{filename}',
+                    'timestamp': os.path.getmtime(os.path.join(CROPPED_EYES_DIR, filename))
+                })
+        
+        return {'status': 'success', 'eyes': eye_files}
+    except Exception as e:
+        print(f"Error getting existing eyes: {e}")
+        return {'status': 'error', 'message': str(e)}
+
 @app.route('/status')
 def get_status():
     """Get current system status"""
-    global image_processor
+    global image_processor, sd_card_monitor
     return {
         'image_processor_ready': image_processor is not None,
         'monitoring_active': image_processor.is_monitoring if image_processor else False,
+        'sd_card_monitoring_active': sd_card_monitor.is_monitoring if sd_card_monitor else False,
+        'current_sd_cards': sd_card_monitor.get_current_cards() if sd_card_monitor else [],
+        'import_in_progress': sd_card_monitor.is_importing if sd_card_monitor else False,
         'directories': {
             'originals': ORIGINALS_DIR,
             'cropped_eyes': CROPPED_EYES_DIR
@@ -79,8 +108,14 @@ def handle_connect():
     emit('connection_status', {
         'status': 'connected',
         'image_processor_ready': image_processor is not None,
-        'monitoring_active': image_processor.is_monitoring if image_processor else False
+        'monitoring_active': image_processor.is_monitoring if image_processor else False,
+        'sd_card_monitoring_active': sd_card_monitor.is_monitoring if sd_card_monitor else False,
+        'current_sd_cards': sd_card_monitor.get_current_cards() if sd_card_monitor else [],
+        'import_in_progress': sd_card_monitor.is_importing if sd_card_monitor else False
     })
+    
+    # Send existing eye images to the newly connected client
+    send_existing_eye_images()
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -135,12 +170,42 @@ def handle_animation_trigger():
 @socketio.on('request_status')
 def handle_status_request():
     """Handle request for current system status"""
-    global image_processor
+    global image_processor, sd_card_monitor
     emit('connection_status', {
         'status': 'connected',
         'image_processor_ready': image_processor is not None,
-        'monitoring_active': image_processor.is_monitoring if image_processor else False
+        'monitoring_active': image_processor.is_monitoring if image_processor else False,
+        'sd_card_monitoring_active': sd_card_monitor.is_monitoring if sd_card_monitor else False,
+        'current_sd_cards': sd_card_monitor.get_current_cards() if sd_card_monitor else [],
+        'import_in_progress': sd_card_monitor.is_importing if sd_card_monitor else False
     })
+
+@socketio.on('request_existing_eyes')
+def handle_request_existing_eyes():
+    """Handle request for existing eye images"""
+    send_existing_eye_images()
+
+def send_existing_eye_images():
+    """Send existing eye images to the requesting client"""
+    try:
+        if os.path.exists(CROPPED_EYES_DIR):
+            files = os.listdir(CROPPED_EYES_DIR)
+            # Filter for image files and sort by modification time (newest first)
+            image_files = [f for f in files if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+            image_files.sort(key=lambda f: os.path.getmtime(os.path.join(CROPPED_EYES_DIR, f)), reverse=True)
+            
+            # Send existing eye images (limit to most recent 20)
+            for filename in image_files[:20]:
+                emit('new_eye_image_available', {
+                    'filename': filename,
+                    'url': f'/eyes/{filename}',
+                    'timestamp': os.path.getmtime(os.path.join(CROPPED_EYES_DIR, filename)),
+                    'existing': True  # Flag to indicate this is an existing image
+                })
+            
+            print(f"Sent {min(len(image_files), 20)} existing eye images to client")
+    except Exception as e:
+        print(f"Error sending existing eye images: {e}")
 
 def emit_new_eye_image(image_filename):
     """Emit event when new eye image is available"""
@@ -176,7 +241,10 @@ def initialize_image_processor():
         socketio.emit('connection_status', {
             'status': 'connected',
             'image_processor_ready': True,
-            'monitoring_active': image_processor.is_monitoring
+            'monitoring_active': image_processor.is_monitoring,
+            'sd_card_monitoring_active': sd_card_monitor.is_monitoring if sd_card_monitor else False,
+            'current_sd_cards': sd_card_monitor.get_current_cards() if sd_card_monitor else [],
+            'import_in_progress': sd_card_monitor.is_importing if sd_card_monitor else False
         })
         
     except Exception as e:
@@ -190,8 +258,37 @@ def initialize_image_processor():
             'status': 'connected',
             'image_processor_ready': False,
             'monitoring_active': False,
+            'sd_card_monitoring_active': False,
+            'current_sd_cards': [],
+            'import_in_progress': False,
             'error': str(e)
         })
+
+def initialize_sd_card_monitor():
+    """Initialize the SD card monitor"""
+    global sd_card_monitor
+    
+    try:
+        print("Initializing SD card monitor...")
+        sd_card_monitor = SDCardMonitor(
+            socketio=socketio,
+            data_dir=DATA_DIR
+        )
+        
+        # Start monitoring for SD card changes
+        sd_card_monitor.start_monitoring()
+        
+        print("SD card monitor initialized and monitoring started")
+        
+        # Perform initial scan
+        initial_cards = sd_card_monitor.force_scan()
+        print(f"Initial SD card scan found {len(initial_cards)} cards")
+        
+    except Exception as e:
+        print(f"Error initializing SD card monitor: {e}")
+        import traceback
+        traceback.print_exc()
+        sd_card_monitor = None
 
 def get_local_ip():
     """Get the local IP address"""
@@ -227,16 +324,28 @@ def startup_sequence():
         print("\n🔧 Initializing Image Processor...")
         initialize_image_processor()
         
+        # Initialize SD card monitor
+        print("\n💾 Initializing SD Card Monitor...")
+        initialize_sd_card_monitor()
+        
         processor_status = "✅ Ready" if image_processor else "❌ Error"
         monitoring_status = "✅ Active" if (image_processor and image_processor.is_monitoring) else "❌ Inactive"
+        sd_monitor_status = "✅ Active" if (sd_card_monitor and sd_card_monitor.is_monitoring) else "❌ Inactive"
+        sd_cards_count = len(sd_card_monitor.get_current_cards()) if sd_card_monitor else 0
         
         print(f"\n🔧 System Status:")
-        print(f"   Image Processor: {processor_status}")
-        print(f"   File Monitoring: {monitoring_status}")
+        print(f"   Image Processor:  {processor_status}")
+        print(f"   File Monitoring:  {monitoring_status}")
+        print(f"   SD Card Monitor:  {sd_monitor_status}")
+        print(f"   SD Cards Found:   {sd_cards_count}")
         
         if image_processor is None:
             print("⚠️  WARNING: Image processor failed to initialize!")
             print("   Check the error messages above for details.")
+        
+        if sd_card_monitor is None:
+            print("⚠️  WARNING: SD card monitor failed to initialize!")
+            print("   SD card detection will not be available.")
         
         print(f"\n🚀 Ready for connections!")
         print("="*60)
@@ -245,6 +354,81 @@ def startup_sequence():
         print(f"❌ Error in startup sequence: {e}")
         import traceback
         traceback.print_exc()
+
+# SD Card Socket.IO Event Handlers
+@socketio.on('request_sd_card_scan')
+def handle_sd_card_scan():
+    """Handle request for SD card scan"""
+    global sd_card_monitor
+    if sd_card_monitor:
+        cards = sd_card_monitor.force_scan()
+        emit('sd_card_scan_result', {
+            'status': 'success',
+            'cards_found': len(cards),
+            'cards': cards
+        })
+    else:
+        emit('sd_card_scan_result', {
+            'status': 'error',
+            'message': 'SD card monitor not initialized'
+        })
+
+@socketio.on('request_sd_card_import')
+def handle_sd_card_import(data):
+    """Handle request to import from SD card"""
+    global sd_card_monitor
+    if not sd_card_monitor:
+        emit('sd_card_import_result', {
+            'status': 'error',
+            'message': 'SD card monitor not initialized'
+        })
+        return
+    
+    card_id = data.get('card_id')
+    import_new_only = data.get('import_new_only', True)
+    
+    if not card_id:
+        emit('sd_card_import_result', {
+            'status': 'error',
+            'message': 'No card ID provided'
+        })
+        return
+    
+    # Start import in background thread
+    def perform_import():
+        result = sd_card_monitor.import_from_card(card_id, import_new_only)
+        socketio.emit('sd_card_import_result', result)
+    
+    import_thread = threading.Thread(target=perform_import)
+    import_thread.daemon = True
+    import_thread.start()
+    
+    emit('sd_card_import_result', {
+        'status': 'started',
+        'message': 'Import started in background'
+    })
+
+@socketio.on('request_sd_card_status')
+def handle_sd_card_status_request():
+    """Handle request for SD card status"""
+    global sd_card_monitor
+    if sd_card_monitor:
+        cards = sd_card_monitor.get_current_cards()
+        emit('sd_card_status', {
+            'monitoring_active': sd_card_monitor.is_monitoring,
+            'current_cards': [card['label'] for card in cards],
+            'total_cards': len(cards),
+            'import_in_progress': sd_card_monitor.is_importing,
+            'cards': cards
+        })
+    else:
+        emit('sd_card_status', {
+            'monitoring_active': False,
+            'current_cards': [],
+            'total_cards': 0,
+            'import_in_progress': False,
+            'error': 'SD card monitor not initialized'
+        })
 
 if __name__ == '__main__':
     print("Starting Experimental Theatre Server...")
@@ -268,4 +452,6 @@ if __name__ == '__main__':
         print("\nShutting down server...")
         if image_processor:
             image_processor.stop_monitoring()
+        if sd_card_monitor:
+            sd_card_monitor.stop_monitoring()
         print("Server stopped.") 

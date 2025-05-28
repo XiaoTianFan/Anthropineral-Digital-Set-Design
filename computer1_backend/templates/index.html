@@ -3,65 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experimental Theatre - Digital Program</title>
+    <title>Digital Program</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div id="app">
-        <!-- Header -->
-        <header>
-            <h1>Experimental Theatre</h1>
-            <div class="status-info">
-                <div class="status-item">
-                    <span>Connection:</span>
-                    <span id="connection-status">Connecting...</span>
-                </div>
-                <div class="status-item">
-                    <span>Image Processor:</span>
-                    <span id="processor-status">Unknown</span>
-                </div>
-                <div class="status-item">
-                    <span>File Monitoring:</span>
-                    <span id="monitoring-status">Unknown</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Eye Images Display Area -->
-        <section id="eye-display-section">
-            <h2>Eyes from the Audience</h2>
-            <div id="eye-images-container">
-                <!-- Eye images will be dynamically added here -->
-            </div>
-        </section>
-
-        <!-- Three.js Animation Canvas -->
+        <!-- Three.js Animation Canvas - Now full screen -->
         <section id="animation-section">
             <div id="three-canvas-container">
                 <!-- Three.js canvas will be inserted here -->
             </div>
         </section>
 
-        <!-- Debug Panel (can be hidden in production) -->
-        <section id="debug-panel">
-            <h3>Debug Panel</h3>
-            <div class="debug-controls">
-                <div class="button-group">
-                    <button id="test-connection">Test Connection</button>
-                    <button id="test-processing">Test Image Processing</button>
-                    <button id="test-animation">Test Animation Trigger</button>
-                </div>
-                <div class="button-group">
-                    <button id="clear-eyes">Clear Eye Images</button>
-                    <button id="clear-debug">Clear Debug Messages</button>
-                </div>
-                <div class="button-group">
-                    <button onclick="client.sendTestMessage()">Send Test Message</button>
-                    <button onclick="client.requestTestProcessing()">Test Processing</button>
-                    <button onclick="client.requestStatusUpdate()">Refresh Status</button>
+        <!-- Debug Panel Toggle Button -->
+        <button id="debug-toggle" class="debug-toggle-btn">
+            <span>🔧</span>
+        </button>
+
+        <!-- Debug Panel (full height, collapsible) -->
+        <section id="debug-panel" class="debug-panel-expanded">
+            <div class="debug-header">
+                <h3>Debug Panel</h3>
+                <button id="debug-close" class="debug-close-btn">×</button>
+            </div>
+            
+            <!-- Status Section -->
+            <div class="debug-section">
+                <h4>System Status</h4>
+                <div class="status-info">
+                    <div class="status-item">
+                        <span>Connection:</span>
+                        <span id="connection-status">Connecting...</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Image Processor:</span>
+                        <span id="processor-status">Unknown</span>
+                    </div>
+                    <div class="status-item">
+                        <span>File Monitoring:</span>
+                        <span id="monitoring-status">Unknown</span>
+                    </div>
+                    <div class="status-item">
+                        <span>SD Card Monitor:</span>
+                        <span id="sd-monitor-status">Unknown</span>
+                    </div>
                 </div>
             </div>
-            <div id="debug-messages"></div>
+
+            <!-- SD Card Section (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('sd-card-section')">
+                    <h4>💾 SD Card Management</h4>
+                    <span class="toggle-arrow" id="sd-card-section-arrow">▼</span>
+                </div>
+                <div id="sd-card-section" class="collapsible-content">
+                    <div class="sd-card-status">
+                        <div class="status-item">
+                            <span>Cards Connected:</span>
+                            <span id="sd-cards-count">0</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Import Status:</span>
+                            <span id="import-status">Ready</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Auto-Import Configuration -->
+                    <div class="auto-import-config">
+                        <h5>🤖 Auto-Import Settings</h5>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Auto-Import:</span>
+                                <span class="config-description">Automatically import new images when SD card is detected</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="auto-import-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="auto-import-status" class="config-status">Enabled</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sd-cards-container">
+                        <!-- SD card info will be dynamically added here -->
+                        <div id="no-cards-message" class="info-message">
+                            No SD cards detected. Insert an SD card and click "Scan for Cards".
+                        </div>
+                    </div>
+                    
+                    <div class="sd-card-controls">
+                        <div class="button-group">
+                            <button id="scan-sd-cards">Scan for Cards</button>
+                            <button id="refresh-sd-status">Refresh Status</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Import Progress Section -->
+                    <div id="import-progress-container" style="display: none;">
+                        <h5>Import Progress</h5>
+                        <div class="progress-bar">
+                            <div id="import-progress-bar" class="progress-fill"></div>
+                        </div>
+                        <div class="progress-info">
+                            <span id="import-progress-text">0% - Preparing...</span>
+                        </div>
+                        <div class="import-details">
+                            <div>Current File: <span id="current-import-file">-</span></div>
+                            <div>Imported: <span id="imported-count">0</span> | Remaining: <span id="remaining-count">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eye Images Section (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('eye-section')">
+                    <h4>Eyes from the Audience</h4>
+                    <span class="toggle-arrow" id="eye-section-arrow">▼</span>
+                </div>
+                <div id="eye-section" class="collapsible-content">
+                    <div id="eye-images-container">
+                        <!-- Eye images will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debug Controls Section -->
+            <div class="debug-section">
+                <h4>Debug Controls</h4>
+                <div class="debug-controls">
+                    <div class="button-group">
+                        <button id="test-connection">Test Connection</button>
+                        <button id="test-processing">Test Image Processing</button>
+                        <button id="test-animation">Test Animation Trigger</button>
+                    </div>
+                    <div class="button-group">
+                        <button id="clear-eyes">Clear Eye Images</button>
+                        <button id="clear-debug">Clear Debug Messages</button>
+                        <button id="refresh-eyes">Refresh Eye Images</button>
+                    </div>
+                    <div class="button-group">
+                        <button onclick="client.sendTestMessage()">Send Test Message</button>
+                        <button onclick="client.requestTestProcessing()">Test Processing</button>
+                        <button onclick="client.requestStatusUpdate()">Refresh Status</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debug Messages Section -->
+            <div class="debug-section">
+                <h4>Debug Messages</h4>
+                <div id="debug-messages"></div>
+            </div>
         </section>
     </div>
 
@@ -69,5 +164,90 @@
     <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/client.js') }}"></script>
+    
+    <script>
+        // Debug panel toggle functionality
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debug-panel');
+            const toggleBtn = document.getElementById('debug-toggle');
+            
+            panel.classList.toggle('debug-panel-hidden');
+            panel.classList.toggle('debug-panel-expanded');
+            
+            if (panel.classList.contains('debug-panel-hidden')) {
+                toggleBtn.classList.add('visible');
+            } else {
+                toggleBtn.classList.remove('visible');
+            }
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const arrow = document.getElementById(sectionId + '-arrow');
+            
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                arrow.textContent = '▼';
+            } else {
+                section.style.display = 'none';
+                arrow.textContent = '▶';
+            }
+        }
+
+        // Initialize debug panel functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('debug-toggle').addEventListener('click', toggleDebugPanel);
+            document.getElementById('debug-close').addEventListener('click', toggleDebugPanel);
+            
+            // Ensure eye section is open by default
+            const eyeSection = document.getElementById('eye-section');
+            const eyeArrow = document.getElementById('eye-section-arrow');
+            if (eyeSection && eyeArrow) {
+                eyeSection.style.display = 'block';
+                eyeArrow.textContent = '▼';
+            }
+            
+            // Ensure SD card section is open by default
+            const sdCardSection = document.getElementById('sd-card-section');
+            const sdCardArrow = document.getElementById('sd-card-section-arrow');
+            if (sdCardSection && sdCardArrow) {
+                sdCardSection.style.display = 'block';
+                sdCardArrow.textContent = '▼';
+            }
+
+            // Add F key fullscreen functionality
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'f' || event.key === 'F') {
+                    event.preventDefault();
+                    toggleFullscreen();
+                }
+            });
+        });
+
+        // Fullscreen functionality for Three.js canvas
+        function toggleFullscreen() {
+            const canvas = document.querySelector('#three-canvas-container canvas');
+            
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                if (canvas && canvas.requestFullscreen) {
+                    canvas.requestFullscreen();
+                } else if (canvas && canvas.webkitRequestFullscreen) {
+                    canvas.webkitRequestFullscreen();
+                } else if (canvas && canvas.msRequestFullscreen) {
+                    canvas.msRequestFullscreen();
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+    </script>
 </body>
 </html> 
