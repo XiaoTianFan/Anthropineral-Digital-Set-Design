@@ -193,48 +193,78 @@ Program/
 *   ✅ Create comprehensive README with setup and usage instructions.
 *   ✅ Test dependencies installation and basic server functionality.
 
-### 🚧 **M2: Image Processing Core** - NEXT PRIORITY
-*   **Immediate Tasks:**
-    *   [ ] Create test images in `shared/test_images/` directory for development
-    *   [ ] Develop `image_processor.py` with OpenCV face and eye detection
-    *   [ ] Implement eye cropping and saving functionality
-    *   [ ] Test eye detection with various image types and lighting conditions
-    *   [ ] Create image monitoring system using `watchdog` for `data/originals/` folder
-    *   [ ] Integrate image processor with main server for Socket.IO notifications
+### ✅ **M2: Image Processing Core** - COMPLETED
+*   ✅ Create test images in `shared/test_images/` directory for development
+*   ✅ Develop `image_processor.py` with OpenCV face and eye detection
+*   ✅ Implement eye cropping and saving functionality
+*   ✅ Add file monitoring using watchdog for automatic processing
+*   ✅ Integrate image processor with main server via Socket.IO
+*   ✅ Add comprehensive error handling and logging
+*   ✅ Implement real-time status updates for client
+*   ✅ Add test processing functionality with generated test images
+*   ✅ Create eye image display system with automatic updates
+*   ✅ Fix Flask-SocketIO compatibility issues (broadcast parameter)
+*   ✅ Add status refresh and debugging capabilities
+*   ✅ Implement fallback dummy eye generation when face detection fails
+*   ✅ **FIX STATUS COMMUNICATION BUG**: Resolved run.py initialization issue
 
-### 🔄 **M3: SD Card Monitoring & Image Ingestion**
-*   [ ] Develop `sd_card_monitor.py` to detect drive connection and copy files
-*   [ ] Test with USB stick/SD card insertion and removal
-*   [ ] Integrate with image processing pipeline
-*   [ ] Add file deduplication to avoid reprocessing
+### ✅ **M2: Status Communication Bug Resolution** - COMPLETED
+*   ✅ **Root Cause Identified:** `run.py` script didn't trigger startup sequence for image processor initialization
+*   ✅ **Solution Implemented:** Updated `run.py` to properly call startup sequence in background thread
+*   ✅ **Testing Verified:** Both `run.py` and direct `main_server.py` execution now work identically
+*   ✅ **Documentation Updated:** README reflects that both startup methods work correctly
 
-### 🔄 **M4: Real-time Eye Image Display**
-*   [ ] Integrate image processor with Socket.IO events
-*   [ ] Update client to handle `new_eye_image_available` events
-*   [ ] Implement smooth eye image display with animations
-*   [ ] Test end-to-end image flow from SD card to web display
+### 🔄 **M3: SD Card Detection & Import** - PLANNED
+*   **Tasks:**
+    *   [ ] Develop `sd_card_monitor.py` with psutil for drive detection
+    *   [ ] Implement automatic image copying from SD card to originals folder
+    *   [ ] Add duplicate detection to avoid re-processing same images
+    *   [ ] Integrate SD card monitoring with main server
+    *   [ ] Test with actual SD card insertion/removal
 
-### 🔄 **M5: Keyboard Trigger System**
-*   [ ] Develop `keyboard_listener.py` with global hotkey detection
-*   [ ] Integrate with main server to emit `trigger_final_animation` events
-*   [ ] Test cross-platform keyboard handling on Windows
+### 🔄 **M4: Animation Enhancement** - PLANNED
+*   **Tasks:**
+    *   [ ] Load and integrate actual eye images into Three.js animation
+    *   [ ] Implement sphere formation animation using detected eyes
+    *   [ ] Add flowing creature movement patterns
+    *   [ ] Optimize animation performance for real-time display
+    *   [ ] Add visual transitions and effects
 
-### 🔄 **M6: Enhanced Three.js Scene**
-*   [ ] Load animation images from `static/other_images_for_animation/`
-*   [ ] Create textured meshes using the loaded images
-*   [ ] Implement initial mesh positioning and basic interactions
+### 🔄 **M5: Keyboard Trigger System** - PLANNED
+*   **Tasks:**
+    *   [ ] Develop `keyboard_listener.py` using keyboard library
+    *   [ ] Implement global hotkey detection (e.g., Ctrl+Alt+T)
+    *   [ ] Integrate keyboard triggers with Socket.IO animation events
+    *   [ ] Add safety mechanisms to prevent accidental triggers
+    *   [ ] Test keyboard functionality across different system states
 
-### 🔄 **M7: Three.js Animation Implementation**
-*   [ ] Implement mesh blending and sphere formation animation
-*   [ ] Create flowing, creature-like movement patterns
-*   [ ] Add visual effects and smooth transitions
-*   [ ] Optimize performance for real-time animation
+### 🔄 **M6: Final Integration & Testing** - PLANNED
+*   **Tasks:**
+    *   [ ] End-to-end testing with actual SD card workflow
+    *   [ ] Performance optimization for real-time operation
+    *   [ ] Error handling and recovery mechanisms
+    *   [ ] Production deployment configuration
+    *   [ ] Documentation of complete workflow
+    *   [ ] User training materials
 
-### 🔄 **M8: Integration, Testing, and Refinement**
-*   [ ] End-to-end testing of complete pipeline
-*   [ ] Performance optimization for image processing
-*   [ ] Error handling and logging improvements
-*   [ ] UI/UX refinements and production-ready features
+## 8. Technical Status
+
+### ✅ **Completed Components:**
+*   **Flask Server:** Fully functional with Socket.IO integration
+*   **Image Processor:** Complete with OpenCV face/eye detection, file monitoring, and real-time updates
+*   **Client Interface:** Responsive web client with status indicators and debug capabilities
+*   **Three.js Integration:** Basic 3D scene with placeholder animations
+*   **Real-time Communication:** Full Socket.IO bidirectional communication
+*   **Status System:** Comprehensive status tracking and display
+*   **Startup Process:** Both `run.py` and direct execution work identically
+
+### 🚧 **Current Issues:**
+None - All core functionality is working correctly.
+
+### 🔄 **Next Priorities:**
+1. **SD Card Integration:** Implement automatic SD card detection and image import
+2. **Animation Enhancement:** Integrate real eye images into Three.js animations
+3. **Keyboard Triggers:** Add global hotkey support for animation control
 
 ## 9. Current Implementation Status
 

@@ -60,13 +60,40 @@ class TheatreClient {
 
         this.socket.on('new_eye_image_available', (data) => {
             console.log('New eye image available:', data);
-            this.displayEyeImage(data.filename);
+            this.displayEyeImage(data.filename, data.url);
+            this.addDebugMessage(`New eye image: ${data.filename}`);
         });
 
         this.socket.on('trigger_final_animation', (data) => {
-            console.log('Trigger final animation received');
+            console.log('Trigger final animation received:', data);
             this.triggerFinalAnimation();
+            this.addDebugMessage('Animation triggered from server');
         });
+
+        this.socket.on('connection_status', (data) => {
+            console.log('Connection status update:', data);
+            this.updateSystemStatus(data);
+            
+            // If there's an error, show it in debug
+            if (data.error) {
+                this.addDebugMessage(`Image Processor Error: ${data.error}`, 'error');
+            }
+        });
+
+        this.socket.on('test_processing_result', (data) => {
+            console.log('Test processing result:', data);
+            this.addDebugMessage(`Image processing: ${data.message}`);
+            
+            if (data.status === 'success') {
+                this.addDebugMessage(`Found ${data.eyes_found} eyes in test image`);
+            }
+        });
+
+        // Request status updates periodically
+        this.requestStatusUpdate();
+        this.statusUpdateInterval = setInterval(() => {
+            this.requestStatusUpdate();
+        }, 5000); // Request status every 5 seconds
     }
 
     initThreeJS() {
@@ -149,14 +176,14 @@ class TheatreClient {
         console.log(`Created ${this.animationMeshes.length} placeholder meshes`);
     }
 
-    displayEyeImage(filename) {
+    displayEyeImage(filename, url) {
         console.log(`Displaying eye image: ${filename}`);
         
         const container = document.getElementById('eye-images-container');
         
         // Create image element
         const img = document.createElement('img');
-        img.src = `/eyes/${filename}`;
+        img.src = url;
         img.className = 'eye-image';
         img.alt = 'Eye from audience';
         
@@ -171,6 +198,11 @@ class TheatreClient {
         container.appendChild(img);
         
         this.addDebugMessage(`Added eye image: ${filename}`);
+        
+        // Keep only last 20 eye images
+        while (container.children.length > 20) {
+            container.removeChild(container.firstChild);
+        }
     }
 
     triggerFinalAnimation() {
@@ -247,19 +279,50 @@ class TheatreClient {
         // Test connection button
         document.getElementById('test-connection').addEventListener('click', () => {
             this.socket.emit('test_message', { message: 'Hello from client!' });
+            this.addDebugMessage('Sent test message to server');
         });
 
         // Test animation button
         document.getElementById('test-animation').addEventListener('click', () => {
-            this.triggerFinalAnimation();
+            this.socket.emit('trigger_animation_test');
+            this.addDebugMessage('Requested animation trigger from server');
         });
+
+        // Test image processing button
+        const testProcessingBtn = document.getElementById('test-processing');
+        if (testProcessingBtn) {
+            testProcessingBtn.addEventListener('click', () => {
+                this.socket.emit('request_test_processing');
+                this.addDebugMessage('Requested test image processing');
+            });
+        }
+
+        // Clear eye images button
+        const clearEyesBtn = document.getElementById('clear-eyes');
+        if (clearEyesBtn) {
+            clearEyesBtn.addEventListener('click', () => {
+                const container = document.getElementById('eye-images-container');
+                container.innerHTML = '';
+                this.addDebugMessage('Cleared all eye images');
+            });
+        }
+
+        // Clear debug messages button
+        const clearDebugBtn = document.getElementById('clear-debug');
+        if (clearDebugBtn) {
+            clearDebugBtn.addEventListener('click', () => {
+                const debugMessages = document.getElementById('debug-messages');
+                debugMessages.innerHTML = '';
+            });
+        }
     }
 
-    addDebugMessage(message) {
+    addDebugMessage(message, type = 'info') {
         const debugMessages = document.getElementById('debug-messages');
         const timestamp = new Date().toLocaleTimeString();
         const messageDiv = document.createElement('div');
         messageDiv.textContent = `[${timestamp}] ${message}`;
+        messageDiv.className = type;
         debugMessages.appendChild(messageDiv);
         
         // Auto-scroll to bottom
@@ -269,6 +332,29 @@ class TheatreClient {
         while (debugMessages.children.length > 50) {
             debugMessages.removeChild(debugMessages.firstChild);
         }
+    }
+
+    updateSystemStatus(data) {
+        // Update image processor status
+        const processorStatus = document.getElementById('processor-status');
+        if (processorStatus) {
+            processorStatus.textContent = data.image_processor_ready ? 'Ready' : 'Error';
+            processorStatus.className = data.image_processor_ready ? 'status-ready' : 'status-error';
+        }
+
+        // Update monitoring status
+        const monitoringStatus = document.getElementById('monitoring-status');
+        if (monitoringStatus) {
+            monitoringStatus.textContent = data.monitoring_active ? 'Active' : 'Inactive';
+            monitoringStatus.className = data.monitoring_active ? 'status-ready' : 'status-error';
+        }
+
+        this.addDebugMessage(`System status updated - Processor: ${data.image_processor_ready ? 'Ready' : 'Error'}, Monitoring: ${data.monitoring_active ? 'Active' : 'Inactive'}`);
+    }
+
+    requestStatusUpdate() {
+        this.socket.emit('request_status');
+        this.addDebugMessage('Requested system status update');
     }
 }
 

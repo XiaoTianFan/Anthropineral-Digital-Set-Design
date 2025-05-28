@@ -11,7 +11,20 @@
         <!-- Header -->
         <header>
             <h1>Experimental Theatre</h1>
-            <div id="connection-status">Connecting...</div>
+            <div class="status-info">
+                <div class="status-item">
+                    <span>Connection:</span>
+                    <span id="connection-status">Connecting...</span>
+                </div>
+                <div class="status-item">
+                    <span>Image Processor:</span>
+                    <span id="processor-status">Unknown</span>
+                </div>
+                <div class="status-item">
+                    <span>File Monitoring:</span>
+                    <span id="monitoring-status">Unknown</span>
+                </div>
+            </div>
         </header>
 
         <!-- Eye Images Display Area -->
@@ -32,9 +45,23 @@
         <!-- Debug Panel (can be hidden in production) -->
         <section id="debug-panel">
             <h3>Debug Panel</h3>
+            <div class="debug-controls">
+                <div class="button-group">
+                    <button id="test-connection">Test Connection</button>
+                    <button id="test-processing">Test Image Processing</button>
+                    <button id="test-animation">Test Animation Trigger</button>
+                </div>
+                <div class="button-group">
+                    <button id="clear-eyes">Clear Eye Images</button>
+                    <button id="clear-debug">Clear Debug Messages</button>
+                </div>
+                <div class="button-group">
+                    <button onclick="client.sendTestMessage()">Send Test Message</button>
+                    <button onclick="client.requestTestProcessing()">Test Processing</button>
+                    <button onclick="client.requestStatusUpdate()">Refresh Status</button>
+                </div>
+            </div>
             <div id="debug-messages"></div>
-            <button id="test-connection">Test Connection</button>
-            <button id="test-animation">Test Animation Trigger</button>
         </section>
     </div>
 

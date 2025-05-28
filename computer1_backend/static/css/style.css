@@ -30,23 +30,44 @@ header h1 {
     font-size: 2.5em;
     color: #fff;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-#connection-status {
-    font-size: 1.1em;
-    padding: 5px 15px;
-    border-radius: 20px;
-    display: inline-block;
+.status-info {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+}
+
+.status-item span:first-child {
+    font-weight: bold;
+    color: #ccc;
+}
+
+#connection-status, #processor-status, #monitoring-status {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: bold;
     transition: all 0.3s ease;
 }
 
-#connection-status.connected {
+#connection-status.connected,
+.status-ready {
     background: #4CAF50;
     color: white;
 }
 
-#connection-status.disconnected {
+#connection-status.disconnected,
+.status-error {
     background: #f44336;
     color: white;
 }
@@ -142,40 +163,83 @@ header h1 {
 }
 
 #debug-panel h3 {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: #fff;
+    text-align: center;
+}
+
+.debug-controls {
+    margin-bottom: 15px;
+}
+
+.button-group {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
 }
 
 #debug-messages {
     max-height: 150px;
     overflow-y: auto;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     padding: 10px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
     font-family: monospace;
     font-size: 0.8em;
+    line-height: 1.3;
+}
+
+#debug-messages div {
+    padding: 2px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #333;
+}
+
+#debug-messages div.error {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+#debug-messages div.warning {
+    color: #ffa726;
+}
+
+#debug-messages div.success {
+    color: #66bb6a;
 }
 
 #debug-panel button {
     background: #333;
     color: white;
     border: 1px solid #555;
-    padding: 8px 12px;
-    margin: 5px 5px 5px 0;
-    border-radius: 5px;
+    padding: 6px 10px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
+    font-size: 0.8em;
+    flex: 1;
+    min-width: 90px;
 }
 
 #debug-panel button:hover {
     background: #555;
+    border-color: #777;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     header h1 {
         font-size: 2em;
+    }
+    
+    .status-info {
+        gap: 15px;
+    }
+    
+    .status-item {
+        font-size: 0.9em;
     }
     
     #eye-images-container {
@@ -190,7 +254,16 @@ header h1 {
     #debug-panel {
         bottom: 10px;
         right: 10px;
-        max-width: 250px;
+        max-width: 280px;
+        font-size: 0.85em;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    #debug-panel button {
+        min-width: unset;
     }
 }
 
