@@ -73,7 +73,7 @@
                     </div>
                     
                     <!-- Auto-Import Configuration -->
-                    <div class="auto-import-config">
+                    <div class="config-group">
                         <h5>🤖 Auto-Import Settings</h5>
                         <div class="config-item">
                             <div class="config-label">
@@ -134,84 +134,401 @@
                 </div>
             </div>
 
-            <!-- Debug Controls Section -->
+            <!-- Debug Controls Section (Collapsible) -->
             <div class="debug-section">
-                <h4>Debug Controls</h4>
-                
-                <!-- Visual Effects Configuration -->
-                <div class="visual-config">
-                    <h5>🎭 Visual Effects Settings</h5>
-                    <div class="config-item">
-                        <div class="config-label">
-                            <span>Enhanced Flow Dynamics:</span>
-                            <span class="config-description">Advanced particle flow system that prevents belt formation</span>
-                        </div>
-                        <div class="config-control">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="flow-dynamics-toggle" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span id="flow-dynamics-status" class="config-status">Enabled</span>
-                        </div>
-                    </div>
-                    
-                    <div class="config-item">
-                        <div class="config-label">
-                            <span>✨ Bloom Post-Processing:</span>
-                            <span class="config-description">Professional bloom effects for constant particle emission</span>
-                        </div>
-                        <div class="config-control">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="bloom-toggle" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span id="bloom-status" class="config-status">Enabled</span>
-                        </div>
-                    </div>
-                    
-                    <div class="config-item">
-                        <div class="config-label">
-                            <span>🌟 Constant Emission:</span>
-                            <span class="config-description">Particles continuously emit light like bulbs for bloom effect</span>
-                        </div>
-                        <div class="config-control">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="constant-emission-toggle" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span id="constant-emission-status" class="config-status">Enabled</span>
-                        </div>
-                    </div>
+                <div class="section-header" onclick="toggleSection('debug-controls-section')">
+                    <h4>🔧 Debug Controls</h4>
+                    <span class="toggle-arrow" id="debug-controls-section-arrow">▼</span>
                 </div>
-                
-                <div class="debug-controls">
-                    <div class="button-group">
-                        <button id="test-connection">Test Connection</button>
-                        <button id="test-processing">Test Image Processing</button>
-                        <button id="test-animation">Test Animation Trigger</button>
+                <div id="debug-controls-section" class="collapsible-content">
+                    <!-- Visual Effects Configuration -->
+                    <div class="config-group">
+                        <h5>🎭 Visual Effects Settings</h5>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Enhanced Flow Dynamics:</span>
+                                <span class="config-description">Advanced particle flow system that prevents belt formation</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="flow-dynamics-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="flow-dynamics-status" class="config-status">Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>✨ Bloom Post-Processing:</span>
+                                <span class="config-description">Professional bloom effects for constant particle emission</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="bloom-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="bloom-status" class="config-status">Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>🌟 Constant Emission:</span>
+                                <span class="config-description">Particles continuously emit light like bulbs for bloom effect</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="constant-emission-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="constant-emission-status" class="config-status">Enabled</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="button-group">
-                        <button id="clear-eyes">Clear Eye Images</button>
-                        <button id="clear-debug">Clear Debug Messages</button>
-                        <button id="refresh-eyes">Refresh Eye Images</button>
+                    
+                    <div class="config-group">
+                        <h5>📷 Camera Rotation Monitor</h5>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Rotation Status:</span>
+                                <span class="config-description">Current camera rotation state and speed</span>
+                            </div>
+                            <div class="config-control">
+                                <span id="camera-rotation-status" class="rotation-status active">Medium Rotation</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Current Speed:</span>
+                                <span class="config-description">Real-time rotation speed percentage</span>
+                            </div>
+                            <div class="config-control">
+                                <span id="camera-rotation-speed" class="speed-indicator">45.2%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Shape Count:</span>
+                                <span class="config-description">Current shapes vs maximum (drives speed)</span>
+                            </div>
+                            <div class="config-control">
+                                <span id="camera-speed-shape-count" class="shape-count">18/40</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Speed Progress:</span>
+                                <span class="config-description">Visual indicator of camera acceleration</span>
+                            </div>
+                            <div class="config-control">
+                                <div class="camera-speed-progress-container">
+                                    <div id="camera-speed-progress" class="camera-speed-bar speed-medium" style="width: 45%;"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="button-group">
-                        <button id="reset-animation">Reset Animation</button>
-                        <button id="test-shell-effect">Test Shell Effect</button>
-                        <button id="test-dispersion">Test Dispersion</button>
-                        <button onclick="client.sendTestMessage()">Send Test Message</button>
-                    </div>
-                    <div class="button-group">
-                        <button onclick="client.requestTestProcessing()">Test Processing</button>
-                        <button onclick="client.requestStatusUpdate()">Refresh Status</button>
+                    
+                    <div class="config-group">
+                        <h5>🎮 Animation Controls</h5>
+                        <div class="config-controls">
+                            <div class="button-group">
+                                <button id="test-connection">Test Connection</button>
+                                <button id="test-processing">Test Image Processing</button>
+                                <button id="test-animation">Test Animation Trigger</button>
+                            </div>
+                            <div class="button-group">
+                                <button id="clear-eyes">Clear Eye Images</button>
+                                <button id="clear-debug">Clear Debug Messages</button>
+                                <button id="refresh-eyes">Refresh Eye Images</button>
+                            </div>
+                            <div class="button-group">
+                                <button id="reset-animation">Reset Animation</button>
+                                <button id="test-shell-effect">Test Shell Effect</button>
+                                <button id="test-dispersion">Test Dispersion</button>
+                                <button onclick="client.sendTestMessage()">Send Test Message</button>
+                            </div>
+                            <div class="button-group">
+                                <button onclick="client.requestTestProcessing()">Test Processing</button>
+                                <button onclick="client.requestStatusUpdate()">Refresh Status</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Debug Messages Section -->
+            <!-- Debug Messages Section (Collapsible) -->
             <div class="debug-section">
-                <h4>Debug Messages</h4>
-                <div id="debug-messages"></div>
+                <div class="section-header" onclick="toggleSection('debug-messages-section')">
+                    <h4>📝 Debug Messages</h4>
+                    <span class="toggle-arrow" id="debug-messages-section-arrow">▼</span>
+                </div>
+                <div id="debug-messages-section" class="collapsible-content">
+                    <div id="debug-messages"></div>
+                </div>
+            </div>
+
+            <!-- Artistic Processing Controls (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('artistic-config-section')">
+                    <h4>🎨 Artistic Texture Processing</h4>
+                    <span class="toggle-arrow" id="artistic-config-section-arrow">▼</span>
+                </div>
+                <div id="artistic-config-section" class="collapsible-content">
+                    <div class="config-group">
+                        <h5>🎨 Real-Time Edge Processing</h5>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Enable Processing:</span>
+                                <span class="config-description">Transforms eye textures into dramatic black & white edge outlines</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="artistic-enabled" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="artistic-status" class="config-status enabled">Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Edge Detection Method:</span>
+                                <span class="config-description">Choose the edge detection algorithm for processing</span>
+                            </div>
+                            <div class="config-control">
+                                <select id="edge-method" class="config-select">
+                                    <option value="sobel" selected>Sobel (Recommended)</option>
+                                    <option value="roberts">Roberts (Fast)</option>
+                                    <option value="prewitt">Prewitt (Smooth)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Edge Threshold:</span>
+                                <span class="config-description">Higher values = fewer, stronger edges. Lower = more detailed edges</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="edge-threshold" min="0.1" max="1.0" step="0.1" value="0.3" class="config-range">
+                                <span id="threshold-value" class="config-value">0.3</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Edge Strength:</span>
+                                <span class="config-description">Intensity of the edge detection effect</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="edge-strength" min="1.0" max="5.0" step="0.5" value="2.0" class="config-range">
+                                <span id="strength-value" class="config-value">2.0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Contrast:</span>
+                                <span class="config-description">Overall contrast adjustment for the processed texture</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="contrast-factor" min="1.0" max="4.0" step="0.1" value="2.5" class="config-range">
+                                <span id="contrast-value" class="config-value">2.5</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Gamma Correction:</span>
+                                <span class="config-description">Brightness and midtone adjustment</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="gamma-correction" min="0.5" max="2.0" step="0.1" value="1.3" class="config-range">
+                                <span id="gamma-value" class="config-value">1.3</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-group">
+                        <h5>🎭 Artistic Style</h5>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Visual Style:</span>
+                                <span class="config-description">Choose between different edge style presentations</span>
+                            </div>
+                            <div class="config-control">
+                                <select id="invert-edges" class="config-select">
+                                    <option value="false" selected>Black edges on white</option>
+                                    <option value="true">White edges on black</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Edge Thickness:</span>
+                                <span class="config-description">Thickness of the detected edge lines</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="edge-thickness" min="1" max="5" step="1" value="1" class="config-range">
+                                <span id="thickness-value" class="config-value">1</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Noise Reduction:</span>
+                                <span class="config-description">Reduces noise in the processed texture for cleaner edges</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="noise-reduction" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="noise-status" class="config-status enabled">Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Edge Smoothing:</span>
+                                <span class="config-description">Smooths edge transitions for more refined output</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="edge-smoothing" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="smoothing-status" class="config-status enabled">Enabled</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-group">
+                        <h5>✨ 3D Enhancement</h5>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Edge Glow Effect:</span>
+                                <span class="config-description">Adds subtle emissive glow to texture edges for enhanced visual impact</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="edge-glow" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="glow-status" class="config-status enabled">Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Glow Intensity:</span>
+                                <span class="config-description">Strength of the edge glow emissive effect</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="glow-intensity" min="0.1" max="1.0" step="0.1" value="0.3" class="config-range">
+                                <span id="glow-intensity-value" class="config-value">0.3</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-group">
+                        <h5>⚙️ Processing Controls</h5>
+                        <div class="config-controls">
+                            <div class="button-group">
+                                <button id="apply-artistic-processing">🎨 Apply to All Shapes</button>
+                                <button id="clear-processing-cache">🗑️ Clear Cache</button>
+                                <button id="reset-artistic-defaults">↺ Reset to Defaults</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-Time Processed Texture Display (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('texture-display-section')">
+                    <h4>🖼️ Real-Time Texture Preview</h4>
+                    <span class="toggle-arrow" id="texture-display-section-arrow">▼</span>
+                </div>
+                <div id="texture-display-section" class="collapsible-content">
+                    <div class="config-group">
+                        <h5>📸 Live Texture Processing</h5>
+                        <div class="texture-display-info">
+                            <div class="status-item">
+                                <span>Processing Status:</span>
+                                <span id="texture-processing-status" class="status-ready">Ready</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Processed Textures:</span>
+                                <span id="texture-count">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Last Updated:</span>
+                                <span id="last-texture-update">Never</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-group">
+                        <h5>🔄 Auto-Refresh Controls</h5>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Auto-Refresh:</span>
+                                <span class="config-description">Automatically update texture preview when new images are processed</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="auto-refresh-textures" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="auto-refresh-status" class="config-status enabled">Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Refresh Interval:</span>
+                                <span class="config-description">How often to check for new processed textures (seconds)</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="refresh-interval" min="1" max="10" step="1" value="3" class="config-range">
+                                <span id="refresh-interval-value" class="config-value">3s</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-group">
+                        <h5>🖼️ Texture Gallery</h5>
+                        <div class="texture-gallery-container">
+                            <div id="processed-textures-grid" class="processed-textures-grid">
+                                <div class="texture-placeholder">
+                                    <div class="placeholder-icon">🎨</div>
+                                    <div class="placeholder-text">No processed textures yet</div>
+                                    <div class="placeholder-subtext">Upload some eye images to see processed textures here</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-group">
+                        <h5>⚙️ Display Controls</h5>
+                        <div class="config-controls">
+                            <div class="button-group">
+                                <button id="refresh-texture-preview">🔄 Refresh Now</button>
+                                <button id="clear-texture-gallery">🗑️ Clear Gallery</button>
+                                <button id="download-processed-texture">💾 Download Latest</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -263,21 +580,24 @@
             document.getElementById('debug-toggle').addEventListener('click', toggleDebugPanel);
             document.getElementById('debug-close').addEventListener('click', toggleDebugPanel);
             
-            // Ensure eye section is open by default
-            const eyeSection = document.getElementById('eye-section');
-            const eyeArrow = document.getElementById('eye-section-arrow');
-            if (eyeSection && eyeArrow) {
-                eyeSection.style.display = 'block';
-                eyeArrow.textContent = '▼';
-            }
+            // Initialize all collapsible sections as open by default
+            const sectionsToOpen = [
+                'eye-section',
+                'sd-card-section', 
+                'debug-controls-section',
+                'debug-messages-section',
+                'artistic-config-section',
+                'texture-display-section'
+            ];
             
-            // Ensure SD card section is open by default
-            const sdCardSection = document.getElementById('sd-card-section');
-            const sdCardArrow = document.getElementById('sd-card-section-arrow');
-            if (sdCardSection && sdCardArrow) {
-                sdCardSection.style.display = 'block';
-                sdCardArrow.textContent = '▼';
-            }
+            sectionsToOpen.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const arrow = document.getElementById(sectionId + '-arrow');
+                if (section && arrow) {
+                    section.style.display = 'block';
+                    arrow.textContent = '▼';
+                }
+            });
 
             // Add F key fullscreen functionality
             document.addEventListener('keydown', function(event) {

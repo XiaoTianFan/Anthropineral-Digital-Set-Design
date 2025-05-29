@@ -44,46 +44,49 @@ body {
 /* Debug Panel Toggle Button */
 .debug-toggle-btn {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 15px;
+    right: 15px;
     z-index: 1000;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    border: 2px solid #444;
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    font-size: 24px;
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    opacity: 0;
-    visibility: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    opacity: 0.15;
+    visibility: visible;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .debug-toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #fff;
-    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 /* Show debug toggle button on hover near bottom right area */
 .debug-toggle-btn.visible {
-    opacity: 1;
+    opacity: 0.4;
     visibility: visible;
 }
 
 /* Show debug toggle button when hovering near bottom right corner */
 body:hover .debug-toggle-btn {
-    opacity: 0.3;
+    opacity: 0.2;
     visibility: visible;
 }
 
 .debug-toggle-btn:hover {
-    opacity: 1 !important;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #fff;
-    transform: scale(1.1);
+    opacity: 0.9 !important;
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.05);
 }
 
 /* Debug Panel - Full Height */
@@ -504,8 +507,8 @@ body:hover .debug-toggle-btn {
     color: white;
 }
 
-/* Auto-Import Configuration */
-.auto-import-config {
+/* Configuration Groups - Unified styling for all config sections */
+.config-group {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
@@ -513,34 +516,25 @@ body:hover .debug-toggle-btn {
     margin-bottom: 15px;
 }
 
-.auto-import-config h5 {
+.config-group h5 {
     margin: 0 0 12px 0;
     color: #fff;
     font-size: 0.9em;
     font-weight: bold;
 }
 
-/* Visual Effects Configuration */
-.visual-config {
-    background: rgba(138, 43, 226, 0.08);
-    border: 1px solid rgba(138, 43, 226, 0.25);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-
-.visual-config h5 {
-    margin: 0 0 12px 0;
-    color: #fff;
-    font-size: 0.9em;
-    font-weight: bold;
-}
-
+/* Unified Config Item Structure */
 .config-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 15px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+}
+
+.config-item:last-child {
+    margin-bottom: 0;
 }
 
 .config-label {
@@ -566,8 +560,71 @@ body:hover .debug-toggle-btn {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
 }
 
+/* Unified form controls */
+.config-select {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.85em;
+    min-width: 120px;
+}
+
+.config-select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.config-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+}
+
+.config-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.config-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.config-value {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #4CAF50;
+    min-width: 40px;
+    text-align: center;
+    background: rgba(76, 175, 80, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+/* Toggle Switch Styles - Consistent across all sections */
 .toggle-switch {
     position: relative;
     display: inline-block;
@@ -620,14 +677,67 @@ body:hover .debug-toggle-btn {
     font-weight: bold;
     min-width: 60px;
     text-align: center;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid;
 }
 
 .config-status.enabled {
     color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.3);
 }
 
 .config-status.disabled {
     color: #f44336;
+    background: rgba(244, 67, 54, 0.1);
+    border-color: rgba(244, 67, 54, 0.3);
+}
+
+/* Config Controls - Unified button styling */
+.config-controls {
+    margin-top: 15px;
+}
+
+.config-controls .button-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.config-controls .button-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Update existing Visual Config to use unified structure */
+.visual-config {
+    background: rgba(138, 43, 226, 0.08);
+    border: 1px solid rgba(138, 43, 226, 0.25);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.visual-config h5 {
+    margin: 0 0 12px 0;
+    color: #fff;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+/* Legacy support - keeping old config-item structure but unified styling */
+.visual-config .config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+}
+
+.visual-config .config-item:last-child {
+    margin-bottom: 0;
 }
 
 /* Debug Controls */
@@ -740,4 +850,298 @@ body.production #debug-panel {
 
 body.production .debug-toggle-btn {
     display: none;
+}
+
+/* Processed Texture Gallery Styles */
+.texture-display-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.texture-gallery-container {
+    margin: 15px 0;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.processed-textures-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    padding: 12px;
+    align-items: start;
+}
+
+.texture-item {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.texture-item:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+.texture-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.texture-item.loading img {
+    opacity: 0.5;
+}
+
+.texture-item-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+    color: white;
+    padding: 6px;
+    font-size: 0.65em;
+    text-align: center;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.texture-item:hover .texture-item-overlay {
+    transform: translateY(0);
+}
+
+.texture-item-overlay .texture-timestamp {
+    display: block;
+    font-size: 0.55em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
+}
+
+.texture-placeholder {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+.placeholder-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+    opacity: 0.6;
+}
+
+.placeholder-text {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.placeholder-subtext {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 250px;
+    line-height: 1.4;
+}
+
+.texture-loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8em;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 12px;
+    border-radius: 6px;
+    backdrop-filter: blur(5px);
+}
+
+/* Texture Processing Status Indicator */
+#texture-processing-status.processing {
+    background: #ff9800;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+#texture-processing-status.error {
+    background: #f44336;
+    color: white;
+}
+
+#texture-processing-status.ready {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Texture Gallery Scrollbar Styling */
+.texture-gallery-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.texture-gallery-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.texture-gallery-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.texture-gallery-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* ========================================
+   📷 Camera Rotation Speed Indicators
+   ======================================== */
+
+/* Camera rotation status indicator */
+.rotation-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.rotation-status.active {
+    background: rgba(52, 211, 153, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.rotation-status.inactive {
+    background: rgba(156, 163, 175, 0.2);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+/* Speed indicator */
+.speed-indicator {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #60a5fa;
+    background: rgba(96, 165, 250, 0.1);
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    min-width: 60px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Shape count indicator */
+.shape-count {
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    transition: all 0.3s ease;
+}
+
+/* Camera speed progress container */
+.camera-speed-progress-container {
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Camera speed progress bar */
+.camera-speed-bar {
+    height: 100%;
+    transition: all 0.5s ease;
+    border-radius: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Speed level color coding */
+.camera-speed-bar.speed-slow {
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.camera-speed-bar.speed-medium {
+    background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.camera-speed-bar.speed-fast {
+    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+/* Animated glow effect for active camera speed */
+.camera-speed-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Hover effects */
+.speed-indicator:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.3);
+}
+
+.shape-count:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+}
+
+.camera-speed-progress-container:hover .camera-speed-bar {
+    opacity: 0.9;
+}
+
+/* Responsive adjustments for camera indicators */
+@media (max-width: 768px) {
+    .rotation-status,
+    .speed-indicator,
+    .shape-count {
+        font-size: 0.8em;
+        padding: 3px 6px;
+    }
+    
+    .camera-speed-progress-container {
+        height: 16px;
+    }
 } 

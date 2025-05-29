@@ -6,7 +6,7 @@
 const VISUAL_CONFIG = {
     // Particle System Configuration
     particles: {
-        count: 1000,                    // Number of particles in the system
+        count: 2000,                    // Number of particles in the system
         size: 0.01,                   // Size of individual particles (sphere radius) - increased for visibility
         resetDistance: 6,            // Distance from center before particle resets - reduced for camera scale
         depthEffect: {
@@ -42,7 +42,7 @@ const VISUAL_CONFIG = {
     // Particle Attraction Configuration
     attraction: {
         baseStrength: 0.08,           // Base attraction force strength - increased from 0.02
-        maxStrength: 0.6,             // Maximum attraction force cap - increased from 0.1
+        maxStrength: 0.8,             // Maximum attraction force cap - increased from 0.1
         minDistance: 0.1,             // Minimum distance to avoid division by zero
         distanceOffset: 0.2,          // Distance offset for force calculation
         drag: {
@@ -57,15 +57,15 @@ const VISUAL_CONFIG = {
         flowDynamics: {
             enabled: true,            // Enable enhanced flow system
             turbulenceStrength: 0.3, // Random turbulence force strength
-            repulsionRadius: 0.5,     // Distance at which repulsion starts
+            repulsionRadius: 0.4,     // Distance at which repulsion starts
             repulsionStrength: 0.1,  // Strength of repulsion force
-            circulationStrength: 0.05, // Strength of tangential circulation force
+            circulationStrength: 0.1, // Strength of tangential circulation force
             distributionRadius: 2.0,  // Radius for spatial distribution
             forceBalancing: true,     // Enable force balancing between attractors
-            escapeVelocity: 0.35,      // Minimum velocity to escape attractor influence
+            escapeVelocity: 0.2,      // Minimum velocity to escape attractor influence
             flowField: {
                 enabled: true,        // Enable global flow field
-                strength: 0.08,       // Global flow field strength
+                strength: 0.1,       // Global flow field strength
                 scale: 0.5,           // Scale of flow field noise
                 timeScale: 1.0        // Time scaling for flow field animation
             }
@@ -78,18 +78,18 @@ const VISUAL_CONFIG = {
             repulsionRadius: 1,     // Distance at which shape repulsion starts
             shellRadius: 2.8,         // Target radius for particle shell
             stabilizationForce: 0.08, // Force to maintain shell radius
-            turbulence: 0.015,        // Additional turbulence during shell phase
+            turbulence: 0.02,        // Additional turbulence during shell phase
             transitionDuration: 3.0   // Duration to transition into shell effect (seconds)
         },
         // Dispersion effect configuration - particle burst at end of convergence
         dispersionEffect: {
             enabled: true,            // Enable dispersion burst effect
             duration: 2.0,            // Duration of dispersion burst (seconds)
-            burstStrength: 0.3,       // Initial outward burst force strength
-            randomization: 0.8,       // Amount of randomization in burst direction
+            burstStrength: 0.4,       // Initial outward burst force strength
+            randomization: 1,       // Amount of randomization in burst direction
             velocityMultiplier: 3.0,  // Velocity multiplier during burst
-            dragReduction: 0.3,       // Reduced drag during dispersion (more = less drag)
-            centerRepulsion: 0.15,    // Additional repulsion from center during burst
+            dragReduction: 0.5,       // Reduced drag during dispersion (more = less drag)
+            centerRepulsion: 0.2,    // Additional repulsion from center during burst
             resetThreshold: 0.9,      // Progress threshold to trigger particle resets (creates more dramatic spread)
             newParticleSpeed: 2.0     // Speed for newly reset particles during dispersion
         }
@@ -98,7 +98,7 @@ const VISUAL_CONFIG = {
     // Eye Shape Configuration
     shapes: {
         sizes: {
-            cube: 0.5,                // Size of cube shapes
+            cube: 0.3,                // Size of cube shapes
             bipyramid: 0.4,           // Size of bipyramid shapes
             pentagon: {               // Pentagon (pentagonal prism) sizes
                 radius: 0.4,
@@ -128,6 +128,25 @@ const VISUAL_CONFIG = {
                 baseMin: 0.8,         // Base minimum intensity during convergence
                 baseMax: 0.4,         // Additional intensity range during convergence
                 maxMultiplier: 2.0    // Maximum intensity multiplier for particles
+            }
+        },
+        // 🔄 NEW: Morphing Configuration for Constantly Changing 3D Shapes
+        morphing: {
+            enabled: true,            // Enable morphing functionality
+            speed: 0.3,               // Morphing speed multiplier (slower for dramatic effect)
+            intensity: 0.2,           // Morphing effect intensity (0-1)
+            targets: ['cube', 'sphere'], // Available morph targets (limited to 2 for performance)
+            transitionDuration: 5.0,  // Seconds per complete morph cycle
+            easing: 'easeInOutCubic', // Easing function: 'linear', 'easeInOutCubic', 'easeInOutSine'
+            convergenceMultiplier: 2.0, // Speed up morphing during convergence
+            phaseOffset: true,        // Offset morph timing between shapes for organic variety
+            smoothness: 1.0,          // Smoothness factor for morph transitions (0.1-2.0)
+            // Advanced morphing settings
+            advanced: {
+                vertexNoise: 0.05,    // Random vertex displacement during morphing
+                preserveTexture: true, // Maintain texture mapping during morphs
+                adaptiveDetail: true,  // Adjust geometry detail based on morph complexity
+                memoryOptimization: true // Enable memory optimization for morph targets
             }
         },
         material: {
@@ -170,8 +189,17 @@ const VISUAL_CONFIG = {
             minDistance: 1,           // Minimum zoom distance
             maxDistance: 20,          // Maximum zoom distance
             maxPolarAngle: Math.PI,   // Allow full vertical rotation
-            autoRotate: true,         // Auto-rotate the camera
-            autoRotateSpeed: 3.0      // Auto-rotation speed (if enabled)
+            autoRotate: false,        // Disable built-in auto-rotation (we'll use custom)
+            autoRotateSpeed: 3.0,     // Auto-rotation speed (if enabled)
+            // Custom 3D rotation settings
+            custom3DRotation: {
+                enabled: true,        // Enable custom 3D rotation
+                horizontalSpeed: 0.5, // Horizontal rotation speed
+                verticalSpeed: 0.4,   // Vertical rotation speed (slower than horizontal)
+                verticalRange: 0.8,   // Vertical oscillation range (0-1, where 1 = full range)
+                verticalOffset: Math.PI/2, // Vertical center position
+                timeScale: 1.0        // Overall time scaling for rotation
+            }
         }
     },
     
@@ -190,9 +218,9 @@ const VISUAL_CONFIG = {
     
     // System Configuration
     system: {
-        maxShapes: 30,                // Maximum number of eye shapes
-        shapeTypes: ['cube', 'bipyramid', 'pentagon'],  // Available shape types
-        maxEyeImages: 30              // Maximum eye images to keep in UI
+        maxShapes: 40,                // Maximum number of eye shapes
+        shapeTypes: ['cube', 'bipyramid'],  // Available shape types
+        maxEyeImages: 40              // Maximum eye images to keep in UI
     },
     
     // Post-Processing Bloom Configuration
@@ -216,12 +244,489 @@ const VISUAL_CONFIG = {
             adaptiveQuality: true,    // Automatically adjust quality based on performance
             targetFPS: 60             // Target frame rate for adaptive quality
         }
+    },
+    
+    // 🎨 NEW: Client-Side Artistic Texture Processing Configuration
+    artisticProcessing: {
+        enabled: true,                    // Enable artistic B&W edge processing
+        realTimeAdjustment: true,         // Allow real-time parameter changes
+        description: "High-contrast B&W edge detection for dramatic 3D textures",
+        
+        // Edge detection settings
+        edgeDetection: {
+            method: 'sobel',              // 'sobel', 'roberts', 'prewitt'
+            threshold: 0.3,               // Edge threshold (0-1)
+            strength: 2.0,                // Edge strength multiplier
+            adaptiveThreshold: false      // Use adaptive thresholding
+        },
+        
+        // Contrast enhancement settings
+        contrast: {
+            factor: 2.5,                  // Contrast multiplication factor
+            brightness: -30,              // Brightness offset (-100 to 100)
+            gamma: 1.3,                   // Gamma correction for dramatic effect
+            autoBalance: true             // Automatic brightness balancing
+        },
+        
+        // Artistic style settings
+        style: {
+            invertEdges: false,           // True for white edges on black, False for black edges on white
+            backgroundColor: 255,         // Background color (0-255)
+            edgeColor: 0,                 // Edge color (0-255)
+            edgeThickness: 1,             // Edge thickness (1-5)
+            noiseReduction: true,         // Apply noise reduction
+            smoothing: true               // Apply edge smoothing
+        },
+        
+        // Client-side texture enhancement
+        textureEnhancement: {
+            enabled: true,                // Enable client-side texture enhancement
+            sharpening: 1.2,              // Additional sharpening for 3D textures
+            contrastBoost: 1.1,           // Client-side contrast boost
+            edgeGlow: {
+                enabled: true,            // Add subtle glow to edges
+                intensity: 0.3,           // Glow intensity
+                color: 0xffffff           // Glow color
+            }
+        },
+        
+        // Performance settings
+        performance: {
+            canvasSize: 256,              // Maximum processing canvas size
+            useWorker: false,             // Use web worker for processing (future)
+            cacheProcessed: true          // Cache processed textures
+        }
     }
 };
 
 // =============================================================================
 // END CONFIGURATION - Classes and implementation below
 // =============================================================================
+
+// 🎨 CLIENT-SIDE ARTISTIC TEXTURE PROCESSOR
+// =============================================================================
+class ArtisticTextureProcessor {
+    constructor() {
+        this.canvas = null;
+        this.ctx = null;
+        this.initialized = false;
+        this.processedCache = new Map(); // Cache for processed textures
+        
+        // Initialize off-screen canvas for processing
+        this.initializeCanvas();
+        
+        console.log('🎨 Artistic texture processor created');
+    }
+    
+    initializeCanvas() {
+        try {
+            this.canvas = document.createElement('canvas');
+            this.ctx = this.canvas.getContext('2d');
+            
+            // Set default canvas size from configuration
+            const size = VISUAL_CONFIG.artisticProcessing.performance.canvasSize;
+            this.canvas.width = size;
+            this.canvas.height = size;
+            
+            // Enable image smoothing for better quality
+            this.ctx.imageSmoothingEnabled = true;
+            this.ctx.imageSmoothingQuality = 'high';
+            
+            this.initialized = true;
+            console.log('🎨 Artistic texture processor canvas initialized');
+        } catch (error) {
+            console.error('Error initializing artistic texture processor:', error);
+            this.initialized = false;
+        }
+    }
+    
+    processTexture(sourceImage, callback) {
+        if (!this.initialized || !VISUAL_CONFIG.artisticProcessing.enabled) {
+            // Return original image if processing disabled
+            callback(sourceImage);
+            return;
+        }
+        
+        try {
+            // Check cache first if enabled
+            const cacheKey = this.generateCacheKey(sourceImage.src);
+            console.log('🎨 Processing texture with cache key:', cacheKey);
+            
+            // 🔧 TEMPORARILY DISABLE CACHE for debugging
+            // if (VISUAL_CONFIG.artisticProcessing.performance.cacheProcessed && this.processedCache.has(cacheKey)) {
+            //     console.log('🎨 Using cached processed texture');
+            //     callback(this.processedCache.get(cacheKey));
+            //     return;
+            // }
+            
+            // 🔧 FIX: Create a new canvas for each texture instead of reusing this.canvas
+            const processingCanvas = document.createElement('canvas');
+            const processingCtx = processingCanvas.getContext('2d');
+            
+            // Enable image smoothing for better quality
+            processingCtx.imageSmoothingEnabled = true;
+            processingCtx.imageSmoothingQuality = 'high';
+            
+            // Prepare canvas size
+            const maxSize = VISUAL_CONFIG.artisticProcessing.performance.canvasSize;
+            const aspectRatio = sourceImage.naturalWidth / sourceImage.naturalHeight;
+            
+            let canvasWidth, canvasHeight;
+            if (aspectRatio > 1) {
+                canvasWidth = Math.min(maxSize, sourceImage.naturalWidth);
+                canvasHeight = canvasWidth / aspectRatio;
+            } else {
+                canvasHeight = Math.min(maxSize, sourceImage.naturalHeight);
+                canvasWidth = canvasHeight * aspectRatio;
+            }
+            
+            processingCanvas.width = canvasWidth;
+            processingCanvas.height = canvasHeight;
+            
+            console.log(`🎨 Processing canvas size: ${canvasWidth}x${canvasHeight} for ${sourceImage.src}`);
+            
+            // Draw source image to the new canvas
+            processingCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+            processingCtx.drawImage(sourceImage, 0, 0, canvasWidth, canvasHeight);
+            
+            // Get image data for processing from the new canvas
+            const imageData = processingCtx.getImageData(0, 0, canvasWidth, canvasHeight);
+            const data = imageData.data;
+            
+            // Apply artistic processing pipeline
+            this.applyProcessingPipeline(data, canvasWidth, canvasHeight);
+            
+            // Put processed data back to the new canvas
+            processingCtx.putImageData(imageData, 0, 0);
+            
+            // Create Three.js texture from the processed canvas (not the shared canvas)
+            const processedTexture = new THREE.CanvasTexture(processingCanvas);
+            this.configureTexture(processedTexture);
+            
+            // Add a unique identifier to help with debugging
+            processedTexture.userData = { 
+                sourceUrl: sourceImage.src,
+                processedAt: Date.now(),
+                canvasId: `canvas_${Math.random().toString(36).substr(2, 9)}`
+            };
+            
+            console.log(`🎨 Created unique texture:`, processedTexture.userData);
+            
+            // Cache the result if enabled (currently disabled for debugging)
+            // if (VISUAL_CONFIG.artisticProcessing.performance.cacheProcessed) {
+            //     this.processedCache.set(cacheKey, processedTexture);
+            // }
+            
+            console.log('🎨 Applied artistic processing: high-contrast B&W edges');
+            callback(processedTexture);
+            
+        } catch (error) {
+            console.error('Error processing texture:', error);
+            callback(sourceImage); // Fallback to original
+        }
+    }
+    
+    applyProcessingPipeline(data, width, height) {
+        // Step 1: Convert to grayscale
+        this.convertToGrayscale(data);
+        
+        // Step 2: Apply contrast enhancement
+        this.applyContrastEnhancement(data);
+        
+        // Step 3: Apply noise reduction if enabled
+        if (VISUAL_CONFIG.artisticProcessing.style.noiseReduction) {
+            this.applyNoiseReduction(data, width, height);
+        }
+        
+        // Step 4: Detect edges
+        this.applyEdgeDetection(data, width, height);
+        
+        // Step 5: Apply artistic styling
+        this.applyArtisticStyle(data);
+        
+        // Step 6: Apply smoothing if enabled
+        if (VISUAL_CONFIG.artisticProcessing.style.smoothing) {
+            this.applySmoothing(data, width, height);
+        }
+    }
+    
+    convertToGrayscale(data) {
+        for (let i = 0; i < data.length; i += 4) {
+            // Convert RGB to grayscale using luminance formula
+            const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+            data[i] = data[i + 1] = data[i + 2] = gray;
+            // Keep alpha unchanged
+        }
+    }
+    
+    applyContrastEnhancement(data) {
+        const { factor, brightness, gamma, autoBalance } = VISUAL_CONFIG.artisticProcessing.contrast;
+        
+        // Auto-balance brightness if enabled
+        let adjustedBrightness = brightness;
+        if (autoBalance) {
+            // Calculate average brightness
+            let sum = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                sum += data[i];
+            }
+            const avgBrightness = sum / (data.length / 4);
+            adjustedBrightness = brightness + (128 - avgBrightness) * 0.3;
+        }
+        
+        // Build gamma correction lookup table
+        const gammaTable = new Uint8Array(256);
+        for (let i = 0; i < 256; i++) {
+            gammaTable[i] = Math.pow(i / 255, 1 / gamma) * 255;
+        }
+        
+        for (let i = 0; i < data.length; i += 4) {
+            // Apply contrast and brightness
+            let enhanced = data[i] * factor + adjustedBrightness;
+            enhanced = Math.max(0, Math.min(255, enhanced));
+            
+            // Apply gamma correction
+            enhanced = gammaTable[Math.round(enhanced)];
+            
+            // Store back
+            data[i] = data[i + 1] = data[i + 2] = enhanced;
+        }
+    }
+    
+    applyNoiseReduction(data, width, height) {
+        // Simple 3x3 averaging filter for noise reduction
+        const tempData = new Uint8Array(data);
+        
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let sum = 0;
+                let count = 0;
+                
+                // Average 3x3 neighborhood
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const idx = ((y + dy) * width + (x + dx)) * 4;
+                        sum += tempData[idx];
+                        count++;
+                    }
+                }
+                
+                const average = sum / count;
+                const idx = (y * width + x) * 4;
+                data[idx] = data[idx + 1] = data[idx + 2] = average;
+            }
+        }
+    }
+    
+    applyEdgeDetection(data, width, height) {
+        const { method, threshold, strength } = VISUAL_CONFIG.artisticProcessing.edgeDetection;
+        
+        // Create a copy for edge calculation
+        const grayData = new Float32Array(width * height);
+        for (let i = 0; i < data.length; i += 4) {
+            grayData[i / 4] = data[i]; // Use red channel (grayscale)
+        }
+        
+        const edges = new Float32Array(width * height);
+        
+        // Apply edge detection based on method
+        switch (method) {
+            case 'sobel':
+                this.applySobelEdgeDetection(grayData, edges, width, height);
+                break;
+            case 'roberts':
+                this.applyRobertsEdgeDetection(grayData, edges, width, height);
+                break;
+            case 'prewitt':
+                this.applyPrewittEdgeDetection(grayData, edges, width, height);
+                break;
+            default:
+                this.applySobelEdgeDetection(grayData, edges, width, height);
+        }
+        
+        // Apply threshold and strength
+        const thresholdValue = threshold * 255;
+        for (let i = 0; i < edges.length; i++) {
+            let edgeValue = edges[i] * strength;
+            edgeValue = edgeValue > thresholdValue ? 255 : 0;
+            
+            const pixelIndex = i * 4;
+            data[pixelIndex] = data[pixelIndex + 1] = data[pixelIndex + 2] = edgeValue;
+        }
+    }
+    
+    applySobelEdgeDetection(input, output, width, height) {
+        // Sobel kernels
+        const sobelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+        const sobelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+        
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let gx = 0, gy = 0;
+                
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        const pixel = input[(y + ky) * width + (x + kx)];
+                        const kernelIndex = (ky + 1) * 3 + (kx + 1);
+                        
+                        gx += pixel * sobelX[kernelIndex];
+                        gy += pixel * sobelY[kernelIndex];
+                    }
+                }
+                
+                output[y * width + x] = Math.sqrt(gx * gx + gy * gy);
+            }
+        }
+    }
+    
+    applyRobertsEdgeDetection(input, output, width, height) {
+        for (let y = 0; y < height - 1; y++) {
+            for (let x = 0; x < width - 1; x++) {
+                const p1 = input[y * width + x];
+                const p2 = input[y * width + (x + 1)];
+                const p3 = input[(y + 1) * width + x];
+                const p4 = input[(y + 1) * width + (x + 1)];
+                
+                const gx = p1 - p4;
+                const gy = p2 - p3;
+                
+                output[y * width + x] = Math.sqrt(gx * gx + gy * gy);
+            }
+        }
+    }
+    
+    applyPrewittEdgeDetection(input, output, width, height) {
+        // Prewitt kernels
+        const prewittX = [-1, 0, 1, -1, 0, 1, -1, 0, 1];
+        const prewittY = [-1, -1, -1, 0, 0, 0, 1, 1, 1];
+        
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let gx = 0, gy = 0;
+                
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        const pixel = input[(y + ky) * width + (x + kx)];
+                        const kernelIndex = (ky + 1) * 3 + (kx + 1);
+                        
+                        gx += pixel * prewittX[kernelIndex];
+                        gy += pixel * prewittY[kernelIndex];
+                    }
+                }
+                
+                output[y * width + x] = Math.sqrt(gx * gx + gy * gy);
+            }
+        }
+    }
+    
+    applyArtisticStyle(data) {
+        const { invertEdges, backgroundColor, edgeColor } = VISUAL_CONFIG.artisticProcessing.style;
+        
+        for (let i = 0; i < data.length; i += 4) {
+            const isEdge = data[i] > 128; // Threshold for edge detection
+            
+            let finalValue;
+            if (invertEdges) {
+                // White edges on black background
+                finalValue = isEdge ? 255 : 0;
+            } else {
+                // Black edges on white background (default)
+                finalValue = isEdge ? edgeColor : backgroundColor;
+            }
+            
+            data[i] = data[i + 1] = data[i + 2] = finalValue;
+            // Keep alpha unchanged
+        }
+    }
+    
+    applySmoothing(data, width, height) {
+        // Apply morphological operations for smoother edges
+        const tempData = new Uint8Array(data);
+        const { edgeThickness } = VISUAL_CONFIG.artisticProcessing.style;
+        
+        // Simple dilation for edge thickness
+        for (let iteration = 0; iteration < edgeThickness; iteration++) {
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const centerIdx = (y * width + x) * 4;
+                    
+                    // Check if any neighbor is an edge
+                    let hasEdgeNeighbor = false;
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            const neighborIdx = ((y + dy) * width + (x + dx)) * 4;
+                            if (tempData[neighborIdx] === 0) { // Black edge
+                                hasEdgeNeighbor = true;
+                                break;
+                            }
+                        }
+                        if (hasEdgeNeighbor) break;
+                    }
+                    
+                    if (hasEdgeNeighbor) {
+                        data[centerIdx] = data[centerIdx + 1] = data[centerIdx + 2] = 0;
+                    }
+                }
+            }
+            // Update temp data for next iteration
+            tempData.set(data);
+        }
+    }
+    
+    configureTexture(texture) {
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.needsUpdate = true;
+        
+        // Add texture enhancement if enabled
+        const enhancement = VISUAL_CONFIG.artisticProcessing;
+        if (enhancement.enabled && enhancement.textureEnhancement.enabled) {
+            // These properties will be used when applying to material
+            texture.userData = {
+                sharpening: enhancement.sharpening,
+                contrastBoost: enhancement.contrastBoost,
+                edgeGlow: enhancement.edgeGlow
+            };
+        }
+    }
+    
+    generateCacheKey(imageUrl) {
+        // Generate cache key based on URL and current settings
+        const settings = VISUAL_CONFIG.artisticProcessing;
+        const key = `${imageUrl}_${JSON.stringify({
+            method: settings.edgeDetection.method,
+            threshold: settings.edgeDetection.threshold,
+            strength: settings.edgeDetection.strength,
+            contrast: settings.contrast.factor,
+            brightness: settings.contrast.brightness,
+            gamma: settings.contrast.gamma,
+            invertEdges: settings.style.invertEdges,
+            edgeThickness: settings.style.edgeThickness
+        })}`;
+        return key;
+    }
+    
+    clearCache() {
+        this.processedCache.clear();
+        console.log('🎨 Cleared artistic processing cache');
+    }
+    
+    updateSettings(newSettings) {
+        // Clear cache when settings change
+        this.clearCache();
+        console.log('🎨 Updated artistic processing settings and cleared cache');
+    }
+    
+    dispose() {
+        this.clearCache();
+        this.canvas = null;
+        this.ctx = null;
+        this.initialized = false;
+        console.log('🎨 Artistic texture processor disposed');
+    }
+}
 
 // Particle class for individual particles
 class Particle {
@@ -799,6 +1304,9 @@ class EyeShape {
         this.targetRadius = VISUAL_CONFIG.shapes.convergence.targetRadius; // Final radius at center
         this.speedMultiplier = 1.0;
         
+        // 🎨 NEW: Artistic processor reference
+        this.artisticProcessor = null; // Will be set by TheatreClient
+        
         this.createShape();
     }
 
@@ -861,19 +1369,31 @@ class EyeShape {
         loader.load(
             this.textureUrl,
             (texture) => {
-                // Texture loaded successfully
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.wrapT = THREE.RepeatWrapping;
-                texture.minFilter = THREE.LinearFilter;
-                texture.magFilter = THREE.LinearFilter;
-                
-                // Update material with the eye texture
-                this.mesh.material.map = texture;
-                this.mesh.material.color.setHex(VISUAL_CONFIG.shapes.material.loaded.color);
-                this.mesh.material.needsUpdate = true;
-                
-                this.isLoaded = true;
-                console.log(`Eye texture loaded for shape: ${this.id}`);
+                // 🎨 NEW: Apply client-side artistic processing if available
+                if (this.artisticProcessor && VISUAL_CONFIG.artisticProcessing.enabled) {
+                    // Create an image element for processing
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    
+                    img.onload = () => {
+                        // Process the texture artistically
+                        this.artisticProcessor.processTexture(img, (processedTexture) => {
+                            // Apply the processed texture
+                            this.applyProcessedTexture(processedTexture);
+                        });
+                    };
+                    
+                    img.onerror = () => {
+                        console.warn(`Failed to load image for artistic processing: ${this.textureUrl}`);
+                        // Fallback to original texture
+                        this.applyProcessedTexture(texture);
+                    };
+                    
+                    img.src = this.textureUrl;
+                } else {
+                    // Use original texture without processing
+                    this.applyProcessedTexture(texture);
+                }
             },
             (progress) => {
                 // Loading progress (optional)
@@ -883,6 +1403,45 @@ class EyeShape {
                 // Keep the placeholder material
             }
         );
+    }
+    
+    applyProcessedTexture(texture) {
+        // Configure texture properties
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        
+        // Apply to material
+        this.mesh.material.map = texture;
+        this.mesh.material.color.setHex(VISUAL_CONFIG.shapes.material.loaded.color);
+        
+        // 🎨 NEW: Enhanced properties for artistic textures
+        const artistic = VISUAL_CONFIG.artisticProcessing;
+        if (artistic.enabled && artistic.textureEnhancement.enabled) {
+            // Apply edge glow if enabled
+            if (artistic.textureEnhancement.edgeGlow.enabled) {
+                this.mesh.material.emissive = new THREE.Color(artistic.textureEnhancement.edgeGlow.color);
+                this.mesh.material.emissiveIntensity = artistic.textureEnhancement.edgeGlow.intensity;
+            }
+            
+            // Apply additional texture enhancements from userData
+            if (texture.userData) {
+                const enhancement = texture.userData;
+                
+                // Apply contrast boost if available
+                if (enhancement.contrastBoost && this.mesh.material.color) {
+                    const color = this.mesh.material.color;
+                    color.multiplyScalar(enhancement.contrastBoost);
+                }
+            }
+        }
+        
+        this.mesh.material.needsUpdate = true;
+        this.isLoaded = true;
+        
+        const processingStatus = artistic.enabled ? '(with artistic B&W edges)' : '(original)';
+        console.log(`🎨 Eye texture applied to shape: ${this.id} ${processingStatus}`);
     }
 
     update(deltaTime) {
@@ -1005,6 +1564,281 @@ class EyeShape {
     }
 }
 
+// 🔄 NEW: MorphingEyeShape class for constantly morphing 3D shapes
+class MorphingEyeShape extends EyeShape {
+    constructor(textureUrl, shapeType = 'morphing') {
+        super(textureUrl, shapeType);
+        
+        // Morphing-specific properties
+        this.morphTimer = Math.random() * Math.PI * 2; // Random starting phase for variety
+        this.morphTargets = [];
+        this.morphInfluences = [];
+        this.phaseOffset = VISUAL_CONFIG.shapes.morphing.phaseOffset ? 
+            Math.random() * Math.PI * 2 : 0; // Random phase offset between shapes
+        
+        console.log(`🔄 Created morphing eye shape: ${this.id} with phase offset: ${this.phaseOffset.toFixed(2)}`);
+    }
+    
+    createShape() {
+        const config = VISUAL_CONFIG.shapes.morphing;
+        
+        // Create base geometry (cube as foundation)
+        const baseSize = VISUAL_CONFIG.shapes.sizes.cube;
+        const baseGeometry = new THREE.BoxGeometry(baseSize, baseSize, baseSize);
+        
+        // Create morph targets based on configuration
+        this.createMorphTargets(baseGeometry, baseSize);
+        
+        // Create material with placeholder until texture loads
+        const material = new THREE.MeshLambertMaterial({
+            color: VISUAL_CONFIG.shapes.material.placeholder.color,
+            transparent: true,
+            opacity: VISUAL_CONFIG.shapes.material.placeholder.opacity,
+            morphTargets: true // Enable morph target support
+        });
+
+        this.mesh = new THREE.Mesh(baseGeometry, material);
+        
+        // Initialize morph influences array
+        this.morphInfluences = new Array(this.morphTargets.length).fill(0);
+        if (this.morphInfluences.length > 0) {
+            this.morphInfluences[0] = 1.0; // Start with first target fully active
+        }
+        
+        // Load the eye texture
+        this.loadTexture();
+        
+        console.log(`🔄 Created morphing shape with ${this.morphTargets.length} morph targets`);
+    }
+    
+    createMorphTargets(baseGeometry, baseSize) {
+        const config = VISUAL_CONFIG.shapes.morphing;
+        const targets = config.targets;
+        
+        // Clear existing targets
+        this.morphTargets = [];
+        
+        // Create morph targets based on configuration
+        targets.forEach((targetType, index) => {
+            let targetGeometry;
+            
+            switch (targetType) {
+                case 'sphere':
+                    targetGeometry = new THREE.SphereGeometry(
+                        baseSize * 0.8, 
+                        config.advanced.adaptiveDetail ? 16 : 12, 
+                        config.advanced.adaptiveDetail ? 16 : 12
+                    );
+                    break;
+                    
+                case 'pyramid':
+                    targetGeometry = new THREE.ConeGeometry(
+                        baseSize * 0.7, 
+                        baseSize * 1.2, 
+                        config.advanced.adaptiveDetail ? 8 : 6
+                    );
+                    break;
+                    
+                case 'cylinder':
+                    targetGeometry = new THREE.CylinderGeometry(
+                        baseSize * 0.6, 
+                        baseSize * 0.6, 
+                        baseSize * 1.4, 
+                        config.advanced.adaptiveDetail ? 12 : 8
+                    );
+                    break;
+                    
+                case 'octahedron':
+                    targetGeometry = new THREE.OctahedronGeometry(baseSize * 0.8);
+                    break;
+                    
+                case 'cube':
+                default:
+                    // For cube target, create slightly different proportions
+                    targetGeometry = new THREE.BoxGeometry(
+                        baseSize * 1.1, 
+                        baseSize * 0.9, 
+                        baseSize * 1.0
+                    );
+                    break;
+            }
+            
+            // Apply vertex noise if enabled
+            if (config.advanced.vertexNoise > 0) {
+                this.applyVertexNoise(targetGeometry, config.advanced.vertexNoise);
+            }
+            
+            // Ensure vertex count compatibility for morphing
+            this.normalizeGeometryVertices(baseGeometry, targetGeometry);
+            
+            // Store morph target
+            this.morphTargets.push({
+                name: targetType,
+                geometry: targetGeometry,
+                vertices: targetGeometry.attributes.position.array.slice() // Copy vertices
+            });
+            
+            console.log(`🔄 Created morph target: ${targetType} with ${targetGeometry.attributes.position.count} vertices`);
+        });
+        
+        // Add morph targets to base geometry
+        this.addMorphTargetsToGeometry(baseGeometry);
+    }
+    
+    normalizeGeometryVertices(baseGeometry, targetGeometry) {
+        // Ensure both geometries have the same vertex count for proper morphing
+        const baseVertexCount = baseGeometry.attributes.position.count;
+        const targetVertexCount = targetGeometry.attributes.position.count;
+        
+        if (baseVertexCount !== targetVertexCount) {
+            console.warn(`🔄 Vertex count mismatch: base(${baseVertexCount}) vs target(${targetVertexCount})`);
+            // For now, we'll handle this by using BufferGeometry.morphTargetsRelative
+            // In a production environment, you'd want to ensure vertex counts match
+        }
+    }
+    
+    addMorphTargetsToGeometry(baseGeometry) {
+        // Add morph targets to the base geometry
+        this.morphTargets.forEach((target, index) => {
+            const morphAttribute = new THREE.BufferAttribute(target.vertices, 3);
+            baseGeometry.morphAttributes.position = baseGeometry.morphAttributes.position || [];
+            baseGeometry.morphAttributes.position[index] = morphAttribute;
+        });
+        
+        // Enable morph targets on geometry
+        baseGeometry.morphTargetsRelative = false;
+    }
+    
+    applyVertexNoise(geometry, noiseStrength) {
+        // Add subtle random displacement to vertices for organic variation
+        const positions = geometry.attributes.position;
+        const vertexCount = positions.count;
+        
+        for (let i = 0; i < vertexCount; i++) {
+            const noise = (Math.random() - 0.5) * noiseStrength;
+            positions.setX(i, positions.getX(i) + noise);
+            positions.setY(i, positions.getY(i) + noise);
+            positions.setZ(i, positions.getZ(i) + noise);
+        }
+        
+        positions.needsUpdate = true;
+        geometry.computeVertexNormals(); // Recompute normals after vertex changes
+    }
+    
+    update(deltaTime) {
+        // Call parent update for orbital motion and convergence
+        super.update(deltaTime);
+        
+        // Update morphing if enabled
+        if (VISUAL_CONFIG.shapes.morphing.enabled && this.morphTargets.length > 0) {
+            this.updateMorphing(deltaTime);
+        }
+    }
+    
+    updateMorphing(deltaTime) {
+        const config = VISUAL_CONFIG.shapes.morphing;
+        
+        // Calculate morphing speed (faster during convergence)
+        let morphSpeed = config.speed;
+        if (this.isConverging) {
+            morphSpeed *= config.convergenceMultiplier;
+        }
+        
+        // Update morph timer with phase offset
+        this.morphTimer += deltaTime * morphSpeed + this.phaseOffset * 0.001;
+        
+        // Calculate morph progress within cycle
+        const cycleProgress = (this.morphTimer % config.transitionDuration) / config.transitionDuration;
+        
+        // Apply easing function
+        const easedProgress = this.applyMorphEasing(cycleProgress, config.easing);
+        
+        // Calculate current morph influences
+        this.calculateMorphInfluences(easedProgress);
+        
+        // Apply morph influences to mesh
+        this.applyMorphInfluences();
+    }
+    
+    applyMorphEasing(progress, easingType) {
+        switch (easingType) {
+            case 'linear':
+                return progress;
+                
+            case 'easeInOutCubic':
+                return progress < 0.5 
+                    ? 4 * progress * progress * progress 
+                    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+                    
+            case 'easeInOutSine':
+                return -(Math.cos(Math.PI * progress) - 1) / 2;
+                
+            default:
+                return progress;
+        }
+    }
+    
+    calculateMorphInfluences(progress) {
+        const targetCount = this.morphTargets.length;
+        if (targetCount === 0) return;
+        
+        // Reset all influences
+        this.morphInfluences.fill(0);
+        
+        if (targetCount === 1) {
+            // Single target: just oscillate influence
+            this.morphInfluences[0] = Math.sin(progress * Math.PI * 2) * 0.5 + 0.5;
+        } else if (targetCount === 2) {
+            // Two targets: ping-pong between them
+            const pingPong = Math.sin(progress * Math.PI * 2) * 0.5 + 0.5;
+            this.morphInfluences[0] = 1.0 - pingPong;
+            this.morphInfluences[1] = pingPong;
+        } else {
+            // Multiple targets: cycle through them
+            const targetIndex = progress * targetCount;
+            const currentIndex = Math.floor(targetIndex) % targetCount;
+            const nextIndex = (currentIndex + 1) % targetCount;
+            const localProgress = targetIndex - Math.floor(targetIndex);
+            
+            this.morphInfluences[currentIndex] = 1.0 - localProgress;
+            this.morphInfluences[nextIndex] = localProgress;
+        }
+        
+        // Apply intensity scaling
+        const intensity = VISUAL_CONFIG.shapes.morphing.intensity;
+        this.morphInfluences = this.morphInfluences.map(influence => 
+            influence * intensity + (1.0 - intensity) * (influence > 0.5 ? 1.0 : 0.0)
+        );
+    }
+    
+    applyMorphInfluences() {
+        if (!this.mesh || !this.mesh.morphTargetInfluences) return;
+        
+        // Apply calculated influences to mesh
+        for (let i = 0; i < this.morphInfluences.length; i++) {
+            if (this.mesh.morphTargetInfluences[i] !== undefined) {
+                this.mesh.morphTargetInfluences[i] = this.morphInfluences[i];
+            }
+        }
+    }
+    
+    dispose() {
+        // Clean up morph targets
+        this.morphTargets.forEach(target => {
+            if (target.geometry) {
+                target.geometry.dispose();
+            }
+        });
+        this.morphTargets = [];
+        this.morphInfluences = [];
+        
+        // Call parent dispose
+        super.dispose();
+        
+        console.log(`🔄 Disposed morphing eye shape: ${this.id}`);
+    }
+}
+
 // ShapeManager class to handle dynamic eye shape lifecycle
 class ShapeManager {
     constructor() {
@@ -1012,10 +1846,19 @@ class ShapeManager {
         this.scene = null;
         this.maxShapes = VISUAL_CONFIG.system.maxShapes; // Maximum number of shapes
         this.shapeTypes = VISUAL_CONFIG.system.shapeTypes;
+        
+        // 🎨 NEW: Artistic processor reference
+        this.artisticProcessor = null; // Will be set by TheatreClient
     }
 
     setScene(scene) {
         this.scene = scene;
+    }
+    
+    // 🎨 NEW: Set artistic processor reference
+    setArtisticProcessor(processor) {
+        this.artisticProcessor = processor;
+        console.log('🎨 Artistic processor set for ShapeManager');
     }
 
     addEyeShape(eyeImageUrl, filename) {
@@ -1034,6 +1877,11 @@ class ShapeManager {
         // Create new eye shape with random geometry type
         const randomShapeType = this.shapeTypes[Math.floor(Math.random() * this.shapeTypes.length)];
         const eyeShape = new EyeShape(eyeImageUrl, randomShapeType);
+        
+        // 🎨 NEW: Set artistic processor reference
+        if (this.artisticProcessor) {
+            eyeShape.artisticProcessor = this.artisticProcessor;
+        }
         
         // Add to scene
         if (this.scene) {
@@ -1169,16 +2017,15 @@ class TheatreClient {
         this.particleSystem = null;
         this.shapeManager = null; // New shape manager for eye-textured shapes
         this.eyeShapes = []; // Legacy - keeping for compatibility
-        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence, 4: shell effect
+        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence, 4: dispersion
         this.lastTime = 0;
         
-        // Shell effect transition tracking
-        this.shellTransitionStartTime = 0;
-        this.isInShellTransition = false;
+        // Camera rotation tracking
+        this.cameraRotationTime = 0;
+        this.baseRadius = VISUAL_CONFIG.scene.camera.position.z;
         
-        // Dispersion effect tracking
-        this.isInDispersionPhase = false;
-        this.dispersionCompleted = false;
+        // 🎨 NEW: Artistic texture processor
+        this.artisticProcessor = null;
         
         this.init();
     }
@@ -1191,6 +2038,9 @@ class TheatreClient {
         
         // Initialize Three.js scene
         this.initThreeJS();
+        
+        // Initialize texture display system
+        this.initTextureDisplay();
         
         // Setup event listeners
         this.setupEventListeners();
@@ -1410,7 +2260,7 @@ class TheatreClient {
         this.controls.autoRotate = VISUAL_CONFIG.scene.controls.autoRotate;
         this.controls.autoRotateSpeed = VISUAL_CONFIG.scene.controls.autoRotateSpeed;
         
-        console.log('OrbitControls initialized - Mouse grab orbital view enabled with auto-rotation');
+        console.log('OrbitControls initialized - Mouse grab orbital view enabled with custom 3D rotation');
 
         // Add configurable lighting
         const ambientLight = new THREE.AmbientLight(
@@ -1434,6 +2284,9 @@ class TheatreClient {
         
         // Hide placeholder meshes initially since we start with particles
         this.setPlaceholderMeshesVisibility(false);
+        
+        // Initialize camera rotation speed display
+        this.initializeCameraSpeedDisplay();
     }
 
     initPostProcessing() {
@@ -1529,6 +2382,9 @@ class TheatreClient {
     initVisualEffects() {
         console.log('Initializing visual effects system...');
         
+        // 🎨 NEW: Initialize artistic texture processor
+        this.artisticProcessor = new ArtisticTextureProcessor();
+        
         // Initialize particle system (Phase 1)
         this.particleSystem = new ParticleSystem(VISUAL_CONFIG.particles.count); // Start with configured particle count
         this.particleSystem.addToScene(this.scene);
@@ -1537,11 +2393,15 @@ class TheatreClient {
         this.shapeManager = new ShapeManager();
         this.shapeManager.setScene(this.scene);
         
+        // 🎨 NEW: Connect artistic processor to shape manager
+        this.shapeManager.setArtisticProcessor(this.artisticProcessor);
+        
         // Set initial visual phase
         this.visualPhase = 1;
         this.lastTime = performance.now();
         
         console.log('Visual effects system initialized - Phase 1: Particles with center attraction active, ShapeManager ready');
+        console.log('🎨 Artistic texture processing enabled for client-side edge detection');
     }
 
     setPlaceholderMeshesVisibility(visible) {
@@ -1631,6 +2491,9 @@ class TheatreClient {
 
         // Check if we should transition to Phase 2 (eye shapes)
         this.checkVisualPhaseTransition();
+        
+        // Update texture display
+        this.onNewEyeImageProcessed(filename, url);
     }
 
     checkVisualPhaseTransition() {
@@ -1816,6 +2679,9 @@ class TheatreClient {
         const deltaTime = (currentTime - this.lastTime) / 1000; // Convert to seconds
         this.lastTime = currentTime;
 
+        // Update custom camera rotation (must be before controls.update())
+        this.updateCustomCameraRotation(deltaTime);
+
         // Update orbital controls
         if (this.controls) {
             this.controls.update();
@@ -1960,6 +2826,105 @@ class TheatreClient {
                 mesh.position.y += Math.cos(time + index) * VISUAL_CONFIG.animation.placeholder.flowMotion;
             }
         });
+    }
+
+    updateCustomCameraRotation(deltaTime) {
+        const rotationConfig = VISUAL_CONFIG.scene.controls.custom3DRotation;
+        
+        if (!rotationConfig.enabled) return;
+        
+        // Calculate dynamic speed based on number of shapes
+        const currentShapes = this.shapeManager ? this.shapeManager.getShapeCount() : 0;
+        const maxShapes = VISUAL_CONFIG.system.maxShapes;
+        const shapeRatio = Math.min(currentShapes / maxShapes, 1.0); // Clamp to 1.0 max
+        
+        // Speed multiplier ranges from 0.1 to 1.0 based on shape count
+        const speedMultiplier = 0.1 + (shapeRatio * 0.9);
+        
+        // Apply dynamic speed to both horizontal and vertical rotation
+        const dynamicHorizontalSpeed = rotationConfig.horizontalSpeed * speedMultiplier;
+        const dynamicVerticalSpeed = rotationConfig.verticalSpeed * speedMultiplier;
+        
+        // Update rotation time with dynamic speeds
+        this.cameraRotationTime += deltaTime * rotationConfig.timeScale;
+        
+        // Calculate horizontal rotation (azimuth) - continuous rotation with dynamic speed
+        const horizontalAngle = this.cameraRotationTime * dynamicHorizontalSpeed;
+        
+        // Calculate vertical rotation (polar) - oscillating motion with dynamic speed
+        const verticalOscillation = Math.sin(this.cameraRotationTime * dynamicVerticalSpeed) * rotationConfig.verticalRange;
+        const verticalAngle = rotationConfig.verticalOffset + verticalOscillation * (Math.PI * 0.4); // 0.4 gives nice range without going to extremes
+        
+        // Calculate camera position using spherical coordinates
+        const radius = this.baseRadius;
+        const x = radius * Math.sin(verticalAngle) * Math.cos(horizontalAngle);
+        const y = radius * Math.cos(verticalAngle);
+        const z = radius * Math.sin(verticalAngle) * Math.sin(horizontalAngle);
+        
+        // Update camera position
+        this.camera.position.set(x, y, z);
+        
+        // Make camera look at the center
+        this.camera.lookAt(0, 0, 0);
+        
+        // Update controls target to maintain smooth user interaction
+        if (this.controls) {
+            this.controls.target.set(0, 0, 0);
+        }
+        
+        // Optional: Debug logging for speed changes (can be removed later)
+        if (Math.floor(this.cameraRotationTime * 10) % 50 === 0) { // Log every ~5 seconds
+            console.log(`📷 Camera rotation speed: ${(speedMultiplier * 100).toFixed(1)}% (${currentShapes}/${maxShapes} shapes)`);
+        }
+        
+        // Update UI display for camera rotation speed
+        this.updateCameraSpeedDisplay(speedMultiplier, currentShapes, maxShapes);
+    }
+
+    updateCameraSpeedDisplay(speedMultiplier, currentShapes, maxShapes) {
+        // Update camera rotation speed in UI if elements exist
+        const speedElement = document.getElementById('camera-rotation-speed');
+        if (speedElement) {
+            speedElement.textContent = `${(speedMultiplier * 100).toFixed(1)}%`;
+        }
+        
+        const shapeCountElement = document.getElementById('camera-speed-shape-count');
+        if (shapeCountElement) {
+            shapeCountElement.textContent = `${currentShapes}/${maxShapes}`;
+        }
+        
+        // Update progress bar if it exists
+        const progressBar = document.getElementById('camera-speed-progress');
+        if (progressBar) {
+            progressBar.style.width = `${speedMultiplier * 100}%`;
+            
+            // Add visual feedback based on speed level
+            progressBar.className = 'camera-speed-bar';
+            if (speedMultiplier < 0.3) {
+                progressBar.classList.add('speed-slow');
+            } else if (speedMultiplier < 0.7) {
+                progressBar.classList.add('speed-medium');
+            } else {
+                progressBar.classList.add('speed-fast');
+            }
+        }
+        
+        // Update status text
+        const statusElement = document.getElementById('camera-rotation-status');
+        if (statusElement) {
+            let status = 'Stopped';
+            if (VISUAL_CONFIG.scene.controls.custom3DRotation.enabled) {
+                if (speedMultiplier < 0.3) {
+                    status = 'Slow Rotation';
+                } else if (speedMultiplier < 0.7) {
+                    status = 'Medium Rotation';
+                } else {
+                    status = 'Fast Rotation';
+                }
+            }
+            statusElement.textContent = status;
+            statusElement.className = `rotation-status ${speedMultiplier > 0.1 ? 'active' : 'inactive'}`;
+        }
     }
 
     onWindowResize() {
@@ -2185,6 +3150,219 @@ class TheatreClient {
                 } else {
                     this.addDebugMessage('Particle system not available', 'warning');
                 }
+            });
+        }
+
+        // Bloom controls
+        if (document.getElementById('bloom-enabled')) {
+            document.getElementById('bloom-enabled').addEventListener('change', (e) => {
+                VISUAL_CONFIG.bloom.enabled = e.target.checked;
+                this.updateBloomSettings();
+                console.log(`Bloom effect ${e.target.checked ? 'enabled' : 'disabled'}`);
+            });
+        }
+
+        if (document.getElementById('bloom-intensity')) {
+            document.getElementById('bloom-intensity').addEventListener('input', (e) => {
+                VISUAL_CONFIG.bloom.intensity = parseFloat(e.target.value);
+                document.getElementById('bloom-intensity-value').textContent = e.target.value;
+                this.updateBloomSettings();
+            });
+        }
+
+        if (document.getElementById('bloom-threshold')) {
+            document.getElementById('bloom-threshold').addEventListener('input', (e) => {
+                VISUAL_CONFIG.bloom.threshold = parseFloat(e.target.value);
+                document.getElementById('bloom-threshold-value').textContent = e.target.value;
+                this.updateBloomSettings();
+            });
+        }
+
+        if (document.getElementById('bloom-radius')) {
+            document.getElementById('bloom-radius').addEventListener('input', (e) => {
+                VISUAL_CONFIG.bloom.radius = parseFloat(e.target.value);
+                document.getElementById('bloom-radius-value').textContent = e.target.value;
+                this.updateBloomSettings();
+            });
+        }
+
+        if (document.getElementById('bloom-exposure')) {
+            document.getElementById('bloom-exposure').addEventListener('input', (e) => {
+                VISUAL_CONFIG.bloom.exposure = parseFloat(e.target.value);
+                document.getElementById('bloom-exposure-value').textContent = e.target.value;
+                this.updateBloomSettings();
+            });
+        }
+
+        // Bloom quality selector
+        if (document.getElementById('bloom-quality')) {
+            document.getElementById('bloom-quality').addEventListener('change', (e) => {
+                VISUAL_CONFIG.bloom.performance.quality = e.target.value;
+                this.updateBloomSettings();
+                console.log(`Bloom quality set to: ${e.target.value}`);
+            });
+        }
+
+        // Bloom adaptive quality toggle
+        if (document.getElementById('adaptive-quality')) {
+            document.getElementById('adaptive-quality').addEventListener('change', (e) => {
+                VISUAL_CONFIG.bloom.performance.adaptiveQuality = e.target.checked;
+                const status = document.getElementById('adaptive-status');
+                if (status) {
+                    status.textContent = e.target.checked ? 'Enabled' : 'Disabled';
+                    status.className = `config-status ${e.target.checked ? 'enabled' : 'disabled'}`;
+                }
+                console.log(`Adaptive bloom quality ${e.target.checked ? 'enabled' : 'disabled'}`);
+            });
+        }
+        
+        // 🎨 NEW: Artistic Processing Controls Event Listeners
+        // =========================================================
+        
+        // Main toggle for artistic processing
+        if (document.getElementById('artistic-enabled')) {
+            document.getElementById('artistic-enabled').addEventListener('change', (e) => {
+                VISUAL_CONFIG.artisticProcessing.enabled = e.target.checked;
+                const status = document.getElementById('artistic-status');
+                if (status) {
+                    status.textContent = e.target.checked ? 'Enabled' : 'Disabled';
+                    status.className = `config-status ${e.target.checked ? 'enabled' : 'disabled'}`;
+                }
+                this.updateArtisticProcessing();
+                console.log(`🎨 Artistic processing ${e.target.checked ? 'enabled' : 'disabled'}`);
+            });
+        }
+        
+        // Edge detection method
+        if (document.getElementById('edge-method')) {
+            document.getElementById('edge-method').addEventListener('change', (e) => {
+                VISUAL_CONFIG.artisticProcessing.edgeDetection.method = e.target.value;
+                this.updateArtisticProcessing();
+                console.log(`🎨 Edge detection method: ${e.target.value}`);
+            });
+        }
+        
+        // Edge threshold
+        if (document.getElementById('edge-threshold')) {
+            document.getElementById('edge-threshold').addEventListener('input', (e) => {
+                VISUAL_CONFIG.artisticProcessing.edgeDetection.threshold = parseFloat(e.target.value);
+                document.getElementById('threshold-value').textContent = e.target.value;
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Edge strength
+        if (document.getElementById('edge-strength')) {
+            document.getElementById('edge-strength').addEventListener('input', (e) => {
+                VISUAL_CONFIG.artisticProcessing.edgeDetection.strength = parseFloat(e.target.value);
+                document.getElementById('strength-value').textContent = e.target.value;
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Contrast factor
+        if (document.getElementById('contrast-factor')) {
+            document.getElementById('contrast-factor').addEventListener('input', (e) => {
+                VISUAL_CONFIG.artisticProcessing.contrast.factor = parseFloat(e.target.value);
+                document.getElementById('contrast-value').textContent = e.target.value;
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Gamma correction
+        if (document.getElementById('gamma-correction')) {
+            document.getElementById('gamma-correction').addEventListener('input', (e) => {
+                VISUAL_CONFIG.artisticProcessing.contrast.gamma = parseFloat(e.target.value);
+                document.getElementById('gamma-value').textContent = e.target.value;
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Invert edges style
+        if (document.getElementById('invert-edges')) {
+            document.getElementById('invert-edges').addEventListener('change', (e) => {
+                VISUAL_CONFIG.artisticProcessing.style.invertEdges = e.target.value === 'true';
+                this.updateArtisticProcessing();
+                console.log(`🎨 Edge style: ${e.target.value === 'true' ? 'white on black' : 'black on white'}`);
+            });
+        }
+        
+        // Edge thickness
+        if (document.getElementById('edge-thickness')) {
+            document.getElementById('edge-thickness').addEventListener('input', (e) => {
+                VISUAL_CONFIG.artisticProcessing.style.edgeThickness = parseInt(e.target.value);
+                document.getElementById('thickness-value').textContent = e.target.value;
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Noise reduction toggle
+        if (document.getElementById('noise-reduction')) {
+            document.getElementById('noise-reduction').addEventListener('change', (e) => {
+                VISUAL_CONFIG.artisticProcessing.style.noiseReduction = e.target.checked;
+                const status = document.getElementById('noise-status');
+                if (status) {
+                    status.textContent = e.target.checked ? 'Enabled' : 'Disabled';
+                    status.className = `config-status ${e.target.checked ? 'enabled' : 'disabled'}`;
+                }
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Edge smoothing toggle
+        if (document.getElementById('edge-smoothing')) {
+            document.getElementById('edge-smoothing').addEventListener('change', (e) => {
+                VISUAL_CONFIG.artisticProcessing.style.smoothing = e.target.checked;
+                const status = document.getElementById('smoothing-status');
+                if (status) {
+                    status.textContent = e.target.checked ? 'Enabled' : 'Disabled';
+                    status.className = `config-status ${e.target.checked ? 'enabled' : 'disabled'}`;
+                }
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Edge glow effect
+        if (document.getElementById('edge-glow')) {
+            document.getElementById('edge-glow').addEventListener('change', (e) => {
+                VISUAL_CONFIG.artisticProcessing.textureEnhancement.edgeGlow.enabled = e.target.checked;
+                const status = document.getElementById('glow-status');
+                if (status) {
+                    status.textContent = e.target.checked ? 'Enabled' : 'Disabled';
+                    status.className = `config-status ${e.target.checked ? 'enabled' : 'disabled'}`;
+                }
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Glow intensity
+        if (document.getElementById('glow-intensity')) {
+            document.getElementById('glow-intensity').addEventListener('input', (e) => {
+                VISUAL_CONFIG.artisticProcessing.textureEnhancement.edgeGlow.intensity = parseFloat(e.target.value);
+                document.getElementById('glow-intensity-value').textContent = e.target.value;
+                this.updateArtisticProcessing();
+            });
+        }
+        
+        // Control buttons
+        if (document.getElementById('apply-artistic-processing')) {
+            document.getElementById('apply-artistic-processing').addEventListener('click', () => {
+                this.reprocessAllShapeTextures();
+            });
+        }
+        
+        if (document.getElementById('clear-processing-cache')) {
+            document.getElementById('clear-processing-cache').addEventListener('click', () => {
+                if (this.artisticProcessor) {
+                    this.artisticProcessor.clearCache();
+                }
+                console.log('🎨 Cleared artistic processing cache');
+            });
+        }
+        
+        if (document.getElementById('reset-artistic-defaults')) {
+            document.getElementById('reset-artistic-defaults').addEventListener('click', () => {
+                this.resetArtisticDefaults();
             });
         }
     }
@@ -2441,45 +3619,570 @@ class TheatreClient {
         this.addDebugMessage('Requested existing eye images');
     }
 
+    // 🖼️ NEW: Real-Time Texture Display System
+    // =========================================================
+    
+    initTextureDisplay() {
+        // Initialize texture display variables
+        this.processedTextures = new Map(); // Store processed textures
+        this.autoRefreshInterval = null;
+        this.refreshIntervalTime = 3000; // 3 seconds default
+        
+        // Setup event listeners for texture display controls
+        this.setupTextureDisplayEventListeners();
+        
+        // Start auto-refresh if enabled
+        if (document.getElementById('auto-refresh-textures')?.checked) {
+            this.startAutoRefresh();
+        }
+        
+        console.log('🖼️ Texture display system initialized');
+    }
+    
+    setupTextureDisplayEventListeners() {
+        // Auto-refresh toggle
+        if (document.getElementById('auto-refresh-textures')) {
+            document.getElementById('auto-refresh-textures').addEventListener('change', (e) => {
+                const status = document.getElementById('auto-refresh-status');
+                if (status) {
+                    status.textContent = e.target.checked ? 'Enabled' : 'Disabled';
+                    status.className = `config-status ${e.target.checked ? 'enabled' : 'disabled'}`;
+                }
+                
+                if (e.target.checked) {
+                    this.startAutoRefresh();
+                } else {
+                    this.stopAutoRefresh();
+                }
+                
+                console.log(`🖼️ Auto-refresh ${e.target.checked ? 'enabled' : 'disabled'}`);
+            });
+        }
+        
+        // Refresh interval slider
+        if (document.getElementById('refresh-interval')) {
+            document.getElementById('refresh-interval').addEventListener('input', (e) => {
+                this.refreshIntervalTime = parseInt(e.target.value) * 1000; // Convert to milliseconds
+                document.getElementById('refresh-interval-value').textContent = e.target.value + 's';
+                
+                // Restart auto-refresh with new interval if it's running
+                if (this.autoRefreshInterval) {
+                    this.stopAutoRefresh();
+                    this.startAutoRefresh();
+                }
+                
+                console.log(`🖼️ Refresh interval set to ${e.target.value} seconds`);
+            });
+        }
+        
+        // Control buttons
+        if (document.getElementById('refresh-texture-preview')) {
+            document.getElementById('refresh-texture-preview').addEventListener('click', () => {
+                this.refreshTextureDisplay();
+            });
+        }
+        
+        if (document.getElementById('clear-texture-gallery')) {
+            document.getElementById('clear-texture-gallery').addEventListener('click', () => {
+                this.clearTextureGallery();
+            });
+        }
+        
+        if (document.getElementById('download-processed-texture')) {
+            document.getElementById('download-processed-texture').addEventListener('click', () => {
+                this.downloadLatestTexture();
+            });
+        }
+    }
+    
+    startAutoRefresh() {
+        if (this.autoRefreshInterval) {
+            clearInterval(this.autoRefreshInterval);
+        }
+        
+        this.autoRefreshInterval = setInterval(() => {
+            this.refreshTextureDisplay();
+        }, this.refreshIntervalTime);
+        
+        console.log(`🖼️ Started auto-refresh with ${this.refreshIntervalTime / 1000}s interval`);
+    }
+    
+    stopAutoRefresh() {
+        if (this.autoRefreshInterval) {
+            clearInterval(this.autoRefreshInterval);
+            this.autoRefreshInterval = null;
+            console.log('🖼️ Stopped auto-refresh');
+        }
+    }
+    
+    refreshTextureDisplay() {
+        if (!this.artisticProcessor) {
+            console.warn('🖼️ Cannot refresh texture display - artistic processor not available');
+            return;
+        }
+        
+        // Update processing status
+        this.updateTextureProcessingStatus('processing');
+        
+        // Get all current eye shapes and their processed textures
+        const shapes = this.shapeManager ? this.shapeManager.getAllShapes() : [];
+        const grid = document.getElementById('processed-textures-grid');
+        
+        if (!grid) return;
+        
+        // Clear existing content except placeholder
+        const placeholder = grid.querySelector('.texture-placeholder');
+        grid.innerHTML = '';
+        
+        if (shapes.length === 0) {
+            // Show placeholder if no shapes
+            if (placeholder) {
+                grid.appendChild(placeholder);
+            }
+            this.updateTextureProcessingStatus('ready');
+            this.updateTextureCount(0);
+            return;
+        }
+        
+        let processedCount = 0;
+        
+        shapes.forEach((shape, index) => {
+            if (shape.textureUrl && shape.mesh && shape.mesh.material.map) {
+                // Create texture item
+                const textureItem = this.createTextureItem(shape, index);
+                grid.appendChild(textureItem);
+                processedCount++;
+            }
+        });
+        
+        // Update status and count
+        this.updateTextureProcessingStatus('ready');
+        this.updateTextureCount(processedCount);
+        this.updateLastTextureUpdate();
+        
+        console.log(`🖼️ Refreshed texture display - showing ${processedCount} processed textures`);
+    }
+    
+    createTextureItem(shape, index) {
+        const item = document.createElement('div');
+        item.className = 'texture-item';
+        item.setAttribute('data-shape-index', index);
+        
+        // Create image element
+        const img = document.createElement('img');
+        
+        // Extract image data from the Three.js texture with improved debugging
+        if (shape.mesh.material.map && shape.mesh.material.map.image) {
+            try {
+                const texture = shape.mesh.material.map;
+                console.log(`🖼️ Processing texture ${index} with userData:`, texture.userData);
+                console.log(`🖼️ Texture image type:`, texture.image.constructor.name);
+                console.log(`🖼️ Texture image dimensions:`, texture.image.width, 'x', texture.image.height);
+                
+                // Create a NEW canvas to convert the texture to a data URL
+                const displayCanvas = document.createElement('canvas');
+                const displayCtx = displayCanvas.getContext('2d');
+                
+                displayCanvas.width = texture.image.width || 256;
+                displayCanvas.height = texture.image.height || 256;
+                
+                // Clear and draw the texture image
+                displayCtx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
+                displayCtx.drawImage(texture.image, 0, 0);
+                
+                // Convert to data URL
+                const dataUrl = displayCanvas.toDataURL();
+                img.src = dataUrl;
+                img.alt = `Processed texture ${index + 1}`;
+                
+                console.log(`🖼️ Created display image for texture ${index}, data URL length:`, dataUrl.length);
+                
+                // Store the display canvas for potential download (use unique key)
+                const uniqueKey = `${index}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+                this.processedTextures.set(uniqueKey, displayCanvas);
+                
+                // Also store with the simple index for backward compatibility
+                this.processedTextures.set(index, displayCanvas);
+                
+            } catch (error) {
+                console.warn(`🖼️ Could not extract texture ${index}:`, error);
+                img.src = shape.textureUrl; // Fallback to original
+                img.alt = `Original texture ${index + 1}`;
+            }
+        } else {
+            console.warn(`🖼️ No texture found for shape ${index}, using original`);
+            img.src = shape.textureUrl; // Fallback to original
+            img.alt = `Original texture ${index + 1}`;
+        }
+        
+        img.addEventListener('load', () => {
+            item.classList.remove('loading');
+            console.log(`🖼️ Texture image ${index} loaded successfully`);
+        });
+        
+        img.addEventListener('error', () => {
+            item.classList.remove('loading');
+            console.warn(`🖼️ Failed to load texture image for shape ${index}`);
+        });
+        
+        // Create overlay with info
+        const overlay = document.createElement('div');
+        overlay.className = 'texture-item-overlay';
+        
+        const filename = shape.filename || `texture_${index + 1}`;
+        overlay.innerHTML = `
+            <span>${filename}</span>
+            <span class="texture-timestamp">${new Date().toLocaleTimeString()}</span>
+        `;
+        
+        // Add click handler for enlargement (optional)
+        item.addEventListener('click', () => {
+            this.enlargeTexture(shape, index);
+        });
+        
+        item.appendChild(img);
+        item.appendChild(overlay);
+        item.classList.add('loading');
+        
+        return item;
+    }
+    
+    enlargeTexture(shape, index) {
+        // Optional: Create a modal or popup to show enlarged texture
+        console.log(`🖼️ Enlarging texture ${index} for shape:`, shape.filename);
+        // This could be implemented as a modal overlay
+    }
+    
+    clearTextureGallery() {
+        const grid = document.getElementById('processed-textures-grid');
+        if (!grid) return;
+        
+        // Clear the grid and show placeholder
+        grid.innerHTML = `
+            <div class="texture-placeholder">
+                <div class="placeholder-icon">🎨</div>
+                <div class="placeholder-text">No processed textures yet</div>
+                <div class="placeholder-subtext">Upload some eye images to see processed textures here</div>
+            </div>
+        `;
+        
+        // Clear stored textures
+        this.processedTextures.clear();
+        
+        // Update status
+        this.updateTextureCount(0);
+        this.updateLastTextureUpdate('Never');
+        
+        console.log('🖼️ Cleared texture gallery');
+    }
+    
+    downloadLatestTexture() {
+        if (this.processedTextures.size === 0) {
+            console.warn('🖼️ No processed textures available for download');
+            this.addDebugMessage('No processed textures available for download', 'warning');
+            return;
+        }
+        
+        // Get the latest processed texture (highest index)
+        const latestIndex = Math.max(...this.processedTextures.keys());
+        const canvas = this.processedTextures.get(latestIndex);
+        
+        if (!canvas) {
+            console.warn('🖼️ Latest texture canvas not found');
+            return;
+        }
+        
+        try {
+            // Create download link
+            const link = document.createElement('a');
+            link.download = `processed_texture_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('🖼️ Downloaded latest processed texture');
+            this.addDebugMessage('Downloaded latest processed texture', 'success');
+        } catch (error) {
+            console.error('🖼️ Failed to download texture:', error);
+            this.addDebugMessage('Failed to download texture', 'error');
+        }
+    }
+    
+    updateTextureProcessingStatus(status) {
+        const statusElement = document.getElementById('texture-processing-status');
+        if (!statusElement) return;
+        
+        statusElement.className = `status-${status}`;
+        
+        switch (status) {
+            case 'processing':
+                statusElement.textContent = 'Processing...';
+                break;
+            case 'ready':
+                statusElement.textContent = 'Ready';
+                break;
+            case 'error':
+                statusElement.textContent = 'Error';
+                break;
+            default:
+                statusElement.textContent = 'Unknown';
+        }
+    }
+    
+    updateTextureCount(count) {
+        const countElement = document.getElementById('texture-count');
+        if (countElement) {
+            countElement.textContent = count.toString();
+        }
+    }
+    
+    updateLastTextureUpdate(timestamp = null) {
+        const updateElement = document.getElementById('last-texture-update');
+        if (updateElement) {
+            updateElement.textContent = timestamp || new Date().toLocaleTimeString();
+        }
+    }
+    
+    // Hook into existing eye image processing to auto-refresh display
+    onNewEyeImageProcessed(filename, url) {
+        // This method can be called when a new eye image is processed
+        // to automatically update the texture display
+        if (document.getElementById('auto-refresh-textures')?.checked) {
+            setTimeout(() => {
+                this.refreshTextureDisplay();
+            }, 1000); // Small delay to ensure texture is fully processed
+        }
+    }
+
     // Visual effects cleanup
     dispose() {
+        // Cleanup resources
         if (this.particleSystem) {
             this.particleSystem.dispose();
-            this.particleSystem = null;
         }
         
         if (this.shapeManager) {
             this.shapeManager.dispose();
-            this.shapeManager = null;
         }
         
-        if (this.controls) {
-            this.controls.dispose();
-            this.controls = null;
+        // 🎨 NEW: Dispose artistic processor
+        if (this.artisticProcessor) {
+            this.artisticProcessor.dispose();
         }
         
-        // Clean up post-processing resources
-        if (this.composer) {
-            this.composer.dispose();
-            this.composer = null;
+        if (this.renderer) {
+            this.renderer.dispose();
         }
         
-        if (this.bloomPass) {
-            this.bloomPass.dispose();
-            this.bloomPass = null;
+        console.log('TheatreClient disposed');
+    }
+    
+    // 🎨 NEW: Artistic Processing Support Methods
+    // =========================================================
+    
+    updateArtisticProcessing() {
+        if (!this.artisticProcessor) return;
+        
+        // Update processor settings and clear cache
+        this.artisticProcessor.updateSettings(VISUAL_CONFIG.artisticProcessing);
+        
+        // Trigger reprocessing of existing shapes if real-time adjustment is enabled
+        if (VISUAL_CONFIG.artisticProcessing.realTimeAdjustment) {
+            this.reprocessAllShapeTextures();
         }
         
-        if (this.renderPass) {
-            this.renderPass.dispose();
-            this.renderPass = null;
+        console.log('🎨 Updated artistic processing settings');
+    }
+    
+    reprocessAllShapeTextures() {
+        if (!this.shapeManager || !this.artisticProcessor) {
+            console.warn('🎨 Cannot reprocess textures - missing components');
+            return;
         }
         
-        // Clear status update interval
-        if (this.statusUpdateInterval) {
-            clearInterval(this.statusUpdateInterval);
+        const shapes = this.shapeManager.getAllShapes();
+        let processedCount = 0;
+        
+        shapes.forEach(shape => {
+            if (shape.textureUrl && shape.mesh) {
+                // Clear the current texture
+                if (shape.mesh.material.map) {
+                    shape.mesh.material.map.dispose();
+                }
+                
+                // Reload and reprocess the texture
+                shape.loadTexture();
+                processedCount++;
+            }
+        });
+        
+        console.log(`🎨 Reprocessing ${processedCount} shape textures with new artistic settings`);
+    }
+    
+    resetArtisticDefaults() {
+        // Reset all artistic processing settings to their defaults
+        const defaults = {
+            enabled: true,
+            realTimeAdjustment: true,
+            edgeDetection: {
+                method: 'sobel',
+                threshold: 0.3,
+                strength: 2.0,
+                adaptiveThreshold: false
+            },
+            contrast: {
+                factor: 2.5,
+                brightness: -30,
+                gamma: 1.3,
+                autoBalance: true
+            },
+            style: {
+                invertEdges: false,
+                backgroundColor: 255,
+                edgeColor: 0,
+                edgeThickness: 1,
+                noiseReduction: true,
+                smoothing: true
+            },
+            textureEnhancement: {
+                enabled: true,
+                sharpening: 1.2,
+                contrastBoost: 1.1,
+                edgeGlow: {
+                    enabled: true,
+                    intensity: 0.3,
+                    color: 0xffffff
+                }
+            },
+            performance: {
+                canvasSize: 256,
+                useWorker: false,
+                cacheProcessed: true
+            }
+        };
+        
+        // Update the config
+        VISUAL_CONFIG.artisticProcessing = { ...VISUAL_CONFIG.artisticProcessing, ...defaults };
+        
+        // Update UI controls to reflect the defaults
+        this.updateArtisticUIControls();
+        
+        // Apply the changes
+        this.updateArtisticProcessing();
+        
+        console.log('🎨 Reset artistic processing to default settings');
+    }
+    
+    updateArtisticUIControls() {
+        const config = VISUAL_CONFIG.artisticProcessing;
+        
+        // Update checkboxes and status
+        this.updateCheckboxControl('artistic-enabled', config.enabled, 'artistic-status');
+        this.updateCheckboxControl('noise-reduction', config.style.noiseReduction, 'noise-status');
+        this.updateCheckboxControl('edge-smoothing', config.style.smoothing, 'smoothing-status');
+        this.updateCheckboxControl('edge-glow', config.textureEnhancement.edgeGlow.enabled, 'glow-status');
+        
+        // Update select elements
+        this.updateSelectControl('edge-method', config.edgeDetection.method);
+        this.updateSelectControl('invert-edges', config.style.invertEdges.toString());
+        
+        // Update range inputs and their display values
+        this.updateRangeControl('edge-threshold', config.edgeDetection.threshold, 'threshold-value');
+        this.updateRangeControl('edge-strength', config.edgeDetection.strength, 'strength-value');
+        this.updateRangeControl('contrast-factor', config.contrast.factor, 'contrast-value');
+        this.updateRangeControl('gamma-correction', config.contrast.gamma, 'gamma-value');
+        this.updateRangeControl('edge-thickness', config.style.edgeThickness, 'thickness-value');
+        this.updateRangeControl('glow-intensity', config.textureEnhancement.edgeGlow.intensity, 'glow-intensity-value');
+    }
+    
+    updateCheckboxControl(controlId, value, statusId) {
+        const control = document.getElementById(controlId);
+        const status = document.getElementById(statusId);
+        
+        if (control) {
+            control.checked = value;
         }
         
-        console.log('Theatre client disposed - including post-processing resources');
+        if (status) {
+            status.textContent = value ? 'Enabled' : 'Disabled';
+            status.className = `config-status ${value ? 'enabled' : 'disabled'}`;
+        }
+    }
+    
+    updateSelectControl(controlId, value) {
+        const control = document.getElementById(controlId);
+        if (control) {
+            control.value = value;
+        }
+    }
+    
+    updateRangeControl(controlId, value, displayId) {
+        const control = document.getElementById(controlId);
+        const display = document.getElementById(displayId);
+        
+        if (control) {
+            control.value = value;
+        }
+        
+        if (display) {
+            display.textContent = value;
+        }
+    }
+
+    initializeCameraSpeedDisplay() {
+        // Set initial values for camera rotation speed display
+        const currentShapes = this.shapeManager ? this.shapeManager.getShapeCount() : 0;
+        const maxShapes = VISUAL_CONFIG.system.maxShapes;
+        const initialSpeedMultiplier = 0.1; // Starting speed when no shapes
+        
+        // Initialize display elements
+        this.updateCameraSpeedDisplay(initialSpeedMultiplier, currentShapes, maxShapes);
+        
+        console.log('📷 Camera rotation speed display initialized');
+    }
+
+    createPlaceholderMeshes() {
+        // Create some basic geometric shapes that will be used in the animation
+        const geometries = [
+            new THREE.BoxGeometry(0.5, 0.5, 0.5),
+            new THREE.SphereGeometry(0.3, 16, 16),
+            new THREE.ConeGeometry(0.3, 0.6, 8),
+            new THREE.CylinderGeometry(0.2, 0.2, 0.6, 8),
+            new THREE.TetrahedronGeometry(0.4)
+        ];
+
+        const material = new THREE.MeshLambertMaterial({ 
+            color: 0x666666,
+            transparent: true,
+            opacity: 0.7
+        });
+
+        for (let i = 0; i < 10; i++) {
+            const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+            const mesh = new THREE.Mesh(geometry, material.clone());
+            
+            // Random initial position
+            mesh.position.set(
+                (Math.random() - 0.5) * 10,
+                (Math.random() - 0.5) * 10,
+                (Math.random() - 0.5) * 10
+            );
+            
+            // Random rotation
+            mesh.rotation.set(
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2
+            );
+
+            this.scene.add(mesh);
+            this.animationMeshes.push(mesh);
+        }
+
+        console.log(`Created ${this.animationMeshes.length} placeholder meshes`);
     }
 }
 

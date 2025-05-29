@@ -7,12 +7,64 @@ A digital program for experimental theatre that processes audience photos and cr
 This system consists of:
 1. **🤖 SD Card Auto-Import Pipeline**: Automatically detects camera SD cards and imports new images with real-time progress tracking
 2. **Image Processing Pipeline**: Automatically detects faces and crops eyes from photos using OpenCV
-3. **✨ Professional Bloom Visual Effects System**: Advanced 3-phase configurable 3D animations with constant bloom emission, enhanced particle dynamics, eye-textured shapes, and orbital camera controls
-4. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation around the center for dynamic theatrical presentation
-5. **Real-time Communication**: Socket.IO for live updates between all system components
-6. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
+3. **✨ Professional Bloom Visual Effects System**: Advanced 4-phase configurable 3D animations with constant bloom emission, enhanced flow dynamics, eye-textured shapes, and dynamic orbital camera controls
+4. **🎨 Client-Side Artistic Texture Processing**: Real-time B&W edge detection transforms raw eye images into dramatic high-contrast textures with 12+ adjustable parameters
+5. **🖼️ Real-Time Texture Display Gallery**: Live preview gallery showing processed textures in their original aspect ratios with interactive controls
+6. **📷 Dynamic Camera Rotation System**: Progressive speed-up camera rotation (0.1x to 1.0x) that accelerates with audience participation
+7. **Real-time Communication**: Socket.IO for live updates between all system components
+8. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
 
 ## Current Status
+
+### ✅ **Milestone 10: Dynamic Camera Rotation System - COMPLETED** 📷
+- **🎬 Progressive Camera Animation**: Revolutionary camera system that builds energy as audience participates
+- **📈 Speed-Based Progression**: Camera rotation speed increases from 10% to 100% based on number of eye shapes (0 to 40 shapes)
+- **🌍 3D Orbital Motion**: Both horizontal continuous rotation and vertical oscillating motion for dynamic cinematic experience
+- **⚡ Real-Time Speed Calculation**: `speed = 0.1 + (currentShapes/maxShapes) * 0.9` provides smooth acceleration curve
+- **🎛️ Comprehensive UI Monitoring**: Live camera rotation status with color-coded indicators:
+  - **🟢 Slow (10-30%)**: Green progress bar and "Slow Rotation" status
+  - **🟡 Medium (30-70%)**: Yellow progress bar and "Medium Rotation" status  
+  - **🔴 Fast (70-100%)**: Red progress bar and "Fast Rotation" status
+- **📊 Live Performance Metrics**: Real-time display of current speed percentage, shape count (current/max), and rotation status
+- **✨ Animated Progress Bar**: Shimmer effect and smooth transitions with hover interactions
+- **🎪 Theatre Integration**: Creates direct connection between audience participation and visual energy
+- **⚙️ Configurable Parameters**: Base speeds, oscillation range, and visual feedback all easily adjustable
+- **🎮 User Interaction Friendly**: Camera system works seamlessly with mouse grab orbital controls
+
+### ✅ **Milestone 9: Client-Side Artistic Texture Processing System - COMPLETED** 🎨
+- **🎨 Complete Artistic Processing Pipeline**: Revolutionary client-side system transforming raw eye images into dramatic B&W edge-detected textures
+- **🔥 Real-Time Edge Detection**: Three sophisticated algorithms (Sobel, Roberts, Prewitt) with live processing on user devices
+- **⚡ High-Performance Processing**: Off-screen canvas with smart caching, size optimization, and efficient memory management  
+- **🎛️ Comprehensive UI Controls**: 12+ real-time adjustable parameters with live preview and instant texture reprocessing
+- **🎭 Artistic Enhancement Pipeline**: Grayscale conversion → Contrast enhancement → Noise reduction → Edge detection → Artistic styling → Smoothing
+- **💫 3D Integration Features**: Emissive glow effects, material enhancement, and bloom-compatible texture mapping
+- **🚀 Advanced Configuration System**: Multiple edge detection methods, contrast/gamma controls, artistic styling options, and performance optimization
+- **🎪 Production-Ready Interface**: Professional control panel with reset defaults, cache management, and real-time parameter adjustment
+- **🔧 Smart Caching System**: Intelligent texture caching with settings-based cache keys for optimal performance
+- **✨ Enhanced Visual Impact**: Dramatic black & white edge outlines create striking contrast for professional theatre presentation
+- **🖼️ Real-Time Texture Display Gallery**: Complete live preview system with sophisticated texture management:
+  - **📸 Live Processing Preview**: Instant display of processed textures as new eye images are uploaded and processed
+  - **🎨 Unique Texture Rendering**: Fixed canvas reuse issue - each texture now displays its own unique processed content
+  - **📐 Original Aspect Ratio Display**: Images shown in natural proportions instead of forced squares for authentic presentation
+  - **🗂️ Compact Gallery Layout**: Three textures per row with optimal spacing for efficient screen usage
+  - **🔄 Auto-Refresh Controls**: Configurable automatic gallery updates when new images are processed (1-10 second intervals)
+  - **⚙️ Interactive Gallery Management**: Manual refresh, clear gallery, and download latest texture controls
+  - **📊 Live Status Tracking**: Real-time display of texture count, processing status, and last update timestamp
+  - **🎯 Enhanced User Experience**: Hover effects, loading indicators, and smooth transitions for professional presentation
+  - **💾 Download Capability**: One-click download of latest processed texture for external use
+  - **🔍 Texture Inspection**: Click-to-enlarge functionality for detailed texture examination
+
+### ✅ **Milestone 8: Enhanced Flow Dynamics System - COMPLETED** 🌊
+- **🌊 Revolutionary Particle Physics**: Complete flow dynamics system with 6 sophisticated force mechanisms preventing particle clustering and creating organic motion
+- **⚖️ Balanced vs Simple Attraction**: Two distinct attraction modes with force balancing to distribute particles evenly among multiple eye shapes
+- **🔄 Dynamic Force Management**: Advanced force coordination preventing any single shape from monopolizing all particles
+- **🌀 Circulation Forces**: Particles flow **around** shapes in tangential motion rather than just toward them, creating natural streaming effects
+- **💨 Global Flow Field**: Animated background "current" system providing continuous motion with configurable noise patterns
+- **🌪️ Enhanced Turbulence**: Natural randomness and organic movement patterns with configurable strength
+- **⚡ Escape Velocity System**: Fast particles can break free from attractor influence and explore other regions
+- **🛡️ Repulsion Zones**: "Bubble" effects around shapes preventing particle trapping and maintaining dynamic flow
+- **🎛️ Real-time Toggle Control**: Debug panel switch to compare simple vs enhanced flow systems instantly
+- **🎪 Phase 4 Extensions**: Enhanced shell effect and dispersion burst with uniform particle distribution
 
 ### ✅ **Milestone 7: Global Keyboard Trigger System - COMPLETED** 🎹
 - **🎹 Global Hotkey Support**: Complete keyboard trigger system using Python `keyboard` library for system-wide detection
@@ -39,7 +91,7 @@ This system consists of:
 - **📊 Quality Control**: Configurable bloom resolution and exposure settings for different performance requirements
 
 ### ✅ **Milestone 5: Advanced Configurable Visual Effects - COMPLETED** 🎉
-- **🎛️ Complete Configuration System**: All 35+ visual parameters centrally configurable via `VISUAL_CONFIG` object
+- **🎛️ Complete Configuration System**: All 40+ visual parameters centrally configurable via `VISUAL_CONFIG` object
 - **🌊 Enhanced Flow Dynamics System**: Revolutionary particle flow system with 6 sophisticated force mechanisms that prevents belt formation and ensures dynamic motion around all shapes
 - **🎛️ Real-time Flow Control**: Debug panel toggle to switch between simple attraction and advanced flow systems for easy comparison
 - **🌀 Enhanced Phase 1**: Particles now start distributed throughout space with center attraction (no more lifetime mechanism)
@@ -53,12 +105,29 @@ This system consists of:
 
 ### ✅ **Milestone 4: Visual Effects System - COMPLETED** 🎉
 - **🎭 Complete 3-Phase Interactive Experience**: Full visual effects system with particle dynamics and eye-textured animations
-- **Phase 1 - Enhanced Particle Foundation**: Particles distributed in space with center attraction and depth-based brightness
-- **Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on orbiting 3D shapes with particle attraction
-- **Phase 3 - Convergence Animation**: Dramatic convergence with speed acceleration and completion detection
-- **Automatic Phase Transitions**: System responds intelligently to eye image availability
-- **Manual Controls**: Test triggers and reset functionality via debug panel
-- **Production-Ready Performance**: Optimized rendering with configurable particle counts and shape parameters
+- **🎭 Advanced Configurable 3D Visual Effects System**
+  1. **Phase 1 - Enhanced Particle Foundation**: Particles distributed in space with center attraction and depth-based brightness
+  2. **Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on orbiting 3D shapes with particle attraction
+  3. **🎨 Artistic Texture Processing**: Client-side edge detection transforms raw eye images into dramatic B&W outlines with high contrast
+  4. **Phase 3 - Convergence Animation**: Dramatic convergence with speed acceleration and completion detection
+  5. **Phase 4a - Dispersion Burst**: Explosive outward particle fountain in uniform directions creating dramatic fountain effect
+  6. **Phase 4b - Shell Formation**: Particles form protective shell around converged shapes with dynamic turbulence and center attraction
+  7. **🎹 Global Keyboard Triggers**: Press **Down Arrow** key from anywhere on the server computer to instantly trigger convergence animation (2-second cooldown prevents double-triggers)
+  8. **✨ Constant Bloom Emission**: Professional post-processing bloom effects where each particle acts like a light bulb (similar to Max jit.gl bloom)
+  9. **📷 Dynamic Camera Rotation**: Progressive speed-up orbital camera system that accelerates with audience participation (10% to 100% speed based on shape count)
+  10. **🌊 Enhanced Flow Dynamics**: Revolutionary particle physics with 6 force mechanisms:
+      - **⚖️ Balanced Attraction**: Force balancing prevents any single shape from monopolizing particles
+      - **🌀 Circulation Forces**: Particles flow around shapes in tangential motion, not just toward them
+      - **🛡️ Repulsion Zones**: Creates "bubbles" around shapes preventing particle trapping
+      - **💨 Global Flow Field**: Animated background current providing continuous organic motion
+      - **🌪️ Smart Turbulence**: Natural randomness with configurable intensity
+      - **⚡ Escape Velocity**: Fast particles can break free and explore other regions
+  11. **🎨 Real-Time Artistic Controls**: Live adjustment of edge detection, contrast, gamma, and artistic styling parameters
+  12. **🎛️ Real-time Flow Control**: Debug panel toggle to switch between simple and enhanced flow systems instantly
+  13. **Automatic Phase Transitions**: System automatically detects eye images and transitions between phases
+  14. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object including artistic processing settings
+  15. **Performance Optimized**: Smooth rendering with configurable particle counts (2000 default) and shape limits (40 default)
+  16. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
 
 ### ✅ **Milestone 3: SD Card Auto-Import System - COMPLETED** 🌟
 - **🤖 Complete Auto-Import Pipeline**: SD Card → Detection → Import → Eye Processing → Real-time Display
@@ -147,22 +216,35 @@ The client interface includes:
 - **Status Indicators**: Connection, Image Processor, and File Monitoring status
 - **🎭 3D Visual Effects Canvas**: Complete 3-phase configurable animation system with interactive orbital camera controls
 - **🎮 Camera Controls**: Mouse grab orbital view with constant auto-rotation for dynamic viewing experience
+- **🖼️ Real-Time Texture Display Gallery**: Live preview of processed textures with compact 3-per-row layout
 - **Debug Panel**: Testing tools and system information
 - **🔧 Configuration Controls**: Easy parameter tweaking interface
 
 ### 3. System Operation
 
 #### **🎭 Advanced Configurable 3D Visual Effects System**
-1. **Phase 1 - Center Attraction**: Particles distributed throughout space, gradually converging toward center with configurable attraction forces and constant bloom emission
-2. **Phase 2 - Eye Shape Animation**: Automatic creation of orbiting 3D shapes when eye images become available, with enhanced bloom effects
-3. **Phase 3 - Convergence Animation**: Manual trigger via "Trigger Animation" button OR **🎹 Down Arrow Key** for dramatic convergence effect with intensified bloom
-4. **🎹 Global Keyboard Triggers**: Press **Down Arrow** key from anywhere on the server computer to instantly trigger convergence animation (2-second cooldown prevents double-triggers)
-5. **✨ Constant Bloom Emission**: Professional post-processing bloom effects where each particle acts like a light bulb (similar to Max jit.gl bloom)
-6. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation (1.0 speed) around the center for dynamic theatrical presentation
-7. **Real-time Transitions**: System automatically detects eye images and transitions between phases
-8. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object including bloom settings
-9. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
-10. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
+1. **Phase 1 - Enhanced Particle Foundation**: Particles distributed in space with center attraction and depth-based brightness
+2. **Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on orbiting 3D shapes with particle attraction
+3. **🎨 Artistic Texture Processing**: Client-side edge detection transforms raw eye images into dramatic B&W outlines with high contrast
+4. **Phase 3 - Convergence Animation**: Dramatic convergence with speed acceleration and completion detection
+5. **Phase 4a - Dispersion Burst**: Explosive outward particle fountain in uniform directions creating dramatic fountain effect
+6. **Phase 4b - Shell Formation**: Particles form protective shell around converged shapes with dynamic turbulence and center attraction
+7. **🎹 Global Keyboard Triggers**: Press **Down Arrow** key from anywhere on the server computer to instantly trigger convergence animation (2-second cooldown prevents double-triggers)
+8. **✨ Constant Bloom Emission**: Professional post-processing bloom effects where each particle acts like a light bulb (similar to Max jit.gl bloom)
+9. **📷 Dynamic Camera Rotation**: Progressive speed-up orbital camera system that accelerates with audience participation (10% to 100% speed based on shape count)
+10. **🌊 Enhanced Flow Dynamics**: Revolutionary particle physics with 6 force mechanisms:
+   - **⚖️ Balanced Attraction**: Force balancing prevents any single shape from monopolizing particles
+   - **🌀 Circulation Forces**: Particles flow around shapes in tangential motion, not just toward them
+   - **🛡️ Repulsion Zones**: Creates "bubbles" around shapes preventing particle trapping
+   - **💨 Global Flow Field**: Animated background current providing continuous organic motion
+   - **🌪️ Smart Turbulence**: Natural randomness with configurable intensity
+   - **⚡ Escape Velocity**: Fast particles can break free and explore other regions
+11. **🎨 Real-Time Artistic Controls**: Live adjustment of edge detection, contrast, gamma, and artistic styling parameters
+12. **🎛️ Real-time Flow Control**: Debug panel toggle to switch between simple and enhanced flow systems instantly
+13. **Automatic Phase Transitions**: System automatically detects eye images and transitions between phases
+14. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object including artistic processing settings
+15. **Performance Optimized**: Smooth rendering with configurable particle counts (2000 default) and shape limits (40 default)
+16. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
 
 #### **Automatic Eye Images Display**
 1. **Client Connection**: When you open the web interface, existing eye images automatically load
@@ -183,9 +265,29 @@ The client interface includes:
 - **Test Processing**: Generate and process a test face image
 - **🎭 Animation Controls**: "Trigger Animation" and "Reset Animation" buttons for convergence effects
 - **🎹 Keyboard Status**: Shows if global keyboard triggers are active (Down Arrow key)
-- **🌊 Flow Dynamics Toggle**: Switch between simple attraction and enhanced flow systems in real-time
+- **📷 Camera Rotation Monitor**: Real-time monitoring of camera rotation system:
+  - **Rotation Status**: Live status indicator (Slow/Medium/Fast Rotation)
+  - **Current Speed**: Exact speed percentage display (e.g., "45.2%")
+  - **Shape Count**: Current vs maximum shapes driving speed (e.g., "18/40")
+  - **Speed Progress**: Color-coded progress bar with shimmer animation
+- **🌊 Flow Dynamics Toggle**: Switch between simple attraction and enhanced flow systems in real-time to compare particle behaviors
 - **✨ Bloom Post-Processing Toggle**: Enable/disable professional bloom effects with real-time control
 - **🌟 Constant Emission Toggle**: Control particle light bulb emission for bloom effects
+- **🎨 Artistic Texture Processing**: Complete control panel for real-time texture enhancement
+  - **Edge Detection**: Choose from Sobel, Roberts, or Prewitt algorithms
+  - **Live Parameter Control**: Real-time adjustment of edge threshold, strength, contrast, and gamma
+  - **Artistic Styling**: Toggle between black-on-white or white-on-black edge styles
+  - **Advanced Features**: Noise reduction, edge smoothing, and emissive glow effects
+  - **Cache Management**: Clear processing cache and reset to defaults
+  - **Apply to All Shapes**: Reprocess all existing eye textures with new settings
+- **🖼️ Real-Time Texture Display Gallery**: Live preview system for processed textures
+  - **Auto-Refresh Control**: Toggle automatic gallery updates (1-10 second intervals)
+  - **Gallery Management**: Manual refresh, clear gallery, and download latest texture
+  - **Status Tracking**: Live display of texture count, processing status, and last update time
+  - **Original Aspect Ratios**: Textures displayed in natural proportions, 3 per row
+  - **Interactive Preview**: Hover effects and click-to-enlarge functionality
+- **💥 Test Dispersion**: Manually trigger dispersion burst effect for testing dramatic particle fountain
+- **🛡️ Test Shell Effect**: Manually trigger shell formation around converged shapes
 - **Refresh Status**: Manually request status updates
 - **Clear Images**: Remove displayed eye images
 - **Refresh Eye Images**: Clear and reload existing eye images from server
@@ -213,23 +315,28 @@ The client interface includes:
 - **Image Processor**: OpenCV face/eye detection with comprehensive error handling
 - **File Monitoring**: Watchdog-based automatic processing of new images  
 - **Client Interface**: Complete web interface with real-time updates and auto-import controls
-- **✨ Professional Bloom Visual Effects System**: Complete 3-phase system with constant bloom emission and 35+ configurable parameters
+- **✨ Professional Bloom Visual Effects System**: Complete 4-phase system with constant bloom emission and 35+ configurable parameters
 - **🎨 Constant Bloom Emission**: Professional post-processing with UnrealBloomPass creating light-bulb particle effects
+- **🎨 Client-Side Artistic Texture Processing**: Real-time B&W edge detection with 12+ configurable parameters and smart caching
+- **🖼️ Real-Time Texture Display Gallery**: Live preview system with auto-refresh, original aspect ratios, and interactive controls
 - **🎹 Global Keyboard Trigger System**: Down arrow key triggers with safety mechanisms, status monitoring, and real-time integration
+- **🌊 Enhanced Flow Dynamics**: Revolutionary 6-mechanism particle physics system creating organic motion patterns
 - **Real-time Communication**: Bidirectional Socket.IO events with comprehensive auto-import events
-- **Debug Tools**: Comprehensive testing and status monitoring with SD card management, animation controls, and bloom toggles
+- **Debug Tools**: Comprehensive testing and status monitoring with SD card management, animation controls, bloom toggles, and artistic processing controls
 - **Eye Images Display**: Automatic loading and real-time display of processed eye images
 - **UI Layout**: Clean performance interface with collapsible debug panel and auto-import configuration
 - **Auto-Import Configuration**: Professional toggle controls with live status indicators and progress tracking
 
 ### 🚧 **Current Issues**
-None - All core functionality including complete SD card auto-import pipeline, advanced configurable 3D visual effects system, professional constant bloom emission, and global keyboard triggers is working correctly! 🎉
+None - All core functionality including complete SD card auto-import pipeline, advanced configurable 3D visual effects system, professional constant bloom emission, and global keyboard triggers is working correctly! 
 
 ### 🎉 **CORE THEATRE AUTOMATION COMPLETE**
 All essential features for live theatre production are now fully implemented and operational:
 - ✅ **SD Card Auto-Import**: Automatic detection and background processing
 - ✅ **Eye Detection & Processing**: Real-time image processing pipeline  
+- ✅ **🎨 Client-Side Artistic Processing**: Real-time B&W edge detection with professional control panel
 - ✅ **3D Visual Effects**: Professional configurable animation system with constant bloom
+- ✅ **🌊 Enhanced Flow Dynamics**: Revolutionary 6-mechanism particle physics system
 - ✅ **Keyboard Triggers**: Global hotkey system for live performance control
 - ✅ **Real-time Communication**: Complete Socket.IO integration
 - ✅ **Status Monitoring**: Comprehensive system status and controls
@@ -238,11 +345,12 @@ All essential features for live theatre production are now fully implemented and
 1. **Production Deployment**: Server configuration for permanent installation
 2. **User Training**: Materials for theatre operators
 3. **Performance Optimization**: Additional fine-tuning for specific hardware
+4. **🎨 Advanced Artistic Effects**: Additional filter algorithms and texture enhancement options
 
 ## Technical Architecture
 
 ### **🎭 Advanced Configurable Visual Effects System** 
-1. **🎛️ Complete Configuration System**: All 35+ visual effects parameters controlled via centralized `VISUAL_CONFIG` object
+1. **🎛️ Complete Configuration System**: All 40+ visual effects parameters controlled via centralized `VISUAL_CONFIG` object
 2. **🌀 Enhanced Phase 1**: Particles distributed in space with center attraction (lifetime mechanism removed for infinite persistence)
 3. **🎨 Advanced Particle System**: Distance-based opacity, configurable colors (HSL), distribution patterns, and initial velocities
 4. **⚙️ Flexible Rendering**: Configurable sphere geometry detail, material properties, and blending modes
@@ -253,31 +361,32 @@ All essential features for live theatre production are now fully implemented and
 9. **🎯 Precise Attraction Forces**: Fine-grained control over attraction strength, drag coefficients, and intensity scaling
 10. **🎨 Material System**: Configurable placeholder and loaded material properties for eye shapes
 11. **🌊 Enhanced Flow Dynamics System**: Revolutionary 6-mechanism particle flow system preventing belt formation with configurable force balancing, repulsion, circulation, flow fields, turbulence, and escape velocity
+12. **💥 Phase 4 Extensions**: Dispersion burst effect with uniform particle distribution and shell formation with dynamic turbulence
 
 ### **Current Optimized Configuration:**
 ```javascript
-// Current production settings (user-customized):
+// Current production settings (optimized for theatre performance):
 particles: {
-    count: 500,                   // Dense particle field
-    size: 0.03,                  // Visible particle size
-    resetDistance: 10,            // Distance from center before particle resets
+    count: 2000,                  // Enhanced particle density for dramatic effect
+    size: 0.01,                   // Size of individual particles (sphere radius)
+    resetDistance: 6,             // Distance from center before particle resets
     depthEffect: {
-        maxDistance: 10,          // Maximum distance for depth brightness
-        dimming: 0.2              // How much to dim far particles (0-1)
+        maxDistance: 6,           // Maximum distance for depth brightness calculation
+        dimming: 0.1              // How much to dim far particles (0-1)
     },
     distribution: {
-        radiusMultiplier: 0.7,    // Percentage of reset distance for initial distribution
-        initialSpeed: 0.5         // Initial random velocity speed
+        radiusMultiplier: 0.6,    // Percentage of reset distance for initial distribution
+        initialSpeed: 0.8         // Initial random velocity speed
     },
     color: {
-        hueBase: 0.6,             // Base hue for particle colors
+        hueBase: 0.6,             // Base hue for particle colors (blue-cyan range)
         hueVariation: 0.2,        // Random hue variation range
         saturation: 0.3,          // Color saturation
-        lightness: 0.9            // Color lightness (user-customized)
+        lightness: 0.95           // Color lightness for bloom emission
     },
     opacity: {
-        minimum: 0.4,             // Minimum opacity for far particles (user-customized)
-        falloffRate: 0.5          // How quickly opacity falls off with distance (user-customized)
+        minimum: 0.4,             // Minimum opacity for far particles
+        falloffRate: 0.3          // How quickly opacity falls off with distance
     },
     rendering: {
         sphereDetail: {
@@ -285,10 +394,37 @@ particles: {
             heightSegments: 6     // Sphere geometry height segments
         },
         material: {
-            baseOpacity: 0.8,     // Base material opacity
+            baseOpacity: 0.9,     // Base material opacity for bloom emission
             color: 0xffffff       // Base material color
         }
     }
+},
+
+// Dynamic Camera Rotation System
+scene: {
+    camera: {
+        fov: 75,                  // Camera field of view
+        near: 0.1,                // Camera near clipping plane
+        far: 1000,                // Camera far clipping plane
+        position: { z: 4 }        // Camera Z position
+    },
+    controls: {
+        custom3DRotation: {
+            enabled: true,        // Enable custom 3D rotation
+            horizontalSpeed: 0.5, // Horizontal rotation speed (base)
+            verticalSpeed: 0.4,   // Vertical rotation speed (base)
+            verticalRange: 0.8,   // Vertical oscillation range (0-1)
+            verticalOffset: Math.PI/2, // Vertical center position
+            timeScale: 1.0        // Overall time scaling for rotation
+        }
+    }
+},
+
+// Enhanced System Limits
+system: {
+    maxShapes: 40,                // Maximum number of eye shapes
+    maxEyeImages: 40,             // Maximum eye images to keep in UI
+    shapeTypes: ['cube', 'bipyramid'] // Available shape types
 }
 ```
 
@@ -343,51 +479,61 @@ shapes: {
 #### ⚡ **Enhanced Attraction Forces**
 ```javascript
 attraction: {
-    baseStrength: 0.08,           // Base attraction force strength (user-customized)
-    maxStrength: 0.2,             // Maximum attraction force cap (user-customized)
+    baseStrength: 0.08,           // Base attraction force strength
+    maxStrength: 0.8,             // Maximum attraction force cap
     minDistance: 0.1,             // Minimum distance to avoid division by zero
-    distanceOffset: 0.1,          // Distance offset for force calculation
+    distanceOffset: 0.2,          // Distance offset for force calculation
     drag: {
-        normal: 0.98,             // Normal drag multiplier (less = more drag)
+        normal: 0.9,              // Normal drag multiplier (less = more drag)
         intense: 0.95             // Drag during intense convergence
     },
     intensityThreshold: 1.5,      // Threshold for switching to intense mode
     centerAttraction: {
         intensity: 1.0            // Intensity of center attraction in Phase 1
-    }
-}
-```
-
-#### 🌊 **Enhanced Flow Dynamics System**
-```javascript
-attraction: {
-    // ... existing attraction parameters ...
+    },
+    // Enhanced flow dynamics
     flowDynamics: {
         enabled: true,            // Enable enhanced flow system
-        turbulenceStrength: 0.015, // Random turbulence force strength
-        repulsionRadius: 0.3,     // Distance at which repulsion starts
-        repulsionStrength: 0.08,  // Strength of repulsion force
-        circulationStrength: 0.04, // Strength of tangential circulation force
+        turbulenceStrength: 0.3,  // Random turbulence force strength
+        repulsionRadius: 0.4,     // Distance at which repulsion starts
+        repulsionStrength: 0.1,   // Strength of repulsion force
+        circulationStrength: 0.1, // Strength of tangential circulation force
         distributionRadius: 2.0,  // Radius for spatial distribution
         forceBalancing: true,     // Enable force balancing between attractors
-        escapeVelocity: 0.5,      // Minimum velocity to escape attractor influence
+        escapeVelocity: 0.2,      // Minimum velocity to escape attractor influence
         flowField: {
             enabled: true,        // Enable global flow field
-            strength: 0.02,       // Global flow field strength
+            strength: 0.1,        // Global flow field strength
             scale: 0.5,           // Scale of flow field noise
-            timeScale: 0.3        // Time scale for animated flow field
+            timeScale: 1.0        // Time scaling for flow field animation
         }
+    },
+    // Enhanced dispersion effect
+    dispersionEffect: {
+        enabled: true,            // Enable dispersion burst effect
+        duration: 2.0,            // Duration of dispersion burst (seconds)
+        burstStrength: 0.4,       // Initial outward burst force strength
+        randomization: 1.0,       // Amount of randomization in burst direction
+        velocityMultiplier: 3.0,  // Velocity multiplier during burst
+        dragReduction: 0.5,       // Reduced drag during dispersion (more = less drag)
+        centerRepulsion: 0.2,     // Additional repulsion from center during burst
+        resetThreshold: 0.9,      // Progress threshold to trigger particle resets
+        newParticleSpeed: 2.0     // Speed for newly reset particles during dispersion
     }
 }
 ```
 
 **🌊 Flow Dynamics Features:**
-- **Force Balancing**: Prevents any single shape from dominating all particles
-- **Repulsion Forces**: Creates "bubbles" around shapes preventing particle trapping
-- **Circulation Forces**: Makes particles flow **around** shapes rather than toward them
-- **Global Flow Field**: Provides animated background "current" for continuous motion
-- **Turbulence**: Adds natural randomness and organic movement patterns
-- **Escape Velocity**: Allows fast particles to break free and explore other areas
+- **⚖️ Balanced vs Simple Attraction**: Two distinct modes with intelligent force distribution
+  - **Balanced Mode**: Prevents any single shape from monopolizing particles by reducing dominant attractor influence
+  - **Simple Mode**: Direct inverse-square law attraction for dramatic clustering effects
+- **🌀 Circulation Forces**: Makes particles flow **around** shapes in tangential motion rather than just toward them
+- **🛡️ Repulsion Zones**: Creates dynamic "bubbles" around shapes preventing particle trapping and belt formation
+- **💨 Global Flow Field**: Provides animated background "current" using noise-based flow for continuous organic motion
+- **🌪️ Smart Turbulence**: Adds natural randomness and organic movement patterns with configurable intensity
+- **⚡ Escape Velocity**: Allows fast particles to break free from attractor influence and explore other regions
+- **💥 Dispersion Burst**: Dramatic explosive outward particle fountain with uniform distribution in all directions
+- **🛡️ Shell Formation**: Particles form protective shell around converged shapes with dynamic stabilization forces
 
 #### 🎬 **Scene & Camera Control**
 ```javascript
@@ -602,51 +748,61 @@ shapes: {
 #### ⚡ **Enhanced Attraction Forces**
 ```javascript
 attraction: {
-    baseStrength: 0.08,           // Base attraction force strength (user-customized)
-    maxStrength: 0.2,             // Maximum attraction force cap (user-customized)
+    baseStrength: 0.08,           // Base attraction force strength
+    maxStrength: 0.8,             // Maximum attraction force cap
     minDistance: 0.1,             // Minimum distance to avoid division by zero
-    distanceOffset: 0.1,          // Distance offset for force calculation
+    distanceOffset: 0.2,          // Distance offset for force calculation
     drag: {
-        normal: 0.98,             // Normal drag multiplier (less = more drag)
+        normal: 0.9,              // Normal drag multiplier (less = more drag)
         intense: 0.95             // Drag during intense convergence
     },
     intensityThreshold: 1.5,      // Threshold for switching to intense mode
     centerAttraction: {
         intensity: 1.0            // Intensity of center attraction in Phase 1
-    }
-}
-```
-
-#### 🌊 **Enhanced Flow Dynamics System**
-```javascript
-attraction: {
-    // ... existing attraction parameters ...
+    },
+    // Enhanced flow dynamics
     flowDynamics: {
         enabled: true,            // Enable enhanced flow system
-        turbulenceStrength: 0.015, // Random turbulence force strength
-        repulsionRadius: 0.3,     // Distance at which repulsion starts
-        repulsionStrength: 0.08,  // Strength of repulsion force
-        circulationStrength: 0.04, // Strength of tangential circulation force
+        turbulenceStrength: 0.3,  // Random turbulence force strength
+        repulsionRadius: 0.4,     // Distance at which repulsion starts
+        repulsionStrength: 0.1,   // Strength of repulsion force
+        circulationStrength: 0.1, // Strength of tangential circulation force
         distributionRadius: 2.0,  // Radius for spatial distribution
         forceBalancing: true,     // Enable force balancing between attractors
-        escapeVelocity: 0.5,      // Minimum velocity to escape attractor influence
+        escapeVelocity: 0.2,      // Minimum velocity to escape attractor influence
         flowField: {
             enabled: true,        // Enable global flow field
-            strength: 0.02,       // Global flow field strength
+            strength: 0.1,        // Global flow field strength
             scale: 0.5,           // Scale of flow field noise
-            timeScale: 0.3        // Time scale for animated flow field
+            timeScale: 1.0        // Time scaling for flow field animation
         }
+    },
+    // Enhanced dispersion effect
+    dispersionEffect: {
+        enabled: true,            // Enable dispersion burst effect
+        duration: 2.0,            // Duration of dispersion burst (seconds)
+        burstStrength: 0.4,       // Initial outward burst force strength
+        randomization: 1.0,       // Amount of randomization in burst direction
+        velocityMultiplier: 3.0,  // Velocity multiplier during burst
+        dragReduction: 0.5,       // Reduced drag during dispersion (more = less drag)
+        centerRepulsion: 0.2,     // Additional repulsion from center during burst
+        resetThreshold: 0.9,      // Progress threshold to trigger particle resets
+        newParticleSpeed: 2.0     // Speed for newly reset particles during dispersion
     }
 }
 ```
 
 **🌊 Flow Dynamics Features:**
-- **Force Balancing**: Prevents any single shape from dominating all particles
-- **Repulsion Forces**: Creates "bubbles" around shapes preventing particle trapping
-- **Circulation Forces**: Makes particles flow **around** shapes rather than toward them
-- **Global Flow Field**: Provides animated background "current" for continuous motion
-- **Turbulence**: Adds natural randomness and organic movement patterns
-- **Escape Velocity**: Allows fast particles to break free and explore other areas
+- **⚖️ Balanced vs Simple Attraction**: Two distinct modes with intelligent force distribution
+  - **Balanced Mode**: Prevents any single shape from monopolizing particles by reducing dominant attractor influence
+  - **Simple Mode**: Direct inverse-square law attraction for dramatic clustering effects
+- **🌀 Circulation Forces**: Makes particles flow **around** shapes in tangential motion rather than just toward them
+- **🛡️ Repulsion Zones**: Creates dynamic "bubbles" around shapes preventing particle trapping and belt formation
+- **💨 Global Flow Field**: Provides animated background "current" using noise-based flow for continuous organic motion
+- **🌪️ Smart Turbulence**: Adds natural randomness and organic movement patterns with configurable intensity
+- **⚡ Escape Velocity**: Allows fast particles to break free from attractor influence and explore other regions
+- **💥 Dispersion Burst**: Dramatic explosive outward particle fountain with uniform distribution in all directions
+- **🛡️ Shell Formation**: Particles form protective shell around converged shapes with dynamic stabilization forces
 
 #### 🎬 **Scene & Camera Control**
 ```javascript
@@ -785,3 +941,57 @@ VISUAL_CONFIG.scene.controls.enableDamping = true;
 ### 💡 **Configuration Pro Tips**
 
 - **🎨 Color Harmony**: Adjust `hueBase` and `hueVariation`
+
+### 🎨 NEW: Client-Side Artistic Texture Processing Configuration
+```javascript
+artisticProcessing: {
+    enabled: true,                    // Enable artistic B&W edge processing
+    realTimeAdjustment: true,         // Allow real-time parameter changes
+    description: "High-contrast B&W edge detection for dramatic 3D textures",
+    
+    // Edge detection settings
+    edgeDetection: {
+        method: 'sobel',              // 'sobel', 'roberts', 'prewitt'
+        threshold: 0.3,               // Edge threshold (0-1)
+        strength: 2.0,                // Edge strength multiplier
+        adaptiveThreshold: false      // Use adaptive thresholding
+    },
+    
+    // Contrast enhancement settings
+    contrast: {
+        factor: 2.5,                  // Contrast multiplication factor
+        brightness: -30,              // Brightness offset (-100 to 100)
+        gamma: 1.3,                   // Gamma correction for dramatic effect
+        autoBalance: true             // Automatic brightness balancing
+    },
+    
+    // Artistic style settings
+    style: {
+        invertEdges: false,           // True for white edges on black, False for black edges on white
+        backgroundColor: 255,         // Background color (0-255)
+        edgeColor: 0,                 // Edge color (0-255)
+        edgeThickness: 1,             // Edge thickness (1-5)
+        noiseReduction: true,         // Apply noise reduction
+        smoothing: true               // Apply edge smoothing
+    },
+    
+    // Client-side texture enhancement
+    textureEnhancement: {
+        enabled: true,                // Enable client-side texture enhancement
+        sharpening: 1.2,              // Additional sharpening for 3D textures
+        contrastBoost: 1.1,           // Client-side contrast boost
+        edgeGlow: {
+            enabled: true,            // Add subtle glow to edges
+            intensity: 0.3,           // Glow intensity
+            color: 0xffffff           // Glow color
+        }
+    },
+    
+    // Performance settings
+    performance: {
+        canvasSize: 256,              // Maximum processing canvas size
+        useWorker: false,             // Use web worker for processing (future)
+        cacheProcessed: true          // Cache processed textures
+    }
+}
+```
