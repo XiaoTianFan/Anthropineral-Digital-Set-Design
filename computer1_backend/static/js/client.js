@@ -161,23 +161,25 @@ const VISUAL_CONFIG = {
                 color: 0xffffff       // Color when texture is loaded (white for proper texture display)
             }
         },
-        // 🌅 NEW: Emergence Animation Configuration
+        
+        // 🌟 NEW: Shape Emergence Configuration - Gradual appearance system
         emergence: {
-            enabled: true,            // Enable emergence animation for new shapes
-            duration: 2.5,            // Duration of emergence animation (seconds)
-            startOpacity: 0.0,        // Starting opacity (completely transparent)
-            targetOpacity: 0.75,      // Target opacity to reach (matches placeholder.opacity)
-            easing: 'easeInOutCubic', // Easing function: 'linear', 'easeInOutCubic', 'easeInOutSine'
+            enabled: true,                // Enable emergence animation for new shapes
+            duration: 5,                // Duration of emergence animation (seconds)
+            startOpacity: 0.0,            // Starting opacity (completely transparent)
+            targetOpacity: 0.75,          // Target placeholder opacity after emergence
+            easing: 'easeInOutCubic',     // Easing function: 'linear', 'easeInOutCubic', 'easeInOutSine'
             scaleEffect: {
-                enabled: true,        // Enable scale effect during emergence
-                startScale: 0.8,      // Starting scale (slightly smaller)
-                targetScale: 1.0      // Target scale (normal size)
+                enabled: true,            // Enable slight scale animation during emergence
+                startScale: 0.8,          // Starting scale (slightly smaller)
+                targetScale: 1.0,         // Target scale (normal size)
             },
-            rotationEffect: {
-                enabled: true,        // Enable rotation effect during emergence
-                intensity: 0.3        // Rotation intensity multiplier during emergence
+            // Position animation during emergence
+            positionEffect: {
+                enabled: false,           // Enable position animation (currently disabled for simplicity)
+                upwardOffset: 0.2,        // Upward offset during emergence
             }
-        }
+        },
     },
     
     // Scene and Camera Configuration
@@ -316,7 +318,7 @@ const VISUAL_CONFIG = {
             useWorker: false,             // Use web worker for processing (future)
             cacheProcessed: true          // Cache processed textures
         }
-    }
+    },
 };
 
 // =============================================================================
@@ -1314,6 +1316,11 @@ class EyeShape {
         this.isLoaded = false;
         this.id = `eye_shape_${Date.now()}_${Math.random()}`;
         
+        // 🔄 NEW: Texture processing state tracking
+        this.isTextureProcessing = false;
+        this.isTextureProcessed = false;
+        this.onTextureProcessed = null; // Callback function to be set by ShapeManager
+        
         // Convergence animation properties
         this.isConverging = false;
         this.convergenceProgress = 0; // 0 to 1
@@ -1324,15 +1331,19 @@ class EyeShape {
         this.targetRadius = VISUAL_CONFIG.shapes.convergence.targetRadius; // Final radius at center
         this.speedMultiplier = 1.0;
         
-        // 🎨 NEW: Artistic processor reference
-        this.artisticProcessor = null; // Will be set by TheatreClient
-        
-        // 🌅 NEW: Emergence animation properties
-        this.isEmerging = VISUAL_CONFIG.shapes.emergence.enabled; // Start emerging if enabled
+        // 🌟 NEW: Emergence animation properties
+        this.isEmerging = false;
         this.emergenceProgress = 0; // 0 to 1
         this.emergenceDuration = VISUAL_CONFIG.shapes.emergence.duration; // seconds
-        this.emergenceStartTime = performance.now() / 1000; // Start immediately
-        this.baseOpacity = VISUAL_CONFIG.shapes.emergence.targetOpacity; // Target opacity to reach
+        this.emergenceStartTime = 0;
+        this.emergenceStartOpacity = VISUAL_CONFIG.shapes.emergence.startOpacity;
+        this.emergenceTargetOpacity = VISUAL_CONFIG.shapes.emergence.targetOpacity;
+        this.emergenceStartScale = VISUAL_CONFIG.shapes.emergence.scaleEffect.startScale;
+        this.emergenceTargetScale = VISUAL_CONFIG.shapes.emergence.scaleEffect.targetScale;
+        this.hasCompletedEmergence = false; // Track if emergence has been completed
+        
+        // 🎨 NEW: Artistic processor reference
+        this.artisticProcessor = null; // Will be set by TheatreClient
         
         this.createShape();
     }
@@ -1370,14 +1381,22 @@ class EyeShape {
 
         const geometry = geometries[this.shapeType] || geometries.cube;
         
+        // 🔄 UPDATED: Set initial opacity based on emergence configuration
+        const initialOpacity = VISUAL_CONFIG.shapes.emergence.enabled ? 0.0 : VISUAL_CONFIG.shapes.material.placeholder.opacity;
+        
         // Create material with placeholder until texture loads
         const material = new THREE.MeshLambertMaterial({
             color: VISUAL_CONFIG.shapes.material.placeholder.color,
             transparent: true,
-            opacity: VISUAL_CONFIG.shapes.material.placeholder.opacity
+            opacity: initialOpacity
         });
 
         this.mesh = new THREE.Mesh(geometry, material);
+        
+        // 🌟 NEW: Set initial scale for emergence effect if enabled
+        if (VISUAL_CONFIG.shapes.emergence.enabled && VISUAL_CONFIG.shapes.emergence.scaleEffect.enabled) {
+            this.mesh.scale.setScalar(VISUAL_CONFIG.shapes.emergence.scaleEffect.startScale);
+        }
         
         // Load the eye texture
         this.loadTexture();
@@ -1393,6 +1412,10 @@ class EyeShape {
     loadTexture() {
         const loader = new THREE.TextureLoader();
         
+        // 🔄 NEW: Mark texture processing as started
+        this.isTextureProcessing = true;
+        console.log(`🔄 Starting texture processing for shape: ${this.id}`);
+        
         loader.load(
             this.textureUrl,
             (texture) => {
@@ -1403,10 +1426,13 @@ class EyeShape {
                     img.crossOrigin = 'anonymous';
                     
                     img.onload = () => {
+                        console.log(`🎨 Processing texture artistically for shape: ${this.id}`);
                         // Process the texture artistically
                         this.artisticProcessor.processTexture(img, (processedTexture) => {
                             // Apply the processed texture
                             this.applyProcessedTexture(processedTexture);
+                            // 🔄 NEW: Mark texture processing as complete and trigger callback
+                            this.completeTextureProcessing();
                         });
                     };
                     
@@ -1414,12 +1440,16 @@ class EyeShape {
                         console.warn(`Failed to load image for artistic processing: ${this.textureUrl}`);
                         // Fallback to original texture
                         this.applyProcessedTexture(texture);
+                        // 🔄 NEW: Mark texture processing as complete and trigger callback
+                        this.completeTextureProcessing();
                     };
                     
                     img.src = this.textureUrl;
                 } else {
                     // Use original texture without processing
                     this.applyProcessedTexture(texture);
+                    // 🔄 NEW: Mark texture processing as complete and trigger callback
+                    this.completeTextureProcessing();
                 }
             },
             (progress) => {
@@ -1428,6 +1458,8 @@ class EyeShape {
             (error) => {
                 console.error(`Failed to load eye texture: ${this.textureUrl}`, error);
                 // Keep the placeholder material
+                // 🔄 NEW: Mark texture processing as complete even on error
+                this.completeTextureProcessing();
             }
         );
     }
@@ -1471,11 +1503,28 @@ class EyeShape {
         console.log(`🎨 Eye texture applied to shape: ${this.id} ${processingStatus}`);
     }
 
+    // 🔄 NEW: Complete texture processing and trigger emergence
+    completeTextureProcessing() {
+        this.isTextureProcessing = false;
+        this.isTextureProcessed = true;
+        
+        console.log(`✅ Texture processing completed for shape: ${this.id}`);
+        
+        // Trigger the emergence callback if it exists
+        if (this.onTextureProcessed && typeof this.onTextureProcessed === 'function') {
+            this.onTextureProcessed();
+        }
+    }
+
     update(deltaTime) {
         if (!this.mesh) return;
 
-        // Handle convergence animation
-        if (this.isConverging) {
+        // Handle emergence animation first (takes priority)
+        if (this.isEmerging) {
+            this.updateEmergence(deltaTime);
+        }
+        // Handle convergence animation (only if not emerging)
+        else if (this.isConverging) {
             this.updateConvergence(deltaTime);
         }
 
@@ -1506,6 +1555,51 @@ class EyeShape {
             this.convergenceStartTime = currentTime;
             this.convergenceProgress = 0;
             console.log(`Starting convergence for shape: ${this.id}`);
+        }
+    }
+
+    // 🌟 Start emergence animation - safe and simple implementation
+    startEmergence(currentTime) {
+        if (VISUAL_CONFIG.shapes.emergence.enabled && !this.isEmerging && !this.hasCompletedEmergence) {
+            this.isEmerging = true;
+            this.emergenceStartTime = currentTime || performance.now() / 1000;
+            this.emergenceProgress = 0;
+            console.log(`🌟 Starting emergence for shape: ${this.id}`);
+        }
+    }
+
+    // 🌟 Update emergence animation - simple and safe implementation
+    updateEmergence(deltaTime) {
+        if (!this.isEmerging) return;
+        
+        const currentTime = performance.now() / 1000; // Convert to seconds
+        const elapsed = currentTime - this.emergenceStartTime;
+        
+        // Calculate progress (0 to 1)
+        this.emergenceProgress = Math.min(elapsed / this.emergenceDuration, 1);
+        
+        // Apply easing function
+        const easedProgress = this.applyEmergenceEasing(this.emergenceProgress);
+        
+        // 🔄 UPDATED: Animate opacity from 0 to target emergence opacity
+        if (this.mesh && this.mesh.material) {
+            const currentOpacity = VISUAL_CONFIG.shapes.emergence.startOpacity + 
+                (VISUAL_CONFIG.shapes.emergence.targetOpacity - VISUAL_CONFIG.shapes.emergence.startOpacity) * easedProgress;
+            this.mesh.material.opacity = currentOpacity;
+            
+            // Animate scale if enabled
+            if (VISUAL_CONFIG.shapes.emergence.scaleEffect.enabled) {
+                const currentScale = VISUAL_CONFIG.shapes.emergence.scaleEffect.startScale + 
+                    (VISUAL_CONFIG.shapes.emergence.scaleEffect.targetScale - VISUAL_CONFIG.shapes.emergence.scaleEffect.startScale) * easedProgress;
+                this.mesh.scale.setScalar(currentScale);
+            }
+        }
+        
+        // Check if emergence is complete
+        if (this.emergenceProgress >= 1.0) {
+            this.isEmerging = false;
+            this.hasCompletedEmergence = true;
+            console.log(`🌟 Emergence completed for shape: ${this.id}`);
         }
     }
 
@@ -1543,6 +1637,25 @@ class EyeShape {
             1 - Math.pow(-VISUAL_CONFIG.animation.easing.cubicSubtract * t + VISUAL_CONFIG.animation.easing.cubicSubtract, 3) / VISUAL_CONFIG.animation.easing.cubicDivide;
     }
 
+    // 🌟 Apply emergence easing function - simple and safe
+    applyEmergenceEasing(t) {
+        switch (VISUAL_CONFIG.shapes.emergence.easing) {
+            case 'linear':
+                return t;
+                
+            case 'easeInOutCubic':
+                return t < 0.5 
+                    ? 4 * t * t * t 
+                    : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                    
+            case 'easeInOutSine':
+                return -(Math.cos(Math.PI * t) - 1) / 2;
+                
+            default:
+                return t; // fallback to linear
+        }
+    }
+
     isConvergenceComplete() {
         return this.isConverging && this.convergenceProgress >= 1.0;
     }
@@ -1553,10 +1666,22 @@ class EyeShape {
         this.orbitalRadius = this.initialRadius;
         this.speedMultiplier = 1.0;
         
+        // 🌟 Reset emergence state too (but preserve hasCompletedEmergence)
+        this.isEmerging = false;
+        this.emergenceProgress = 0;
+        // Note: We don't reset hasCompletedEmergence - we want to remember this
+        
         if (this.mesh) {
             this.mesh.scale.setScalar(1.0);
             if (this.mesh.material) {
-                this.mesh.material.opacity = VISUAL_CONFIG.shapes.material.placeholder.opacity;
+                // Set opacity based on emergence completion status
+                if (this.hasCompletedEmergence || !VISUAL_CONFIG.shapes.emergence.enabled) {
+                    // If emergence is complete or disabled, use normal placeholder opacity
+                    this.mesh.material.opacity = VISUAL_CONFIG.shapes.material.placeholder.opacity;
+                } else {
+                    // If emergence hasn't completed, use the target emergence opacity
+                    this.mesh.material.opacity = VISUAL_CONFIG.shapes.emergence.targetOpacity;
+                }
             }
         }
         
@@ -1850,11 +1975,22 @@ class ShapeManager {
             eyeShape.addToScene(this.scene);
         }
         
+        // 🔄 UPDATED: Delay emergence until texture is fully processed
+        // Set up texture loading completion callback
+        eyeShape.onTextureProcessed = () => {
+            // 🌟 Start emergence animation ONLY after texture is processed
+            if (VISUAL_CONFIG.shapes.emergence.enabled) {
+                const currentTime = performance.now() / 1000;
+                eyeShape.startEmergence(currentTime);
+                console.log(`🌟 Starting delayed emergence for ${eyeShape.id} after texture processing`);
+            }
+        };
+        
         // Store the shape
         this.shapes.set(eyeImageUrl, eyeShape);
         
         const shapeType = useMorphing ? 'morphing' : eyeShape.shapeType;
-        console.log(`Created new eye shape: ${eyeShape.id} (${shapeType}) for ${filename}`);
+        console.log(`Created new eye shape: ${eyeShape.id} (${shapeType}) for ${filename} - waiting for texture processing`);
         return eyeShape;
     }
     
@@ -2537,9 +2673,19 @@ class TheatreClient {
                 // 🔄 UPDATED: Always create morphing shapes from the beginning
                 const eyeShape = this.shapeManager.addMorphingEyeShape(img.src, img.alt);
                 if (eyeShape) {
-                    console.log(`Created morphing eye shape for existing image: ${img.alt}`);
+                    console.log(`Created morphing eye shape for existing image: ${img.alt} - waiting for texture processing`);
                 }
             });
+            
+            // 🔄 NEW: Monitor texture processing status
+            setTimeout(() => {
+                const shapes = this.shapeManager.getAllShapes();
+                const processingCount = shapes.filter(s => s.isTextureProcessing).length;
+                const processedCount = shapes.filter(s => s.isTextureProcessed).length;
+                const emergingCount = shapes.filter(s => s.isEmerging).length;
+                
+                console.log(`📊 Texture Processing Status: ${processingCount} processing, ${processedCount} processed, ${emergingCount} emerging`);
+            }, 1000); // Check after 1 second
             
             // Enable particle attraction to eye shapes
             if (this.particleSystem) {
@@ -4278,7 +4424,14 @@ class TheatreClient {
         if (activeElement) activeElement.textContent = stats.morphing;
         if (regularElement) regularElement.textContent = stats.regular;
         
+        // 🔄 NEW: Add texture processing status
+        const shapes = this.shapeManager.getAllShapes();
+        const processingCount = shapes.filter(s => s.isTextureProcessing).length;
+        const processedCount = shapes.filter(s => s.isTextureProcessed).length;
+        const emergingCount = shapes.filter(s => s.isEmerging).length;
+        
         console.log(`🔄 Morphing stats: ${stats.morphing}/${stats.total} shapes morphing`);
+        console.log(`🔄 Texture processing: ${processingCount} processing, ${processedCount} processed, ${emergingCount} emerging`);
     }
 
     initializeCameraSpeedDisplay() {

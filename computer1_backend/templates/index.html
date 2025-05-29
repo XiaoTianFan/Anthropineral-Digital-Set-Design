@@ -635,6 +635,117 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 🌅 NEW: Emergence Animation Configuration (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('emergence-section')">
+                    <h4>🌅 Shape Emergence Animation</h4>
+                    <span class="toggle-arrow" id="emergence-section-arrow">▼</span>
+                </div>
+                <div id="emergence-section" class="collapsible-content">
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Emergence Animation:</span>
+                            <span class="config-description">New shapes appear gradually from transparent to visible</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emergence-enabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="config-status enabled" id="emergence-status">Enabled</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Emergence Duration:</span>
+                            <span class="config-description">How long shapes take to fully emerge (seconds)</span>
+                        </div>
+                        <input type="range" id="emergence-duration" min="0.5" max="10.0" step="0.1" value="2.5">
+                        <span class="config-value" id="emergence-duration-value">2.5s</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Start Opacity:</span>
+                            <span class="config-description">Initial transparency level for new shapes</span>
+                        </div>
+                        <input type="range" id="emergence-start-opacity" min="0.0" max="0.5" step="0.01" value="0.0">
+                        <span class="config-value" id="emergence-start-opacity-value">0.0</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Target Opacity:</span>
+                            <span class="config-description">Final opacity level after emergence</span>
+                        </div>
+                        <input type="range" id="emergence-target-opacity" min="0.5" max="1.0" step="0.01" value="0.75">
+                        <span class="config-value" id="emergence-target-opacity-value">0.75</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Easing Function:</span>
+                            <span class="config-description">Animation curve for emergence transition</span>
+                        </div>
+                        <select id="emergence-easing" class="config-select">
+                            <option value="linear">Linear</option>
+                            <option value="easeInOutCubic" selected>Ease In-Out Cubic</option>
+                            <option value="easeInOutSine">Ease In-Out Sine</option>
+                        </select>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Scale Effect:</span>
+                            <span class="config-description">Enable scale animation during emergence</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emergence-scale-enabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="config-status enabled" id="emergence-scale-status">Enabled</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Start Scale:</span>
+                            <span class="config-description">Initial size multiplier for new shapes</span>
+                        </div>
+                        <input type="range" id="emergence-start-scale" min="0.1" max="1.0" step="0.01" value="0.8">
+                        <span class="config-value" id="emergence-start-scale-value">0.8</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Rotation Effect:</span>
+                            <span class="config-description">Enhanced rotation during emergence animation</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emergence-rotation-enabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="config-status enabled" id="emergence-rotation-status">Enabled</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Rotation Intensity:</span>
+                            <span class="config-description">Multiplier for rotation speed during emergence</span>
+                        </div>
+                        <input type="range" id="emergence-rotation-intensity" min="0.0" max="1.0" step="0.05" value="0.3">
+                        <span class="config-value" id="emergence-rotation-intensity-value">0.3</span>
+                    </div>
+                    
+                    <div class="config-controls">
+                        <button id="test-emergence">🌅 Test Emergence</button>
+                        <button id="reset-emergence-defaults">↺ Reset Defaults</button>
+                    </div>
+                    
+                    <div class="config-description-text">
+                        New eye shapes will gradually emerge from complete transparency to their normal appearance over the specified duration, creating a more organic introduction of audience eye images.
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
@@ -694,7 +805,8 @@
                 'artistic-config-section',
                 'texture-display-section',
                 'flow-dynamics-section',
-                'morphing-section'
+                'morphing-section',
+                'emergence-section'
             ];
             
             sectionsToOpen.forEach(sectionId => {
