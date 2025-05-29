@@ -19,6 +19,27 @@ body {
     position: relative;
 }
 
+/* Black Filter Overlay - NEW */
+#black-filter-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    z-index: 999;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 2s ease-in-out, visibility 2s ease-in-out;
+    pointer-events: auto;
+}
+
+#black-filter-overlay.filter-fadeout {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 /* Animation Section - Full Screen */
 #animation-section {
     position: absolute;
@@ -46,26 +67,26 @@ body {
     position: fixed;
     bottom: 15px;
     right: 15px;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.4);
-    color: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 1100;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     width: 35px;
     height: 35px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    opacity: 0.15;
+    opacity: 0.6;
     visibility: visible;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .debug-toggle-btn:hover {
-    background: rgba(0, 0, 0, 0.7);
-    border-color: rgba(255, 255, 255, 0.4);
-    color: rgba(255, 255, 255, 0.9);
-    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 1.0);
+    opacity: 1.0;
     transform: scale(1.05);
 }
 
@@ -77,15 +98,15 @@ body {
 
 /* Show debug toggle button when hovering near bottom right corner */
 body:hover .debug-toggle-btn {
-    opacity: 0.2;
+    opacity: 0.7;
     visibility: visible;
 }
 
 .debug-toggle-btn:hover {
-    opacity: 0.9 !important;
-    background: rgba(0, 0, 0, 0.7);
-    border-color: rgba(255, 255, 255, 0.4);
-    color: rgba(255, 255, 255, 0.9);
+    opacity: 1.0 !important;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 1.0);
     transform: scale(1.05);
 }
 
@@ -804,6 +825,36 @@ body:hover .debug-toggle-btn {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.4);
     transform: translateY(-1px);
+}
+
+/* Black Filter Button Styling - NEW */
+#remove-black-filter {
+    background: rgba(0, 0, 0, 0.8) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    font-weight: bold !important;
+}
+
+#remove-black-filter:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 1) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    color: #ffffff !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+#remove-black-filter:disabled {
+    background: rgba(100, 100, 100, 0.5) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+#remove-black-filter:disabled:hover {
+    background: rgba(100, 100, 100, 0.5) !important;
+    transform: none !important;
 }
 
 /* Responsive Design */

@@ -8,6 +8,9 @@
 </head>
 <body>
     <div id="app">
+        <!-- Black Filter Overlay - NEW -->
+        <div id="black-filter-overlay"></div>
+        
         <!-- Three.js Animation Canvas - Now full screen -->
         <section id="animation-section">
             <div id="three-canvas-container">
@@ -287,6 +290,28 @@
                                 <div class="portal-instructions">
                                     <p>💡 When countdown is active, press ↓ (down arrow) key to trigger manually</p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🖤 NEW: Black Filter Controls -->
+                    <div class="config-group">
+                        <h5>🖤 Black Filter Overlay</h5>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Filter Status:</span>
+                                <span class="config-description">Current state of the black screen overlay</span>
+                            </div>
+                            <div class="config-control">
+                                <span id="black-filter-status" class="config-status enabled">Active</span>
+                            </div>
+                        </div>
+                        <div class="config-controls">
+                            <div class="button-group">
+                                <button id="remove-black-filter">🖤 Reveal Digital Space</button>
+                            </div>
+                            <div class="portal-instructions">
+                                <p>💡 Click to fade out the black overlay and reveal the digital program</p>
                             </div>
                         </div>
                     </div>
@@ -963,7 +988,7 @@
     <script src="{{ url_for('static', filename='js/client.js') }}"></script>
     
     <script>
-        // Debug panel toggle functionality
+        // Debug panel toggle functionality - MODIFIED
         function toggleDebugPanel() {
             const panel = document.getElementById('debug-panel');
             const toggleBtn = document.getElementById('debug-toggle');
@@ -991,11 +1016,42 @@
             }
         }
 
-        // Initialize debug panel functionality
+        // Initialize debug panel functionality - MODIFIED
         document.addEventListener('DOMContentLoaded', function() {
+            // Set up debug panel toggle with black filter integration
             document.getElementById('debug-toggle').addEventListener('click', toggleDebugPanel);
             document.getElementById('debug-close').addEventListener('click', toggleDebugPanel);
             
+            // Hide debug panel initially to ensure black filter is visible on load
+            const panel = document.getElementById('debug-panel');
+            if (panel) {
+                panel.classList.add('debug-panel-hidden');
+                panel.classList.remove('debug-panel-expanded');
+            }
+            
+            // 🖤 NEW: Black filter control button
+            const blackFilterBtn = document.getElementById('remove-black-filter');
+            if (blackFilterBtn) {
+                blackFilterBtn.addEventListener('click', function() {
+                    // Call the TheatreClient method if available
+                    if (window.theatreClient && typeof window.theatreClient.fadeOutBlackFilter === 'function') {
+                        window.theatreClient.fadeOutBlackFilter();
+                        
+                        // Update button and status
+                        blackFilterBtn.disabled = true;
+                        blackFilterBtn.textContent = '🖤 Filter Removed';
+                        
+                        const statusSpan = document.getElementById('black-filter-status');
+                        if (statusSpan) {
+                            statusSpan.textContent = 'Removed';
+                            statusSpan.className = 'config-status disabled';
+                        }
+                    }
+                });
+            }
+            
+            console.log('Debug panel initialized with black filter integration');
+
             // Initialize all collapsible sections as open by default
             const sectionsToOpen = [
                 'eye-section',

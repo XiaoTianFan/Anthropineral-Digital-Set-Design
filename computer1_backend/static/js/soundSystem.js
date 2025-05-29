@@ -21,35 +21,132 @@ const SOUND_CONFIG = {
             volume: 0.8,
             loop: true,
             fadeIn: 3.0,
-            fadeOut: 2.0
+            fadeOut: 2.0,
+            playbackRate: 1.0          // Normal speed
         },
         'emergence-sound': {
             url: '/static/audio/emergence.wav',
             volume: 0.6,
             loop: false,
             fadeIn: 1.0,
-            fadeOut: 1.5
+            fadeOut: 1.5,
+            playbackRate: 1.0          // Normal speed
         },
         'convergence-build': {
             url: '/static/audio/convergence-build.mp3',
             volume: 0.9,
             loop: false,
             fadeIn: 0.5,
-            fadeOut: 3.0
+            fadeOut: 3.0,
+            playbackRate: 1.0          // Normal speed
         },
         'portal-departure': {
             url: '/static/audio/portal-departure.wav',
             volume: 1.0,
             loop: false,
             fadeIn: 0.0,
-            fadeOut: 0.0
+            fadeOut: 0.0,
+            playbackRate: 1.0          // Normal speed
         },
         'traffic-light': {
             url: '/static/audio/Traffic Light.mp3',
             volume: 0.8,
+            loop: true,
+            fadeIn: 0.5,
+            fadeOut: 2.0,
+            playbackRate: 1.0          // Normal speed
+        },
+        'sine-riser': {
+            url: '/static/audio/Sine Riser.mp3',
+            volume: 0.7,
             loop: false,
             fadeIn: 0.5,
-            fadeOut: 2.0
+            fadeOut: 1.0,
+            playbackRate: 1.0          // Normal speed
+        },
+        'heartbeat': {
+            url: '/static/audio/Heartbeat.mp3',
+            volume: 0.6,
+            loop: true,
+            fadeIn: 1.0,
+            fadeOut: 2.0,
+            playbackRate: 1.0          // Normal speed - can be morphed for tension
+        },
+        'sublimation-initiated': {
+            url: '/static/audio/Sublimation Initiated.mp3',
+            volume: 0.8,
+            loop: false,
+            fadeIn: 0.5,
+            fadeOut: 1.5,
+            playbackRate: 1.0          // Normal speed
+        },
+        'spirits-possessed': {
+            url: '/static/audio/Spirits Possessed.mp3',
+            volume: 0.8,
+            loop: false,
+            fadeIn: 0.5,
+            fadeOut: 1.5,
+            playbackRate: 1.0          // Normal speed
+        },
+        'spirit-mining-initiating': {
+            url: '/static/audio/Spirit Mining Initiating.mp3',
+            volume: 0.8,
+            loop: false,
+            fadeIn: 0.5,
+            fadeOut: 1.5,
+            playbackRate: 1.0          // Normal speed
+        },
+        'protocol-rebooting': {
+            url: '/static/audio/Protocol Rebooting.mp3',
+            volume: 0.8,
+            loop: false,
+            fadeIn: 0.5,
+            fadeOut: 1.5,
+            playbackRate: 1.0          // Normal speed
+        },
+        'sublimation-completed': {
+            url: '/static/audio/Sublimation Completed.mp3',
+            volume: 0.8,
+            loop: false,
+            fadeIn: 0.5,
+            fadeOut: 1.5,
+            playbackRate: 1.0          // Normal speed
+        },
+        'voice-over-all': {
+            url: '/static/audio/Voice Over_ALL.wav',
+            volume: 0.9,
+            loop: false,
+            fadeIn: 0.0,
+            fadeOut: 0.0,
+            playbackRate: 1.0          // Normal speed
+        }
+    },
+
+    // Speed morphing configuration
+    speedMorph: {
+        enabled: true,                 // Enable speed morphing system
+        safeRange: {
+            min: 0.25,                 // Minimum playback rate (quarter speed)
+            max: 4.0                   // Maximum playback rate (4x speed)
+        },
+        transitions: {
+            enabled: true,             // Enable smooth speed transitions
+            defaultDuration: 2.0,      // Default transition duration (seconds)
+            easing: 'exponential'      // Transition easing: 'linear', 'exponential', 'logarithmic'
+        },
+        presets: {
+            'crawling': 0.25,          // Ultra slow, creepy effect
+            'slow': 0.5,               // Half speed, atmospheric
+            'normal': 1.0,             // Standard playback
+            'urgent': 1.5,             // Slightly faster, building tension
+            'intense': 2.0,            // Double speed, high energy
+            'frantic': 3.0,            // Triple speed, chaotic
+            'supernatural': 4.0        // Maximum speed, otherworldly
+        },
+        realTime: {
+            enabled: true,             // Enable real-time speed changes during playback
+            smoothing: 0.1,            // Smoothing factor for real-time changes (0-1)
+            updateRate: 50             // Update rate in milliseconds
         }
     },
 
@@ -101,7 +198,66 @@ const SOUND_CONFIG = {
             delay: 0,
             fadeIn: 0.5,
             volume: 0.8,
-            loop: false
+            loop: true
+        },
+        // 🎛️ SPEED MORPHING EXAMPLES - Same tracks at different speeds
+        {
+            id: 'cue-6-heartbeat-slow',
+            trackId: 'heartbeat',
+            triggerType: 'manual',
+            delay: 0,
+            fadeIn: 2.0,
+            volume: 0.7,
+            loop: true,
+            playbackRate: 0.5,        // Half speed - slow, ominous heartbeat
+            speedTransition: {
+                enabled: false         // Start immediately at target speed
+            }
+        },
+        {
+            id: 'cue-7-heartbeat-frantic',
+            trackId: 'heartbeat',
+            triggerType: 'visual-cue',
+            visualTrigger: 'tension-peak',
+            delay: 0,
+            fadeIn: 0.5,
+            volume: 0.9,
+            loop: true,
+            playbackRate: 2.5,        // 2.5x speed - frantic, panic heartbeat
+            speedTransition: {
+                enabled: true,         // Smooth transition to target speed
+                duration: 3.0,         // 3 second transition
+                startRate: 0.5         // Transition from slow to frantic
+            }
+        },
+        {
+            id: 'cue-8-sine-riser-supernatural',
+            trackId: 'sine-riser',
+            triggerType: 'manual',
+            delay: 0,
+            fadeIn: 1.0,
+            volume: 0.8,
+            loop: false,
+            playbackRate: 'supernatural', // Use preset (4.0x speed)
+            speedTransition: {
+                enabled: true,
+                duration: 5.0,         // Gradual build to supernatural speed
+                startRate: 'normal'    // Start at normal speed
+            }
+        },
+        {
+            id: 'cue-9-spirits-possessed-crawling',
+            trackId: 'spirits-possessed',
+            triggerType: 'visual-cue',
+            visualTrigger: 'possession-start',
+            delay: 1.0,
+            fadeIn: 2.0,
+            volume: 0.9,
+            loop: true,
+            playbackRate: 'crawling',  // Use preset (0.25x speed) - ultra slow, creepy
+            speedTransition: {
+                enabled: false
+            }
         }
     ],
 
@@ -138,10 +294,15 @@ class SoundCue {
         this.loop = config.loop || false;              // Looping enabled
         this.visualTrigger = config.visualTrigger;     // Visual phase trigger
         
+        // 🎛️ Speed morphing properties
+        this.playbackRate = config.playbackRate || 1.0; // Playback speed/pitch
+        this.speedTransition = config.speedTransition || { enabled: false }; // Speed transition config
+        
         // Runtime state
         this.isTriggered = false;                      // Has this cue been triggered
         this.triggerTime = 0;                          // When this cue was triggered
         this.isCompleted = false;                      // Has this cue completed execution
+        this.currentPlaybackRate = 1.0;                // Current runtime playback rate
     }
 
     reset() {
@@ -165,6 +326,44 @@ class SoundCue {
         }
         return false;
     }
+
+    // 🎛️ Speed morphing helper methods
+    resolvePlaybackRate(rateValue) {
+        // If it's a string, look up in presets
+        if (typeof rateValue === 'string') {
+            const preset = SOUND_CONFIG.speedMorph.presets[rateValue];
+            if (preset !== undefined) {
+                return preset;
+            }
+            console.warn(`🎵 Unknown playback rate preset: ${rateValue}, using 1.0`);
+            return 1.0;
+        }
+        
+        // If it's a number, clamp to safe range
+        if (typeof rateValue === 'number') {
+            const { min, max } = SOUND_CONFIG.speedMorph.safeRange;
+            return Math.max(min, Math.min(max, rateValue));
+        }
+        
+        return 1.0; // Default fallback
+    }
+
+    getTargetPlaybackRate() {
+        return this.resolvePlaybackRate(this.playbackRate);
+    }
+
+    getStartPlaybackRate() {
+        if (this.speedTransition.enabled && this.speedTransition.startRate !== undefined) {
+            return this.resolvePlaybackRate(this.speedTransition.startRate);
+        }
+        return this.getTargetPlaybackRate();
+    }
+
+    hasSpeedTransition() {
+        return this.speedTransition.enabled && 
+               this.speedTransition.duration > 0 &&
+               this.getStartPlaybackRate() !== this.getTargetPlaybackRate();
+    }
 }
 
 // =============================================================================
@@ -187,6 +386,13 @@ class AudioTrack {
         // Audio context reference (will be set by SoundManager)
         this.audioContext = null;
         this.masterGainNode = null;
+
+        // 🎛️ Speed morphing properties
+        this.currentPlaybackRate = 1.0;                // Current playback rate
+        this.targetPlaybackRate = 1.0;                 // Target playback rate for transitions
+        this.speedTransitionStartTime = 0;             // When speed transition started
+        this.speedTransitionDuration = 0;              // Duration of speed transition
+        this.speedTransitionStartRate = 1.0;           // Starting rate for transition
     }
 
     setAudioContext(audioContext, masterGainNode) {
@@ -194,7 +400,7 @@ class AudioTrack {
         this.masterGainNode = masterGainNode;
     }
 
-    play(fadeInDuration = 0) {
+    play(fadeInDuration = 0, playbackRate = null) {
         if (!this.audioContext || !this.audioBuffer) {
             console.error(`Cannot play track ${this.id}: Audio context or buffer not available`);
             return false;
@@ -211,6 +417,13 @@ class AudioTrack {
             // Configure source
             this.source.buffer = this.audioBuffer;
             this.source.loop = this.isLooping;
+
+            // 🎛️ Set playback rate (speed/pitch)
+            const effectivePlaybackRate = playbackRate !== null ? playbackRate : 
+                                        (this.config.playbackRate || 1.0);
+            this.currentPlaybackRate = effectivePlaybackRate;
+            this.targetPlaybackRate = effectivePlaybackRate;
+            this.source.playbackRate.setValueAtTime(effectivePlaybackRate, this.audioContext.currentTime);
 
             // Connect audio graph: source -> gainNode -> masterGainNode -> destination
             this.source.connect(this.gainNode);
@@ -230,10 +443,13 @@ class AudioTrack {
 
             // Handle source end event
             this.source.onended = () => {
+                if (SOUND_CONFIG.debug.enabled) {
+                    console.log(`🎵 Track ${this.id} onended event - isPlaying: ${this.isPlaying}, isLooping: ${this.isLooping}`);
+                }
                 if (this.isPlaying && !this.isLooping) {
                     this.isPlaying = false;
                     if (SOUND_CONFIG.debug.enabled) {
-                        console.log(`🎵 Track ${this.id} playback completed`);
+                        console.log(`🎵 Track ${this.id} playback completed (non-looping)`);
                     }
                 }
             };
@@ -245,7 +461,7 @@ class AudioTrack {
             this.pauseTime = 0;
 
             if (SOUND_CONFIG.debug.enabled) {
-                console.log(`🎵 Playing track ${this.id} with fade-in: ${fadeInDuration}s`);
+                console.log(`🎵 Playing track ${this.id} with fade-in: ${fadeInDuration}s, loop: ${this.isLooping}, rate: ${effectivePlaybackRate}x`);
             }
 
             return true;
@@ -326,6 +542,10 @@ class AudioTrack {
         if (this.source) {
             this.source.loop = enabled;
         }
+        
+        if (SOUND_CONFIG.debug.enabled) {
+            console.log(`🎵 Track ${this.id} loop set to: ${enabled}`);
+        }
     }
 
     pause() {
@@ -357,6 +577,89 @@ class AudioTrack {
         this.audioBuffer = null;
         this.audioContext = null;
         this.masterGainNode = null;
+    }
+
+    // 🎛️ Speed morphing methods
+    setPlaybackRate(rate, transitionDuration = 0) {
+        if (!this.source || !this.isPlaying) {
+            return;
+        }
+
+        // Clamp rate to safe range
+        const { min, max } = SOUND_CONFIG.speedMorph.safeRange;
+        const clampedRate = Math.max(min, Math.min(max, rate));
+        
+        const currentTime = this.audioContext.currentTime;
+
+        if (transitionDuration > 0) {
+            // Smooth transition
+            this.speedTransitionStartTime = currentTime;
+            this.speedTransitionDuration = transitionDuration;
+            this.speedTransitionStartRate = this.currentPlaybackRate;
+            this.targetPlaybackRate = clampedRate;
+            
+            // Start the transition
+            this.source.playbackRate.setValueAtTime(this.currentPlaybackRate, currentTime);
+            this.source.playbackRate.linearRampToValueAtTime(clampedRate, currentTime + transitionDuration);
+        } else {
+            // Immediate change
+            this.source.playbackRate.setValueAtTime(clampedRate, currentTime);
+            this.currentPlaybackRate = clampedRate;
+            this.targetPlaybackRate = clampedRate;
+        }
+
+        if (SOUND_CONFIG.debug.enabled) {
+            console.log(`🎵 Track ${this.id} playback rate set to ${clampedRate}x (transition: ${transitionDuration}s)`);
+        }
+    }
+
+    startSpeedTransition(startRate, targetRate, duration) {
+        if (!this.source || !this.isPlaying) {
+            return;
+        }
+
+        const currentTime = this.audioContext.currentTime;
+        
+        // Set starting rate immediately
+        this.source.playbackRate.setValueAtTime(startRate, currentTime);
+        this.currentPlaybackRate = startRate;
+        
+        // Begin transition to target rate
+        this.speedTransitionStartTime = currentTime;
+        this.speedTransitionDuration = duration;
+        this.speedTransitionStartRate = startRate;
+        this.targetPlaybackRate = targetRate;
+        
+        // Schedule the transition
+        this.source.playbackRate.linearRampToValueAtTime(targetRate, currentTime + duration);
+
+        if (SOUND_CONFIG.debug.enabled) {
+            console.log(`🎵 Track ${this.id} speed transition: ${startRate}x → ${targetRate}x over ${duration}s`);
+        }
+    }
+
+    updateSpeedTransition() {
+        if (!this.source || !this.isPlaying || this.speedTransitionDuration <= 0) {
+            return;
+        }
+
+        const currentTime = this.audioContext.currentTime;
+        const elapsed = currentTime - this.speedTransitionStartTime;
+        
+        if (elapsed >= this.speedTransitionDuration) {
+            // Transition completed
+            this.currentPlaybackRate = this.targetPlaybackRate;
+            this.speedTransitionDuration = 0;
+        } else {
+            // Calculate current rate based on transition progress
+            const progress = elapsed / this.speedTransitionDuration;
+            this.currentPlaybackRate = this.speedTransitionStartRate + 
+                (this.targetPlaybackRate - this.speedTransitionStartRate) * progress;
+        }
+    }
+
+    getCurrentPlaybackRate() {
+        return this.currentPlaybackRate;
     }
 }
 
@@ -615,6 +918,15 @@ class SoundManager {
                 cue.markCompleted();
             }
         });
+
+        // 🎛️ Update speed transitions for all playing tracks
+        if (SOUND_CONFIG.speedMorph.realTime.enabled) {
+            this.tracks.forEach(track => {
+                if (track.isPlaying) {
+                    track.updateSpeedTransition();
+                }
+            });
+        }
     }
 
     // Execute a triggered cue
@@ -630,11 +942,31 @@ class SoundManager {
             track.setLoop(cue.loop);
             track.setVolume(cue.volume);
 
-            // Start playback with fade in
-            track.play(cue.fadeIn);
+            // 🎛️ Determine playback rate strategy
+            let startPlaybackRate = cue.getStartPlaybackRate();
+            const targetPlaybackRate = cue.getTargetPlaybackRate();
+
+            // Start playback with initial rate
+            track.play(cue.fadeIn, startPlaybackRate);
+
+            // 🎛️ Handle speed transitions
+            if (cue.hasSpeedTransition()) {
+                const transitionDuration = cue.speedTransition.duration || 
+                                          SOUND_CONFIG.speedMorph.transitions.defaultDuration;
+                
+                // Start the speed transition
+                setTimeout(() => {
+                    if (track.isPlaying) {
+                        track.startSpeedTransition(startPlaybackRate, targetPlaybackRate, transitionDuration);
+                    }
+                }, 100); // Small delay to ensure playback has started
+            }
 
             if (SOUND_CONFIG.debug.enabled) {
-                console.log(`🎵 Executing cue ${cue.id}: playing ${cue.trackId}`);
+                const rateInfo = cue.hasSpeedTransition() ? 
+                    `rate: ${startPlaybackRate}x → ${targetPlaybackRate}x` :
+                    `rate: ${targetPlaybackRate}x`;
+                console.log(`🎵 Executing cue ${cue.id}: playing ${cue.trackId} (${rateInfo})`);
             }
         } catch (error) {
             console.error(`🎵 Error executing cue ${cue.id}:`, error);
@@ -729,6 +1061,65 @@ class SoundManager {
         if (SOUND_CONFIG.debug.enabled) {
             console.log('🎵 Sound system disposed');
         }
+    }
+
+    // 🎛️ Speed morphing control methods
+    setTrackPlaybackRate(trackId, rate, transitionDuration = 0) {
+        const track = this.tracks.get(trackId);
+        if (!track) {
+            console.error(`🎵 Track not found: ${trackId}`);
+            return false;
+        }
+
+        track.setPlaybackRate(rate, transitionDuration);
+        return true;
+    }
+
+    morphTrackSpeed(trackId, preset, transitionDuration = null) {
+        const track = this.tracks.get(trackId);
+        if (!track) {
+            console.error(`🎵 Track not found: ${trackId}`);
+            return false;
+        }
+
+        const rate = SOUND_CONFIG.speedMorph.presets[preset];
+        if (rate === undefined) {
+            console.error(`🎵 Unknown speed preset: ${preset}`);
+            return false;
+        }
+
+        const duration = transitionDuration !== null ? transitionDuration : 
+                        SOUND_CONFIG.speedMorph.transitions.defaultDuration;
+        
+        track.setPlaybackRate(rate, duration);
+        
+        if (SOUND_CONFIG.debug.enabled) {
+            console.log(`🎵 Morphing ${trackId} to ${preset} (${rate}x) over ${duration}s`);
+        }
+        
+        return true;
+    }
+
+    getTrackPlaybackRate(trackId) {
+        const track = this.tracks.get(trackId);
+        return track ? track.getCurrentPlaybackRate() : null;
+    }
+
+    getAllPlayingTracks() {
+        const playingTracks = [];
+        this.tracks.forEach((track, id) => {
+            if (track.isPlaying) {
+                playingTracks.push({
+                    id: id,
+                    playbackRate: track.getCurrentPlaybackRate(),
+                    volume: track.currentVolume,
+                    isLooping: track.isLooping,
+                    duration: track.getDuration(),
+                    currentTime: track.getCurrentTime()
+                });
+            }
+        });
+        return playingTracks;
     }
 }
 

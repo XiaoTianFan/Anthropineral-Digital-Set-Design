@@ -2604,6 +2604,12 @@ class TheatreClient {
     init() {
         console.log('Initializing Theatre Client...');
         
+        // Initialize black filter overlay
+        this.initBlackFilter();
+        
+        // Make this instance globally accessible for HTML integration
+        window.theatreClient = this;
+        
         // Initialize Socket.IO connection
         this.initSocketIO();
         
@@ -2621,6 +2627,49 @@ class TheatreClient {
         
         // Start render loop
         this.animate();
+    }
+
+    // 🖤 NEW: Black filter overlay initialization
+    initBlackFilter() {
+        this.blackFilterActive = true;
+        this.blackFilterRemoved = false;
+        console.log('🖤 Black filter overlay initialized and active');
+    }
+
+    // 🖤 NEW: Method to fade out black filter (called from debug panel)
+    fadeOutBlackFilter() {
+        if (!this.blackFilterRemoved && this.blackFilterActive) {
+            const blackFilter = document.getElementById('black-filter-overlay');
+            if (blackFilter) {
+                blackFilter.classList.add('filter-fadeout');
+                this.blackFilterRemoved = true;
+                this.blackFilterActive = false;
+                console.log('🖤 Black filter fading out...');
+                this.addDebugMessage('🖤 Black filter overlay removed - revealing the digital space', 'success');
+                
+                // Update debug panel UI if elements exist
+                const blackFilterBtn = document.getElementById('remove-black-filter');
+                const statusSpan = document.getElementById('black-filter-status');
+                
+                if (blackFilterBtn) {
+                    blackFilterBtn.disabled = true;
+                    blackFilterBtn.textContent = '🖤 Filter Removed';
+                }
+                
+                if (statusSpan) {
+                    statusSpan.textContent = 'Removed';
+                    statusSpan.className = 'config-status disabled';
+                }
+                
+                // Remove the element completely after the transition
+                setTimeout(() => {
+                    if (blackFilter.parentNode) {
+                        blackFilter.parentNode.removeChild(blackFilter);
+                        console.log('🖤 Black filter completely removed');
+                    }
+                }, 2000); // Match the CSS transition duration
+            }
+        }
     }
 
     // 🎵 NEW: Sound system initialization
@@ -5542,6 +5591,12 @@ class TheatreClient {
             // Resume audio context if needed
             this.soundManager.resumeAudioContext();
 
+            // Set loop property from track configuration
+            const trackConfig = SOUND_CONFIG.tracks[trackId];
+            if (trackConfig && trackConfig.loop !== undefined) {
+                track.setLoop(trackConfig.loop);
+            }
+
             // Stop track if already playing
             if (track.isPlaying) {
                 track.stop(0.2);
@@ -5552,7 +5607,7 @@ class TheatreClient {
                 track.play(0.5);
             }
 
-            this.addDebugMessage(`🎵 Playing track: ${trackId}`, 'success');
+            this.addDebugMessage(`🎵 Playing track: ${trackId} (loop: ${trackConfig?.loop || false})`, 'success');
             this.updateTrackStatus(trackId, 'Playing');
         } catch (error) {
             this.addDebugMessage(`🎵 Error playing track ${trackId}: ${error.message}`, 'error');
