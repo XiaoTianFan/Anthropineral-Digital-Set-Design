@@ -1,6 +1,6 @@
 # Experimental Theatre Digital Program
 
-A digital program for experimental theatre that processes audience photos and creates interactive visual displays using real-time eye detection and 3D animations.
+A digital program for experimental theatre that processes audience photos and creates interactive visual displays using real-time eye detection and organic morphing 3D animations.
 
 ## Project Overview
 
@@ -8,13 +8,37 @@ This system consists of:
 1. **🤖 SD Card Auto-Import Pipeline**: Automatically detects camera SD cards and imports new images with real-time progress tracking
 2. **Image Processing Pipeline**: Automatically detects faces and crops eyes from photos using OpenCV
 3. **✨ Professional Bloom Visual Effects System**: Advanced 4-phase configurable 3D animations with constant bloom emission, enhanced flow dynamics, eye-textured shapes, and dynamic orbital camera controls
-4. **🎨 Client-Side Artistic Texture Processing**: Real-time B&W edge detection transforms raw eye images into dramatic high-contrast textures with 12+ adjustable parameters
-5. **🖼️ Real-Time Texture Display Gallery**: Live preview gallery showing processed textures in their original aspect ratios with interactive controls
-6. **📷 Dynamic Camera Rotation System**: Progressive speed-up camera rotation (0.1x to 1.0x) that accelerates with audience participation
-7. **Real-time Communication**: Socket.IO for live updates between all system components
-8. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
+4. **🔄 Organic Shape Morphing System**: Real-time vertex noise morphing creates constantly changing, living eye-textured shapes that breathe and pulse with organic movement
+5. **🎨 Client-Side Artistic Texture Processing**: Real-time B&W edge detection transforms raw eye images into dramatic high-contrast textures with 12+ adjustable parameters
+6. **🖼️ Real-Time Texture Display Gallery**: Live preview gallery showing processed textures in their original aspect ratios with interactive controls
+7. **📷 Dynamic Camera Rotation System**: Progressive speed-up camera rotation (0.1x to 1.0x) that accelerates with audience participation
+8. **Real-time Communication**: Socket.IO for live updates between all system components
+9. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
 
 ## Current Status
+
+### ✅ **Milestone 11: Organic Shape Morphing System - COMPLETED** 🔄
+- **🌱 Living Eye Shapes**: Revolutionary vertex noise morphing system creating organic, constantly changing 3D shapes that appear alive and breathing
+- **🔄 Organic Vertex Displacement**: Real-time vertex noise using multi-octave mathematical functions (sine/cosine waves) for natural, flowing movement
+- **🎭 Simplified Architecture**: Focused on vertex noise rather than complex geometric morphing for better performance and more organic results
+- **🎛️ Advanced Morphing Controls**: Complete UI control panel with 5 real-time adjustable parameters:
+  - **Noise Animation Speed** (0.1-2.0): Controls how fast the vertex noise animates over time
+  - **Noise Intensity** (0.0-1.0): Overall strength of vertex displacement effects
+  - **Noise Frequency** (0.5-5.0): Detail level of noise pattern (higher = more intricate deformation)
+  - **Noise Amplitude** (0.01-0.5): Maximum displacement distance for individual vertices
+  - **Global Enable/Disable**: Master switch for the entire morphing system
+- **🎨 Base Shape Variety**: Each morphing shape randomly chooses between cube or bipyramid as foundation, maintaining original shape recognition while adding organic movement
+- **⚡ High-Performance Implementation**: Optimized vertex manipulation with original vertex preservation and efficient normal recalculation
+- **🔍 Advanced Debugging System**: Comprehensive debugging tools including:
+  - **Vertex Storage Verification**: Logs when vertices are stored and validates geometry data
+  - **Displacement Tracking**: Real-time monitoring of maximum displacement values being applied
+  - **Extreme Test Mode**: Debug button for dramatic wobbling to verify system functionality
+  - **Performance Logging**: Tracks morphing activity, timer progression, and effect intensity
+- **🌊 Phase Integration**: Seamless integration with existing visual phases and convergence animations
+- **💫 Organic Appearance**: Creates breathing, pulsing, living shapes that enhance the theatrical experience with subtle but noticeable movement
+- **🎪 Theatre-Ready**: Production-optimized settings providing dramatic organic movement without overwhelming the core eye-texture visibility
+- **⚙️ Memory Efficient**: Smart original vertex storage and disposal system prevents memory leaks during long performances
+- **🔄 Reset Capability**: Complete reset to original geometry during convergence reset and shape disposal
 
 ### ✅ **Milestone 10: Dynamic Camera Rotation System - COMPLETED** 📷
 - **🎬 Progressive Camera Animation**: Revolutionary camera system that builds energy as audience participates
@@ -147,199 +171,28 @@ This system consists of:
 - **Eye Images Display**: Automatic loading of existing eye images with real-time updates ✅
 - **Status Communication**: All initialization bugs resolved, both startup methods work correctly ✅
 
-### 🎉 **Complete Theatre Production Pipeline**
-**Full Automated Theatre Experience:**
-1. **Insert SD Card** → Automatic detection within seconds
-2. **Auto-Import** → Background processing with progress tracking  
-3. **Eye Detection** → Immediate processing of imported images
-4. **Real-time Display** → Instant appearance of eye images in web interface
-5. **3D Animation System** → Configurable interactive visual effects with eye-textured shapes and orbital camera controls
-6. **Manual Animation Control** → Test triggers for convergence animation
-7. **Professional Monitoring** → Live status updates and configuration controls
-
-### 🔄 **Next Priority: Keyboard Trigger Integration**
-With the complete configurable visual effects system operational, the final enhancement is server-side keyboard triggers for live theatre automation.
-
-## Setup Instructions
-
-### Prerequisites
-
-- Python 3.8 or higher
-- OpenCV (automatically installed via requirements.txt)
-- Two computers on the same local network (or one computer serving both roles)
-
-### Installation
-
-1. **Navigate to the backend directory**:
-   ```bash
-   cd Program/computer1_backend
-   ```
-
-2. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Running the System
-
-### **Server Startup Options**
-
-Both methods now work correctly and will properly initialize the image processor:
-
-### **Option A: Using run.py (RECOMMENDED)**
-```bash
-python run.py
-```
-
-### **Option B: Direct Execution**
-```bash
-python main_server.py
-```
-
-Both options will:
-- Initialize the image processor correctly
-- Start file monitoring automatically  
-- Display proper status in the web client
-- Show detailed startup information in the console
-
-### Server Information
-The server will start and show:
-- **Local access**: `http://localhost:5000`
-- **Network access**: `http://[YOUR_LOCAL_IP]:5000`
-- **Status**: Check console for detailed startup information
-
-### 2. Access the Client (Computer 2)
-
-Open a web browser and navigate to `http://[COMPUTER1_IP]:5000`
-
-The client interface includes:
-- **Status Indicators**: Connection, Image Processor, and File Monitoring status
-- **🎭 3D Visual Effects Canvas**: Complete 3-phase configurable animation system with interactive orbital camera controls
-- **🎮 Camera Controls**: Mouse grab orbital view with constant auto-rotation for dynamic viewing experience
-- **🖼️ Real-Time Texture Display Gallery**: Live preview of processed textures with compact 3-per-row layout
-- **Debug Panel**: Testing tools and system information
-- **🔧 Configuration Controls**: Easy parameter tweaking interface
-
-### 3. System Operation
-
-#### **🎭 Advanced Configurable 3D Visual Effects System**
-1. **Phase 1 - Enhanced Particle Foundation**: Particles distributed in space with center attraction and depth-based brightness
-2. **Phase 2 - Eye Shape Integration**: Real eye images mapped as textures on orbiting 3D shapes with particle attraction
-3. **🎨 Artistic Texture Processing**: Client-side edge detection transforms raw eye images into dramatic B&W outlines with high contrast
-4. **Phase 3 - Convergence Animation**: Dramatic convergence with speed acceleration and completion detection
-5. **Phase 4a - Dispersion Burst**: Explosive outward particle fountain in uniform directions creating dramatic fountain effect
-6. **Phase 4b - Shell Formation**: Particles form protective shell around converged shapes with dynamic turbulence and center attraction
-7. **🎹 Global Keyboard Triggers**: Press **Down Arrow** key from anywhere on the server computer to instantly trigger convergence animation (2-second cooldown prevents double-triggers)
-8. **✨ Constant Bloom Emission**: Professional post-processing bloom effects where each particle acts like a light bulb (similar to Max jit.gl bloom)
-9. **📷 Dynamic Camera Rotation**: Progressive speed-up orbital camera system that accelerates with audience participation (10% to 100% speed based on shape count)
-10. **🌊 Enhanced Flow Dynamics**: Revolutionary particle physics with 6 force mechanisms:
-   - **⚖️ Balanced Attraction**: Force balancing prevents any single shape from monopolizing particles
-   - **🌀 Circulation Forces**: Particles flow around shapes in tangential motion, not just toward them
-   - **🛡️ Repulsion Zones**: Creates "bubbles" around shapes preventing particle trapping
-   - **💨 Global Flow Field**: Animated background current providing continuous organic motion
-   - **🌪️ Smart Turbulence**: Natural randomness with configurable intensity
-   - **⚡ Escape Velocity**: Fast particles can break free and explore other regions
-11. **🎨 Real-Time Artistic Controls**: Live adjustment of edge detection, contrast, gamma, and artistic styling parameters
-12. **🎛️ Real-time Flow Control**: Debug panel toggle to switch between simple and enhanced flow systems instantly
-13. **Automatic Phase Transitions**: System automatically detects eye images and transitions between phases
-14. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object including artistic processing settings
-15. **Performance Optimized**: Smooth rendering with configurable particle counts (2000 default) and shape limits (40 default)
-16. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
-
-#### **Automatic Eye Images Display**
-1. **Client Connection**: When you open the web interface, existing eye images automatically load
-2. **Real-time Updates**: New processed eye images appear immediately in the debug panel
-3. **Automatic Shape Creation**: Eye images instantly create new orbiting 3D shapes in the animation
-4. **Collapsible View**: Eye images section can be expanded/collapsed in the debug panel
-5. **Manual Refresh**: Use "Refresh Eye Images" button to reload existing images
-
-#### **Testing the Image Processing**
-1. **Add Test Images**: Copy any images with faces to `Program/computer1_backend/data/originals/`
-2. **Automatic Processing**: The system will automatically detect and process new images
-3. **View Results**: Processed eye images appear in `Program/computer1_backend/data/cropped_eyes/` and display on the web client
-4. **Instant Animation**: New eye images immediately create new orbiting shapes in the 3D animation
-5. **Status Monitoring**: Watch the console for processing logs and the web client for status updates
-
-#### **Using the Debug Panel**
-- **Test Connection**: Verify Socket.IO communication
-- **Test Processing**: Generate and process a test face image
-- **🎭 Animation Controls**: "Trigger Animation" and "Reset Animation" buttons for convergence effects
-- **🎹 Keyboard Status**: Shows if global keyboard triggers are active (Down Arrow key)
-- **📷 Camera Rotation Monitor**: Real-time monitoring of camera rotation system:
-  - **Rotation Status**: Live status indicator (Slow/Medium/Fast Rotation)
-  - **Current Speed**: Exact speed percentage display (e.g., "45.2%")
-  - **Shape Count**: Current vs maximum shapes driving speed (e.g., "18/40")
-  - **Speed Progress**: Color-coded progress bar with shimmer animation
-- **🌊 Flow Dynamics Toggle**: Switch between simple attraction and enhanced flow systems in real-time to compare particle behaviors
-- **✨ Bloom Post-Processing Toggle**: Enable/disable professional bloom effects with real-time control
-- **🌟 Constant Emission Toggle**: Control particle light bulb emission for bloom effects
-- **🎨 Artistic Texture Processing**: Complete control panel for real-time texture enhancement
-  - **Edge Detection**: Choose from Sobel, Roberts, or Prewitt algorithms
-  - **Live Parameter Control**: Real-time adjustment of edge threshold, strength, contrast, and gamma
-  - **Artistic Styling**: Toggle between black-on-white or white-on-black edge styles
-  - **Advanced Features**: Noise reduction, edge smoothing, and emissive glow effects
-  - **Cache Management**: Clear processing cache and reset to defaults
-  - **Apply to All Shapes**: Reprocess all existing eye textures with new settings
-- **🖼️ Real-Time Texture Display Gallery**: Live preview system for processed textures
-  - **Auto-Refresh Control**: Toggle automatic gallery updates (1-10 second intervals)
-  - **Gallery Management**: Manual refresh, clear gallery, and download latest texture
-  - **Status Tracking**: Live display of texture count, processing status, and last update time
-  - **Original Aspect Ratios**: Textures displayed in natural proportions, 3 per row
-  - **Interactive Preview**: Hover effects and click-to-enlarge functionality
-- **💥 Test Dispersion**: Manually trigger dispersion burst effect for testing dramatic particle fountain
-- **🛡️ Test Shell Effect**: Manually trigger shell formation around converged shapes
-- **Refresh Status**: Manually request status updates
-- **Clear Images**: Remove displayed eye images
-- **Refresh Eye Images**: Clear and reload existing eye images from server
-- **Clear Debug**: Clear debug message history
-- **Toggle Panel**: Use 🔧 button to show/hide debug panel
-- **Collapsible Sections**: Click section headers to expand/collapse content
-
-#### **🤖 SD Card Auto-Import System** 
-1. **Auto-Detection**: Insert any camera SD card and the system automatically detects it within seconds
-2. **Configuration**: Use the "Auto-Import Settings" toggle in the SD Card Management section to enable/disable auto-import
-3. **Automatic Import**: When enabled, new images are automatically imported in the background with real-time progress tracking
-4. **Progress Monitoring**: Watch live progress bars and status updates during import operations
-5. **Manual Control**: Use "Import New" or "Import All" buttons for manual import control
-6. **Status Indicators**: 
-   - 🤖 Robot emoji indicates auto-import operations
-   - Live card detection with size, image count, and mount point information
-   - Real-time import status (Ready/Importing/Error)
-7. **Seamless Pipeline**: Imported images automatically trigger eye detection and create new animated shapes
-
-## Implementation Status
-
-### ✅ **Completed Components**
-- **Flask Server**: Full Socket.IO integration with status tracking
-- **🌟 SD Card Auto-Import System**: Complete pipeline with intelligent detection, background processing, and professional UI
-- **Image Processor**: OpenCV face/eye detection with comprehensive error handling
-- **File Monitoring**: Watchdog-based automatic processing of new images  
-- **Client Interface**: Complete web interface with real-time updates and auto-import controls
-- **✨ Professional Bloom Visual Effects System**: Complete 4-phase system with constant bloom emission and 35+ configurable parameters
-- **🎨 Constant Bloom Emission**: Professional post-processing with UnrealBloomPass creating light-bulb particle effects
-- **🎨 Client-Side Artistic Texture Processing**: Real-time B&W edge detection with 12+ configurable parameters and smart caching
-- **🖼️ Real-Time Texture Display Gallery**: Live preview system with auto-refresh, original aspect ratios, and interactive controls
-- **🎹 Global Keyboard Trigger System**: Down arrow key triggers with safety mechanisms, status monitoring, and real-time integration
-- **🌊 Enhanced Flow Dynamics**: Revolutionary 6-mechanism particle physics system creating organic motion patterns
-- **Real-time Communication**: Bidirectional Socket.IO events with comprehensive auto-import events
-- **Debug Tools**: Comprehensive testing and status monitoring with SD card management, animation controls, bloom toggles, and artistic processing controls
-- **Eye Images Display**: Automatic loading and real-time display of processed eye images
-- **UI Layout**: Clean performance interface with collapsible debug panel and auto-import configuration
-- **Auto-Import Configuration**: Professional toggle controls with live status indicators and progress tracking
-
-### 🚧 **Current Issues**
-None - All core functionality including complete SD card auto-import pipeline, advanced configurable 3D visual effects system, professional constant bloom emission, and global keyboard triggers is working correctly! 
-
 ### 🎉 **CORE THEATRE AUTOMATION COMPLETE**
 All essential features for live theatre production are now fully implemented and operational:
 - ✅ **SD Card Auto-Import**: Automatic detection and background processing
 - ✅ **Eye Detection & Processing**: Real-time image processing pipeline  
 - ✅ **🎨 Client-Side Artistic Processing**: Real-time B&W edge detection with professional control panel
+- ✅ **📷 Dynamic Camera Rotation**: Progressive speed-up system connected to audience participation
 - ✅ **3D Visual Effects**: Professional configurable animation system with constant bloom
 - ✅ **🌊 Enhanced Flow Dynamics**: Revolutionary 6-mechanism particle physics system
 - ✅ **Keyboard Triggers**: Global hotkey system for live performance control
 - ✅ **Real-time Communication**: Complete Socket.IO integration
-- ✅ **Status Monitoring**: Comprehensive system status and controls
+
+### 🎪 **Live Theatre Operation Workflow**
+1. **🎬 Setup**: Start server, open web client on display computer
+2. **📸 Image Collection**: Insert camera SD card → Automatic detection and import
+3. **👁️ Processing**: Real-time eye detection and artistic texture processing
+4. **🔄 Organic Animation**: Eye shapes begin morphing with vertex noise, creating living, breathing appearance
+5. **🎨 Visual Development**: Progressive camera rotation accelerates as more audience eyes appear with organic movement
+6. **🎹 Performance Control**: Down arrow key triggers dramatic convergence animation with morphing shapes
+7. **✨ Visual Spectacle**: Professional bloom effects, flow dynamics, organic morphing, and dynamic camera create engaging theatre experience
+8. **🔄 Reset**: Easy animation reset for multiple performances (morphing shapes return to original geometry)
+
+The system is now **production-ready** for live theatre implementation with all core functionality operational and tested.
 
 ### 🔄 **Optional Enhancements**
 1. **Production Deployment**: Server configuration for permanent installation
@@ -355,13 +208,49 @@ All essential features for live theatre production are now fully implemented and
 3. **🎨 Advanced Particle System**: Distance-based opacity, configurable colors (HSL), distribution patterns, and initial velocities
 4. **⚙️ Flexible Rendering**: Configurable sphere geometry detail, material properties, and blending modes
 5. **🎭 Eye Shape Integration**: Real eye images as textures on configurable 3D shapes (cube, bipyramid, pentagon)
-6. **🎪 Convergence Animation**: Customizable duration, target radius, speed multipliers, and easing curves
-7. **🔧 Scene Control**: Configurable camera (FOV, position, clipping), lighting (ambient, directional), and background
-8. **📊 Performance Optimization**: Configurable limits for particles, shapes, and rendering quality
-9. **🎯 Precise Attraction Forces**: Fine-grained control over attraction strength, drag coefficients, and intensity scaling
-10. **🎨 Material System**: Configurable placeholder and loaded material properties for eye shapes
-11. **🌊 Enhanced Flow Dynamics System**: Revolutionary 6-mechanism particle flow system preventing belt formation with configurable force balancing, repulsion, circulation, flow fields, turbulence, and escape velocity
-12. **💥 Phase 4 Extensions**: Dispersion burst effect with uniform particle distribution and shell formation with dynamic turbulence
+6. **🔄 Organic Shape Morphing**: Revolutionary vertex noise system creating constantly changing, living eye-textured shapes with real-time displacement
+7. **🎪 Convergence Animation**: Customizable duration, target radius, speed multipliers, and easing curves
+8. **🔧 Scene Control**: Configurable camera (FOV, position, clipping), lighting (ambient, directional), and background
+9. **📊 Performance Optimization**: Configurable limits for particles, shapes, and rendering quality
+10. **🎯 Precise Attraction Forces**: Fine-grained control over attraction strength, drag coefficients, and intensity scaling
+11. **🎨 Material System**: Configurable placeholder and loaded material properties for eye shapes
+12. **🌊 Enhanced Flow Dynamics System**: Revolutionary 6-mechanism particle flow system preventing belt formation with configurable force balancing, repulsion, circulation, flow fields, turbulence, and escape velocity
+13. **💥 Phase 4 Extensions**: Dispersion burst effect with uniform particle distribution and shell formation with dynamic turbulence
+
+### **🔄 Organic Shape Morphing System**
+**Revolutionary vertex noise morphing creating living, breathing 3D eye-textured shapes**
+
+#### **Technical Implementation:**
+- **Multi-Octave Noise Functions**: Combines sine/cosine waves with position and time variables for organic movement
+- **Original Vertex Preservation**: Stores original geometry for reset capability and displacement calculation
+- **Real-time Vertex Manipulation**: Modifies vertex positions every frame with configurable displacement
+- **Smart Normal Recalculation**: Maintains proper lighting by recalculating surface normals after vertex changes
+- **Memory Efficient**: Optimized vertex storage and disposal preventing memory leaks
+
+#### **Morphing Configuration:**
+```javascript
+morphing: {
+    enabled: true,                // Master enable/disable switch
+    speed: 0.3,                   // Animation speed multiplier (0.1-2.0)
+    intensity: 0.2,               // Overall displacement strength (0.0-1.0)
+    targets: ['cube', 'bipyramid'], // Base shape types (randomly chosen per shape)
+    advanced: {
+        noiseFrequency: 2.0,      // Detail level of noise pattern (0.5-5.0)
+        noiseAmplitude: 0.1,      // Maximum vertex displacement (0.01-0.5)
+        timeScale: 1.0,           // Time scaling for noise animation
+        preserveTexture: true,    // Maintain texture mapping during morphing
+        memoryOptimization: true  // Enable efficient vertex management
+    }
+}
+```
+
+#### **Morphing Features:**
+- **🌱 Living Appearance**: Shapes appear to breathe and pulse with organic movement
+- **🎨 Base Shape Variety**: Random selection between cube and bipyramid geometries
+- **⚡ High Performance**: Optimized for real-time rendering during live performance
+- **🔄 Phase Integration**: Works seamlessly with convergence animations and reset cycles
+- **🎛️ Real-time Controls**: All parameters adjustable via debug panel during performance
+- **🔍 Debug Tools**: Comprehensive logging and extreme test mode for troubleshooting
 
 ### **Current Optimized Configuration:**
 ```javascript
@@ -916,82 +805,4 @@ VISUAL_CONFIG.system.maxShapes = 15;
 
 // Disable auto-rotation to save processing power
 VISUAL_CONFIG.scene.controls.autoRotate = false;
-```
-
-**For Theatre Presentation (Current Setup):**
-```javascript
-// Compact viewing area with strong center attraction
-VISUAL_CONFIG.particles.resetDistance = 10;
-VISUAL_CONFIG.particles.depthEffect.maxDistance = 10;
-VISUAL_CONFIG.attraction.baseStrength = 0.08;
-VISUAL_CONFIG.attraction.maxStrength = 0.2;
-
-// Smooth, theatrical camera rotation
-VISUAL_CONFIG.scene.controls.autoRotateSpeed = 1.0;
-VISUAL_CONFIG.scene.controls.enableDamping = true;
-```
-
-### 🔄 **Applying Configuration Changes**
-
-1. **Edit the Configuration**: Modify the `VISUAL_CONFIG` object in `Program/computer1_backend/static/js/client.js`
-2. **Restart the Server**: `python run.py`
-3. **Refresh the Browser**: Reload the client page to see changes
-4. **Test in Real-time**: Use the debug panel to trigger animations and see your customizations
-
-### 💡 **Configuration Pro Tips**
-
-- **🎨 Color Harmony**: Adjust `hueBase` and `hueVariation`
-
-### 🎨 NEW: Client-Side Artistic Texture Processing Configuration
-```javascript
-artisticProcessing: {
-    enabled: true,                    // Enable artistic B&W edge processing
-    realTimeAdjustment: true,         // Allow real-time parameter changes
-    description: "High-contrast B&W edge detection for dramatic 3D textures",
-    
-    // Edge detection settings
-    edgeDetection: {
-        method: 'sobel',              // 'sobel', 'roberts', 'prewitt'
-        threshold: 0.3,               // Edge threshold (0-1)
-        strength: 2.0,                // Edge strength multiplier
-        adaptiveThreshold: false      // Use adaptive thresholding
-    },
-    
-    // Contrast enhancement settings
-    contrast: {
-        factor: 2.5,                  // Contrast multiplication factor
-        brightness: -30,              // Brightness offset (-100 to 100)
-        gamma: 1.3,                   // Gamma correction for dramatic effect
-        autoBalance: true             // Automatic brightness balancing
-    },
-    
-    // Artistic style settings
-    style: {
-        invertEdges: false,           // True for white edges on black, False for black edges on white
-        backgroundColor: 255,         // Background color (0-255)
-        edgeColor: 0,                 // Edge color (0-255)
-        edgeThickness: 1,             // Edge thickness (1-5)
-        noiseReduction: true,         // Apply noise reduction
-        smoothing: true               // Apply edge smoothing
-    },
-    
-    // Client-side texture enhancement
-    textureEnhancement: {
-        enabled: true,                // Enable client-side texture enhancement
-        sharpening: 1.2,              // Additional sharpening for 3D textures
-        contrastBoost: 1.1,           // Client-side contrast boost
-        edgeGlow: {
-            enabled: true,            // Add subtle glow to edges
-            intensity: 0.3,           // Glow intensity
-            color: 0xffffff           // Glow color
-        }
-    },
-    
-    // Performance settings
-    performance: {
-        canvasSize: 256,              // Maximum processing canvas size
-        useWorker: false,             // Use web worker for processing (future)
-        cacheProcessed: true          // Cache processed textures
-    }
-}
 ```

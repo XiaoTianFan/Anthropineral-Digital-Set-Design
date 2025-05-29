@@ -85,12 +85,12 @@ const VISUAL_CONFIG = {
         dispersionEffect: {
             enabled: true,            // Enable dispersion burst effect
             duration: 2.0,            // Duration of dispersion burst (seconds)
-            burstStrength: 0.4,       // Initial outward burst force strength
+            burstStrength: 0.9,       // Initial outward burst force strength
             randomization: 1,       // Amount of randomization in burst direction
             velocityMultiplier: 3.0,  // Velocity multiplier during burst
-            dragReduction: 0.5,       // Reduced drag during dispersion (more = less drag)
-            centerRepulsion: 0.2,    // Additional repulsion from center during burst
-            resetThreshold: 0.9,      // Progress threshold to trigger particle resets (creates more dramatic spread)
+            dragReduction: 0.8,       // Reduced drag during dispersion (more = less drag)
+            centerRepulsion: 0.5,    // Additional repulsion from center during burst
+            resetThreshold: 0.5,      // Progress threshold to trigger particle resets (creates more dramatic spread)
             newParticleSpeed: 2.0     // Speed for newly reset particles during dispersion
         }
     },
@@ -107,8 +107,8 @@ const VISUAL_CONFIG = {
         },
         orbital: {
             radius: {
-                min: 1.5,               // Minimum orbital radius from center
-                max: 3                // Maximum orbital radius from center
+                min: 1.2,               // Minimum orbital radius from center
+                max: 2.5                // Maximum orbital radius from center
             },
             speed: {
                 min: 0.6,             // Minimum orbital speed
@@ -125,7 +125,7 @@ const VISUAL_CONFIG = {
             speedMultiplier: 4.0,     // Speed multiplication during convergence (up to 5x)
             scaleMultiplier: 0.5,     // Scale increase during convergence
             intensity: {
-                baseMin: 0.8,         // Base minimum intensity during convergence
+                baseMin: 0.75,         // Base minimum intensity during convergence
                 baseMax: 0.4,         // Additional intensity range during convergence
                 maxMultiplier: 2.0    // Maximum intensity multiplier for particles
             }
@@ -133,29 +133,49 @@ const VISUAL_CONFIG = {
         // 🔄 NEW: Morphing Configuration for Constantly Changing 3D Shapes
         morphing: {
             enabled: true,            // Enable morphing functionality
-            speed: 0.3,               // Morphing speed multiplier (slower for dramatic effect)
-            intensity: 0.2,           // Morphing effect intensity (0-1)
-            targets: ['cube', 'sphere'], // Available morph targets (limited to 2 for performance)
+            speed: 1.0,               // Morphing speed multiplier (increased from 0.3 for more visible effects)
+            intensity: 0.5,           // Morphing effect intensity (increased from 0.2 for more dramatic effect)
+            targets: ['cube', 'bipyramid'], // Available morph targets (cube and bipyramid)
             transitionDuration: 5.0,  // Seconds per complete morph cycle
             easing: 'easeInOutCubic', // Easing function: 'linear', 'easeInOutCubic', 'easeInOutSine'
-            convergenceMultiplier: 2.0, // Speed up morphing during convergence
+            convergenceMultiplier: 3.0, // Speed up morphing during convergence (increased from 2.0)
             phaseOffset: true,        // Offset morph timing between shapes for organic variety
             smoothness: 1.0,          // Smoothness factor for morph transitions (0.1-2.0)
-            // Advanced morphing settings
+            // Advanced morphing settings - focused on vertex noise
             advanced: {
-                vertexNoise: 0.05,    // Random vertex displacement during morphing
-                preserveTexture: true, // Maintain texture mapping during morphs
-                adaptiveDetail: true,  // Adjust geometry detail based on morph complexity
-                memoryOptimization: true // Enable memory optimization for morph targets
+                vertexNoise: 0.15,    // Random vertex displacement for organic variation (increased from 0.05)
+                noiseFrequency: 3.0,  // Frequency of noise pattern (increased from 2.0 for more detail)
+                noiseAmplitude: 0.25, // Amplitude of vertex displacement (increased from 0.1 for larger deformation)
+                timeScale: 1.5,       // Time scaling for animated noise (increased from 1.0 for faster animation)
+                preserveTexture: true, // Maintain texture mapping during vertex changes
+                adaptiveDetail: true,  // Adjust geometry detail based on noise complexity
+                memoryOptimization: true // Enable memory optimization
             }
         },
         material: {
             placeholder: {
                 color: 0x888888,      // Placeholder material color before texture loads
-                opacity: 0.8         // Placeholder material opacity
+                opacity: 0.75         // Placeholder material opacity
             },
             loaded: {
                 color: 0xffffff       // Color when texture is loaded (white for proper texture display)
+            }
+        },
+        // 🌅 NEW: Emergence Animation Configuration
+        emergence: {
+            enabled: true,            // Enable emergence animation for new shapes
+            duration: 2.5,            // Duration of emergence animation (seconds)
+            startOpacity: 0.0,        // Starting opacity (completely transparent)
+            targetOpacity: 0.75,      // Target opacity to reach (matches placeholder.opacity)
+            easing: 'easeInOutCubic', // Easing function: 'linear', 'easeInOutCubic', 'easeInOutSine'
+            scaleEffect: {
+                enabled: true,        // Enable scale effect during emergence
+                startScale: 0.8,      // Starting scale (slightly smaller)
+                targetScale: 1.0      // Target scale (normal size)
+            },
+            rotationEffect: {
+                enabled: true,        // Enable rotation effect during emergence
+                intensity: 0.3        // Rotation intensity multiplier during emergence
             }
         }
     },
@@ -1307,6 +1327,13 @@ class EyeShape {
         // 🎨 NEW: Artistic processor reference
         this.artisticProcessor = null; // Will be set by TheatreClient
         
+        // 🌅 NEW: Emergence animation properties
+        this.isEmerging = VISUAL_CONFIG.shapes.emergence.enabled; // Start emerging if enabled
+        this.emergenceProgress = 0; // 0 to 1
+        this.emergenceDuration = VISUAL_CONFIG.shapes.emergence.duration; // seconds
+        this.emergenceStartTime = performance.now() / 1000; // Start immediately
+        this.baseOpacity = VISUAL_CONFIG.shapes.emergence.targetOpacity; // Target opacity to reach
+        
         this.createShape();
     }
 
@@ -1567,175 +1594,63 @@ class EyeShape {
 // 🔄 NEW: MorphingEyeShape class for constantly morphing 3D shapes
 class MorphingEyeShape extends EyeShape {
     constructor(textureUrl, shapeType = 'morphing') {
-        super(textureUrl, shapeType);
+        // Randomly choose between cube and bipyramid for base shape
+        const baseShapeTypes = VISUAL_CONFIG.shapes.morphing.targets;
+        const randomBaseType = baseShapeTypes[Math.floor(Math.random() * baseShapeTypes.length)];
         
-        // Morphing-specific properties
+        super(textureUrl, randomBaseType);
+        
+        // Morphing-specific properties for vertex noise
         this.morphTimer = Math.random() * Math.PI * 2; // Random starting phase for variety
-        this.morphTargets = [];
-        this.morphInfluences = [];
+        this.originalVertices = null; // Store original vertex positions
         this.phaseOffset = VISUAL_CONFIG.shapes.morphing.phaseOffset ? 
             Math.random() * Math.PI * 2 : 0; // Random phase offset between shapes
         
-        console.log(`🔄 Created morphing eye shape: ${this.id} with phase offset: ${this.phaseOffset.toFixed(2)}`);
+        console.log(`🔄 Created morphing eye shape: ${this.id} (base: ${randomBaseType}) with phase offset: ${this.phaseOffset.toFixed(2)}`);
     }
     
     createShape() {
-        const config = VISUAL_CONFIG.shapes.morphing;
+        // Create base shape using parent method
+        super.createShape();
         
-        // Create base geometry (cube as foundation)
-        const baseSize = VISUAL_CONFIG.shapes.sizes.cube;
-        const baseGeometry = new THREE.BoxGeometry(baseSize, baseSize, baseSize);
+        // Store original vertex positions for noise application
+        this.storeOriginalVertices();
         
-        // Create morph targets based on configuration
-        this.createMorphTargets(baseGeometry, baseSize);
-        
-        // Create material with placeholder until texture loads
-        const material = new THREE.MeshLambertMaterial({
-            color: VISUAL_CONFIG.shapes.material.placeholder.color,
-            transparent: true,
-            opacity: VISUAL_CONFIG.shapes.material.placeholder.opacity,
-            morphTargets: true // Enable morph target support
-        });
-
-        this.mesh = new THREE.Mesh(baseGeometry, material);
-        
-        // Initialize morph influences array
-        this.morphInfluences = new Array(this.morphTargets.length).fill(0);
-        if (this.morphInfluences.length > 0) {
-            this.morphInfluences[0] = 1.0; // Start with first target fully active
-        }
-        
-        // Load the eye texture
-        this.loadTexture();
-        
-        console.log(`🔄 Created morphing shape with ${this.morphTargets.length} morph targets`);
+        console.log(`🔄 Created morphing shape with vertex noise capability`);
     }
     
-    createMorphTargets(baseGeometry, baseSize) {
-        const config = VISUAL_CONFIG.shapes.morphing;
-        const targets = config.targets;
-        
-        // Clear existing targets
-        this.morphTargets = [];
-        
-        // Create morph targets based on configuration
-        targets.forEach((targetType, index) => {
-            let targetGeometry;
-            
-            switch (targetType) {
-                case 'sphere':
-                    targetGeometry = new THREE.SphereGeometry(
-                        baseSize * 0.8, 
-                        config.advanced.adaptiveDetail ? 16 : 12, 
-                        config.advanced.adaptiveDetail ? 16 : 12
-                    );
-                    break;
-                    
-                case 'pyramid':
-                    targetGeometry = new THREE.ConeGeometry(
-                        baseSize * 0.7, 
-                        baseSize * 1.2, 
-                        config.advanced.adaptiveDetail ? 8 : 6
-                    );
-                    break;
-                    
-                case 'cylinder':
-                    targetGeometry = new THREE.CylinderGeometry(
-                        baseSize * 0.6, 
-                        baseSize * 0.6, 
-                        baseSize * 1.4, 
-                        config.advanced.adaptiveDetail ? 12 : 8
-                    );
-                    break;
-                    
-                case 'octahedron':
-                    targetGeometry = new THREE.OctahedronGeometry(baseSize * 0.8);
-                    break;
-                    
-                case 'cube':
-                default:
-                    // For cube target, create slightly different proportions
-                    targetGeometry = new THREE.BoxGeometry(
-                        baseSize * 1.1, 
-                        baseSize * 0.9, 
-                        baseSize * 1.0
-                    );
-                    break;
+    storeOriginalVertices() {
+        if (this.mesh && this.mesh.geometry) {
+            const positions = this.mesh.geometry.attributes.position;
+            if (positions) {
+                // Store a copy of the original vertex positions
+                this.originalVertices = new Float32Array(positions.array.length);
+                this.originalVertices.set(positions.array);
+                console.log(`🔄 Stored ${positions.count} original vertices for noise morphing`);
+                console.log(`🔄 First few vertices:`, positions.array.slice(0, 9)); // Show first 3 vertices
+            } else {
+                console.warn(`🔄 No positions attribute found in geometry for ${this.id}`);
             }
-            
-            // Apply vertex noise if enabled
-            if (config.advanced.vertexNoise > 0) {
-                this.applyVertexNoise(targetGeometry, config.advanced.vertexNoise);
-            }
-            
-            // Ensure vertex count compatibility for morphing
-            this.normalizeGeometryVertices(baseGeometry, targetGeometry);
-            
-            // Store morph target
-            this.morphTargets.push({
-                name: targetType,
-                geometry: targetGeometry,
-                vertices: targetGeometry.attributes.position.array.slice() // Copy vertices
-            });
-            
-            console.log(`🔄 Created morph target: ${targetType} with ${targetGeometry.attributes.position.count} vertices`);
-        });
-        
-        // Add morph targets to base geometry
-        this.addMorphTargetsToGeometry(baseGeometry);
-    }
-    
-    normalizeGeometryVertices(baseGeometry, targetGeometry) {
-        // Ensure both geometries have the same vertex count for proper morphing
-        const baseVertexCount = baseGeometry.attributes.position.count;
-        const targetVertexCount = targetGeometry.attributes.position.count;
-        
-        if (baseVertexCount !== targetVertexCount) {
-            console.warn(`🔄 Vertex count mismatch: base(${baseVertexCount}) vs target(${targetVertexCount})`);
-            // For now, we'll handle this by using BufferGeometry.morphTargetsRelative
-            // In a production environment, you'd want to ensure vertex counts match
+        } else {
+            console.warn(`🔄 No mesh or geometry found when storing vertices for ${this.id}`);
         }
-    }
-    
-    addMorphTargetsToGeometry(baseGeometry) {
-        // Add morph targets to the base geometry
-        this.morphTargets.forEach((target, index) => {
-            const morphAttribute = new THREE.BufferAttribute(target.vertices, 3);
-            baseGeometry.morphAttributes.position = baseGeometry.morphAttributes.position || [];
-            baseGeometry.morphAttributes.position[index] = morphAttribute;
-        });
-        
-        // Enable morph targets on geometry
-        baseGeometry.morphTargetsRelative = false;
-    }
-    
-    applyVertexNoise(geometry, noiseStrength) {
-        // Add subtle random displacement to vertices for organic variation
-        const positions = geometry.attributes.position;
-        const vertexCount = positions.count;
-        
-        for (let i = 0; i < vertexCount; i++) {
-            const noise = (Math.random() - 0.5) * noiseStrength;
-            positions.setX(i, positions.getX(i) + noise);
-            positions.setY(i, positions.getY(i) + noise);
-            positions.setZ(i, positions.getZ(i) + noise);
-        }
-        
-        positions.needsUpdate = true;
-        geometry.computeVertexNormals(); // Recompute normals after vertex changes
     }
     
     update(deltaTime) {
         // Call parent update for orbital motion and convergence
         super.update(deltaTime);
         
-        // Update morphing if enabled
-        if (VISUAL_CONFIG.shapes.morphing.enabled && this.morphTargets.length > 0) {
-            this.updateMorphing(deltaTime);
+        // Update vertex noise morphing if enabled
+        if (VISUAL_CONFIG.shapes.morphing.enabled && this.originalVertices) {
+            this.updateVertexNoise(deltaTime);
+        } else if (VISUAL_CONFIG.shapes.morphing.enabled && !this.originalVertices) {
+            // Try to store vertices again if we don't have them yet
+            console.log(`🔄 Morphing enabled but no original vertices for ${this.id}, attempting to store...`);
+            this.storeOriginalVertices();
         }
     }
     
-    updateMorphing(deltaTime) {
+    updateVertexNoise(deltaTime) {
         const config = VISUAL_CONFIG.shapes.morphing;
         
         // Calculate morphing speed (faster during convergence)
@@ -1745,19 +1660,96 @@ class MorphingEyeShape extends EyeShape {
         }
         
         // Update morph timer with phase offset
-        this.morphTimer += deltaTime * morphSpeed + this.phaseOffset * 0.001;
+        this.morphTimer += deltaTime * morphSpeed * config.advanced.timeScale + this.phaseOffset * 0.001;
         
-        // Calculate morph progress within cycle
-        const cycleProgress = (this.morphTimer % config.transitionDuration) / config.transitionDuration;
+        // Apply vertex noise to the mesh
+        this.applyVertexNoise();
+    }
+    
+    applyVertexNoise() {
+        if (!this.mesh || !this.mesh.geometry || !this.originalVertices) {
+            if (!this.mesh) console.warn(`🔄 No mesh for ${this.id}`);
+            if (!this.mesh?.geometry) console.warn(`🔄 No geometry for ${this.id}`);
+            if (!this.originalVertices) console.warn(`🔄 No original vertices for ${this.id}`);
+            return;
+        }
         
-        // Apply easing function
-        const easedProgress = this.applyMorphEasing(cycleProgress, config.easing);
+        const config = VISUAL_CONFIG.shapes.morphing;
+        const advanced = config.advanced;
+        const positions = this.mesh.geometry.attributes.position;
+        const vertexCount = positions.count;
         
-        // Calculate current morph influences
-        this.calculateMorphInfluences(easedProgress);
+        let maxDisplacement = 0; // Track maximum displacement for debugging
         
-        // Apply morph influences to mesh
-        this.applyMorphInfluences();
+        // 🔍 EXTREME DEBUG: Add dramatic test displacement to verify the system works
+        const testMode = window.extremeMorphingTest || false; // Use global test mode variable
+        
+        // Apply time-based noise to each vertex
+        for (let i = 0; i < vertexCount; i++) {
+            const i3 = i * 3; // Index for x, y, z components
+            
+            // Get original vertex position
+            const originalX = this.originalVertices[i3];
+            const originalY = this.originalVertices[i3 + 1];
+            const originalZ = this.originalVertices[i3 + 2];
+            
+            let displacementX, displacementY, displacementZ;
+            
+            if (testMode) {
+                // Extreme test displacement - should be very visible
+                const testAmplitude = 0.5; // Very large displacement
+                displacementX = Math.sin(this.morphTimer + i * 0.1) * testAmplitude;
+                displacementY = Math.cos(this.morphTimer + i * 0.1) * testAmplitude;
+                displacementZ = Math.sin(this.morphTimer * 0.5 + i * 0.1) * testAmplitude;
+            } else {
+                // Calculate noise based on vertex position and time
+                const noiseX = this.calculateNoise(originalX, originalY, originalZ, this.morphTimer, 0);
+                const noiseY = this.calculateNoise(originalX, originalY, originalZ, this.morphTimer, 1000);
+                const noiseZ = this.calculateNoise(originalX, originalY, originalZ, this.morphTimer, 2000);
+                
+                // Apply noise displacement with intensity scaling
+                const intensity = config.intensity;
+                const amplitude = advanced.noiseAmplitude;
+                
+                displacementX = noiseX * amplitude * intensity;
+                displacementY = noiseY * amplitude * intensity;
+                displacementZ = noiseZ * amplitude * intensity;
+            }
+            
+            // Track max displacement for debugging
+            const totalDisplacement = Math.sqrt(displacementX*displacementX + displacementY*displacementY + displacementZ*displacementZ);
+            maxDisplacement = Math.max(maxDisplacement, totalDisplacement);
+            
+            positions.setX(i, originalX + displacementX);
+            positions.setY(i, originalY + displacementY);
+            positions.setZ(i, originalZ + displacementZ);
+        }
+        
+        // Debug logging for displacement (more frequent for debugging)
+        if (Math.floor(this.morphTimer * 10) % 50 === 0) {
+            console.log(`🔄 Applied noise to ${this.id}: maxDisplacement=${maxDisplacement.toFixed(4)}, vertices=${vertexCount}, intensity=${config.intensity}, amplitude=${advanced.noiseAmplitude}, timer=${this.morphTimer.toFixed(2)}`);
+        }
+        
+        // Mark positions as needing update
+        positions.needsUpdate = true;
+        
+        // Recompute normals for proper lighting
+        this.mesh.geometry.computeVertexNormals();
+    }
+    
+    calculateNoise(x, y, z, time, offset) {
+        const config = VISUAL_CONFIG.shapes.morphing.advanced;
+        const frequency = config.noiseFrequency;
+        
+        // Simple 3D noise using sine waves (Perlin noise would be better but more complex)
+        const noise1 = Math.sin((x * frequency + time + offset) * 0.5) * 
+                      Math.cos((y * frequency + time + offset) * 0.7);
+        const noise2 = Math.cos((z * frequency + time + offset) * 0.3) * 
+                      Math.sin((x * frequency + time + offset) * 0.9);
+        const noise3 = Math.sin((y * frequency + z * frequency + time + offset) * 0.4);
+        
+        // Combine multiple noise octaves for more organic result
+        return (noise1 + noise2 * 0.5 + noise3 * 0.25) / 1.75;
     }
     
     applyMorphEasing(progress, easingType) {
@@ -1778,59 +1770,22 @@ class MorphingEyeShape extends EyeShape {
         }
     }
     
-    calculateMorphInfluences(progress) {
-        const targetCount = this.morphTargets.length;
-        if (targetCount === 0) return;
+    resetConvergence() {
+        // Call parent reset
+        super.resetConvergence();
         
-        // Reset all influences
-        this.morphInfluences.fill(0);
-        
-        if (targetCount === 1) {
-            // Single target: just oscillate influence
-            this.morphInfluences[0] = Math.sin(progress * Math.PI * 2) * 0.5 + 0.5;
-        } else if (targetCount === 2) {
-            // Two targets: ping-pong between them
-            const pingPong = Math.sin(progress * Math.PI * 2) * 0.5 + 0.5;
-            this.morphInfluences[0] = 1.0 - pingPong;
-            this.morphInfluences[1] = pingPong;
-        } else {
-            // Multiple targets: cycle through them
-            const targetIndex = progress * targetCount;
-            const currentIndex = Math.floor(targetIndex) % targetCount;
-            const nextIndex = (currentIndex + 1) % targetCount;
-            const localProgress = targetIndex - Math.floor(targetIndex);
-            
-            this.morphInfluences[currentIndex] = 1.0 - localProgress;
-            this.morphInfluences[nextIndex] = localProgress;
-        }
-        
-        // Apply intensity scaling
-        const intensity = VISUAL_CONFIG.shapes.morphing.intensity;
-        this.morphInfluences = this.morphInfluences.map(influence => 
-            influence * intensity + (1.0 - intensity) * (influence > 0.5 ? 1.0 : 0.0)
-        );
-    }
-    
-    applyMorphInfluences() {
-        if (!this.mesh || !this.mesh.morphTargetInfluences) return;
-        
-        // Apply calculated influences to mesh
-        for (let i = 0; i < this.morphInfluences.length; i++) {
-            if (this.mesh.morphTargetInfluences[i] !== undefined) {
-                this.mesh.morphTargetInfluences[i] = this.morphInfluences[i];
-            }
+        // Reset to original vertex positions
+        if (this.originalVertices && this.mesh && this.mesh.geometry) {
+            const positions = this.mesh.geometry.attributes.position;
+            positions.array.set(this.originalVertices);
+            positions.needsUpdate = true;
+            this.mesh.geometry.computeVertexNormals();
         }
     }
     
     dispose() {
-        // Clean up morph targets
-        this.morphTargets.forEach(target => {
-            if (target.geometry) {
-                target.geometry.dispose();
-            }
-        });
-        this.morphTargets = [];
-        this.morphInfluences = [];
+        // Clean up vertex data
+        this.originalVertices = null;
         
         // Call parent dispose
         super.dispose();
@@ -1861,7 +1816,7 @@ class ShapeManager {
         console.log('🎨 Artistic processor set for ShapeManager');
     }
 
-    addEyeShape(eyeImageUrl, filename) {
+    addEyeShape(eyeImageUrl, filename, useMorphing = false) {
         // Don't add if we already have a shape for this eye image
         if (this.shapes.has(eyeImageUrl)) {
             console.log(`Shape already exists for: ${filename}`);
@@ -1874,9 +1829,16 @@ class ShapeManager {
             return null;
         }
 
-        // Create new eye shape with random geometry type
-        const randomShapeType = this.shapeTypes[Math.floor(Math.random() * this.shapeTypes.length)];
-        const eyeShape = new EyeShape(eyeImageUrl, randomShapeType);
+        // Create new eye shape - morphing or regular based on parameter
+        let eyeShape;
+        if (useMorphing && VISUAL_CONFIG.shapes.morphing.enabled) {
+            // Create morphing shape
+            eyeShape = new MorphingEyeShape(eyeImageUrl, 'morphing');
+        } else {
+            // Create regular shape with random geometry type
+            const randomShapeType = this.shapeTypes[Math.floor(Math.random() * this.shapeTypes.length)];
+            eyeShape = new EyeShape(eyeImageUrl, randomShapeType);
+        }
         
         // 🎨 NEW: Set artistic processor reference
         if (this.artisticProcessor) {
@@ -1891,8 +1853,66 @@ class ShapeManager {
         // Store the shape
         this.shapes.set(eyeImageUrl, eyeShape);
         
-        console.log(`Created new eye shape: ${eyeShape.id} (${randomShapeType}) for ${filename}`);
+        const shapeType = useMorphing ? 'morphing' : eyeShape.shapeType;
+        console.log(`Created new eye shape: ${eyeShape.id} (${shapeType}) for ${filename}`);
         return eyeShape;
+    }
+    
+    // 🔄 NEW: Add morphing eye shape specifically
+    addMorphingEyeShape(eyeImageUrl, filename) {
+        return this.addEyeShape(eyeImageUrl, filename, true);
+    }
+    
+    // 🔄 NEW: Convert existing shapes to morphing shapes
+    convertToMorphingShapes() {
+        if (!VISUAL_CONFIG.shapes.morphing.enabled) {
+            console.log('🔄 Morphing is disabled in configuration');
+            return 0;
+        }
+        
+        let convertedCount = 0;
+        const shapesToConvert = Array.from(this.shapes.entries());
+        
+        shapesToConvert.forEach(([url, shape]) => {
+            if (!(shape instanceof MorphingEyeShape)) {
+                // Store shape info before removal
+                const filename = shape.filename || 'converted';
+                
+                // Remove old shape
+                this.removeEyeShape(url);
+                
+                // Create new morphing shape
+                const morphingShape = this.addMorphingEyeShape(url, filename);
+                if (morphingShape) {
+                    convertedCount++;
+                }
+            }
+        });
+        
+        console.log(`🔄 Converted ${convertedCount} shapes to morphing shapes`);
+        return convertedCount;
+    }
+    
+    // 🔄 NEW: Get morphing statistics
+    getMorphingStats() {
+        const totalShapes = this.shapes.size;
+        let morphingShapes = 0;
+        let regularShapes = 0;
+        
+        this.shapes.forEach(shape => {
+            if (shape instanceof MorphingEyeShape) {
+                morphingShapes++;
+            } else {
+                regularShapes++;
+            }
+        });
+        
+        return {
+            total: totalShapes,
+            morphing: morphingShapes,
+            regular: regularShapes,
+            morphingEnabled: VISUAL_CONFIG.shapes.morphing.enabled
+        };
     }
 
     removeEyeShape(eyeImageUrl) {
@@ -2483,9 +2503,10 @@ class TheatreClient {
 
         // Create 3D eye shape if we're in Phase 2 or higher
         if (this.visualPhase >= 2 && this.shapeManager) {
-            const eyeShape = this.shapeManager.addEyeShape(url, filename);
+            // 🔄 UPDATED: Always create morphing shapes from the beginning
+            const eyeShape = this.shapeManager.addMorphingEyeShape(url, filename);
             if (eyeShape) {
-                this.addDebugMessage(`Created 3D eye shape: ${eyeShape.shapeType} for ${filename}`, 'success');
+                this.addDebugMessage(`Created 3D morphing eye shape for ${filename}`, 'success');
             }
         }
 
@@ -2513,9 +2534,10 @@ class TheatreClient {
         if (this.shapeManager) {
             const eyeImages = document.querySelectorAll('#eye-images-container .eye-image');
             eyeImages.forEach(img => {
-                const eyeShape = this.shapeManager.addEyeShape(img.src, img.alt);
+                // 🔄 UPDATED: Always create morphing shapes from the beginning
+                const eyeShape = this.shapeManager.addMorphingEyeShape(img.src, img.alt);
                 if (eyeShape) {
-                    console.log(`Created eye shape for existing image: ${eyeShape.shapeType}`);
+                    console.log(`Created morphing eye shape for existing image: ${img.alt}`);
                 }
             });
             
@@ -3365,6 +3387,115 @@ class TheatreClient {
                 this.resetArtisticDefaults();
             });
         }
+        
+        // 🔄 NEW: Morphing Controls Event Listeners
+        // =========================================================
+        
+        // Main toggle for morphing shapes
+        if (document.getElementById('morphing-enabled')) {
+            document.getElementById('morphing-enabled').addEventListener('change', (e) => {
+                VISUAL_CONFIG.shapes.morphing.enabled = e.target.checked;
+                const status = document.getElementById('morphing-status');
+                if (status) {
+                    status.textContent = e.target.checked ? 'Enabled' : 'Disabled';
+                    status.className = `config-status ${e.target.checked ? 'enabled' : 'disabled'}`;
+                }
+                console.log(`🔄 Shape morphing ${e.target.checked ? 'enabled' : 'disabled'}`);
+                this.updateMorphingStats();
+            });
+        }
+        
+        // Noise animation speed control
+        if (document.getElementById('morphing-speed')) {
+            document.getElementById('morphing-speed').addEventListener('input', (e) => {
+                VISUAL_CONFIG.shapes.morphing.speed = parseFloat(e.target.value);
+                document.getElementById('morphing-speed-value').textContent = e.target.value;
+                console.log(`🔄 Noise animation speed: ${e.target.value}`);
+            });
+        }
+        
+        // Noise intensity control
+        if (document.getElementById('morphing-intensity')) {
+            document.getElementById('morphing-intensity').addEventListener('input', (e) => {
+                VISUAL_CONFIG.shapes.morphing.intensity = parseFloat(e.target.value);
+                document.getElementById('morphing-intensity-value').textContent = e.target.value;
+                console.log(`🔄 Noise intensity: ${e.target.value}`);
+            });
+        }
+        
+        // NEW: Noise frequency control
+        if (document.getElementById('morphing-frequency')) {
+            document.getElementById('morphing-frequency').addEventListener('input', (e) => {
+                VISUAL_CONFIG.shapes.morphing.advanced.noiseFrequency = parseFloat(e.target.value);
+                document.getElementById('morphing-frequency-value').textContent = e.target.value;
+                console.log(`🔄 Noise frequency: ${e.target.value}`);
+            });
+        }
+        
+        // NEW: Noise amplitude control
+        if (document.getElementById('morphing-amplitude')) {
+            document.getElementById('morphing-amplitude').addEventListener('input', (e) => {
+                VISUAL_CONFIG.shapes.morphing.advanced.noiseAmplitude = parseFloat(e.target.value);
+                document.getElementById('morphing-amplitude-value').textContent = e.target.value;
+                console.log(`🔄 Noise amplitude: ${e.target.value}`);
+            });
+        }
+        
+        // Convert all shapes to morphing
+        if (document.getElementById('convert-to-morphing')) {
+            document.getElementById('convert-to-morphing').addEventListener('click', () => {
+                if (this.shapeManager) {
+                    const converted = this.shapeManager.convertToMorphingShapes();
+                    this.addDebugMessage(`🔄 Converted ${converted} shapes to morphing shapes`, 'success');
+                    this.updateMorphingStats();
+                } else {
+                    this.addDebugMessage('🔄 Shape manager not available', 'warning');
+                }
+            });
+        }
+        
+        // Test morphing functionality
+        if (document.getElementById('test-morphing')) {
+            document.getElementById('test-morphing').addEventListener('click', () => {
+                // Create a test morphing shape if none exist
+                if (this.shapeManager && this.shapeManager.getShapeCount() === 0) {
+                    // Create a test shape with a placeholder texture
+                    const testTexture = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzAiIGZpbGw9IiM0Nzc1RkYiLz4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMTAiIGZpbGw9IiMwMDAwMDAiLz4KPC9zdmc+';
+                    this.shapeManager.addMorphingEyeShape(testTexture, 'test_morphing_shape');
+                    this.addDebugMessage('🔄 Created test morphing shape', 'success');
+                }
+                this.updateMorphingStats();
+            });
+        }
+        
+        // 🔍 NEW: Test extreme morphing for debugging
+        if (document.getElementById('test-extreme-morphing')) {
+            document.getElementById('test-extreme-morphing').addEventListener('click', () => {
+                // Toggle extreme test mode
+                window.extremeMorphingTest = !window.extremeMorphingTest;
+                
+                const button = document.getElementById('test-extreme-morphing');
+                if (window.extremeMorphingTest) {
+                    button.textContent = '🔍 Stop Extreme Test';
+                    button.style.backgroundColor = '#ff4444';
+                    this.addDebugMessage('🔍 Enabled extreme morphing test - shapes should wobble dramatically', 'warning');
+                } else {
+                    button.textContent = '🔍 Test Extreme Morphing';
+                    button.style.backgroundColor = '';
+                    this.addDebugMessage('🔍 Disabled extreme morphing test', 'info');
+                }
+                
+                console.log(`🔍 Extreme morphing test: ${window.extremeMorphingTest ? 'ENABLED' : 'DISABLED'}`);
+            });
+        }
+        
+        // Refresh morphing statistics
+        if (document.getElementById('refresh-morphing-stats')) {
+            document.getElementById('refresh-morphing-stats').addEventListener('click', () => {
+                this.updateMorphingStats();
+                this.addDebugMessage('🔄 Refreshed morphing statistics', 'info');
+            });
+        }
     }
 
     addDebugMessage(message, type = 'info') {
@@ -4130,6 +4261,24 @@ class TheatreClient {
         if (display) {
             display.textContent = value;
         }
+    }
+    
+    // 🔄 NEW: Update morphing statistics in UI
+    updateMorphingStats() {
+        if (!this.shapeManager) return;
+        
+        const stats = this.shapeManager.getMorphingStats();
+        
+        // Update UI elements
+        const totalElement = document.getElementById('morphing-total-shapes');
+        const activeElement = document.getElementById('morphing-active-shapes');
+        const regularElement = document.getElementById('morphing-regular-shapes');
+        
+        if (totalElement) totalElement.textContent = stats.total;
+        if (activeElement) activeElement.textContent = stats.morphing;
+        if (regularElement) regularElement.textContent = stats.regular;
+        
+        console.log(`🔄 Morphing stats: ${stats.morphing}/${stats.total} shapes morphing`);
     }
 
     initializeCameraSpeedDisplay() {

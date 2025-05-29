@@ -530,6 +530,111 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Flow Dynamics Configuration (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('flow-dynamics-section')">
+                    <h4>🌊 Enhanced Flow Dynamics</h4>
+                    <span class="toggle-arrow" id="flow-dynamics-section-arrow">▼</span>
+                </div>
+                <div id="flow-dynamics-section" class="collapsible-content">
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Enhanced Flow Dynamics:</span>
+                            <span class="config-description">Advanced particle flow system with balanced attraction forces</span>
+                        </div>
+                        <div class="config-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="flow-dynamics-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span id="flow-dynamics-status" class="config-status enabled">Enabled</span>
+                        </div>
+                    </div>
+                    <div class="config-description-text">
+                        When enabled, particles flow naturally around all eye shapes with turbulence, repulsion, and circulation forces for organic movement patterns.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔄 NEW: Morphing Controls Configuration (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('morphing-section')">
+                    <h4>🔄 Organic Shape Morphing (Vertex Noise)</h4>
+                    <span class="toggle-arrow" id="morphing-section-arrow">▼</span>
+                </div>
+                <div id="morphing-section" class="collapsible-content">
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Shape Morphing:</span>
+                            <span class="config-description">Organic vertex noise for constantly changing mesh shapes</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="morphing-enabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="config-status enabled" id="morphing-status">Enabled</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Noise Animation Speed:</span>
+                            <span class="config-description">How fast the vertex noise animates over time</span>
+                        </div>
+                        <input type="range" id="morphing-speed" min="0.1" max="5.0" step="0.1" value="1.0">
+                        <span class="config-value" id="morphing-speed-value">1.0</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Noise Intensity:</span>
+                            <span class="config-description">Overall strength of vertex displacement</span>
+                        </div>
+                        <input type="range" id="morphing-intensity" min="0.0" max="1.0" step="0.05" value="0.5">
+                        <span class="config-value" id="morphing-intensity-value">0.5</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Noise Frequency:</span>
+                            <span class="config-description">Detail level of the noise pattern (higher = more detailed)</span>
+                        </div>
+                        <input type="range" id="morphing-frequency" min="0.5" max="10.0" step="0.1" value="3.0">
+                        <span class="config-value" id="morphing-frequency-value">3.0</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Noise Amplitude:</span>
+                            <span class="config-description">Maximum displacement distance for vertices</span>
+                        </div>
+                        <input type="range" id="morphing-amplitude" min="0.01" max="1.0" step="0.01" value="0.25">
+                        <span class="config-value" id="morphing-amplitude-value">0.25</span>
+                    </div>
+                    
+                    <div class="config-stats">
+                        <div class="config-stat">
+                            <span>Active Morphing Shapes:</span>
+                            <span id="morphing-active-shapes">0</span>
+                        </div>
+                        <div class="config-stat">
+                            <span>Total Shapes:</span>
+                            <span id="morphing-total-shapes">0</span>
+                        </div>
+                        <div class="config-stat">
+                            <span>Regular Shapes:</span>
+                            <span id="morphing-regular-shapes">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="config-controls">
+                        <button id="convert-to-morphing">Convert All to Morphing</button>
+                        <button id="test-morphing">Test Morphing</button>
+                        <button id="test-extreme-morphing">🔍 Test Extreme Morphing</button>
+                        <button id="refresh-morphing-stats">Refresh Stats</button>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
@@ -587,7 +692,9 @@
                 'debug-controls-section',
                 'debug-messages-section',
                 'artistic-config-section',
-                'texture-display-section'
+                'texture-display-section',
+                'flow-dynamics-section',
+                'morphing-section'
             ];
             
             sectionsToOpen.forEach(sectionId => {
