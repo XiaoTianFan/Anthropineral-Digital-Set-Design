@@ -257,6 +257,204 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- 🕐 NEW: Portal Departure Controls -->
+                    <div class="config-group">
+                        <h5>🌀 Portal Departure System</h5>
+                        <div class="portal-controls">
+                            <div class="config-item">
+                                <div class="config-label">
+                                    <span>Portal Countdown:</span>
+                                    <span class="config-description">Auto-trigger countdown timer</span>
+                                </div>
+                                <div class="config-control">
+                                    <span id="portal-countdown" class="countdown-display countdown-inactive">--:--</span>
+                                </div>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-label">
+                                    <span>System Status:</span>
+                                    <span class="config-description">Current auto-trigger state</span>
+                                </div>
+                                <div class="config-control">
+                                    <span id="portal-status" class="portal-status">Inactive</span>
+                                </div>
+                            </div>
+                            <div class="config-controls">
+                                <div class="button-group">
+                                    <button id="test-portal-departure">Test Portal Departure</button>
+                                </div>
+                                <div class="portal-instructions">
+                                    <p>💡 When countdown is active, press ↓ (down arrow) key to trigger manually</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🎵 NEW: Audio System Controls (Collapsible) -->
+            <div class="debug-section">
+                <div class="section-header" onclick="toggleSection('audio-system-section')">
+                    <h4>🎵 Audio System</h4>
+                    <span class="toggle-arrow" id="audio-system-section-arrow">▼</span>
+                </div>
+                <div id="audio-system-section" class="collapsible-content">
+                    <!-- Audio System Status -->
+                    <div class="config-group">
+                        <h5>📊 System Status</h5>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Audio Context:</span>
+                                <span class="config-description">Web Audio API initialization status</span>
+                            </div>
+                            <div class="config-control">
+                                <span id="audio-context-status" class="config-status">Unknown</span>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Tracks Loaded:</span>
+                                <span class="config-description">Number of audio files successfully loaded</span>
+                            </div>
+                            <div class="config-control">
+                                <span id="audio-tracks-loaded" class="config-value">0/0</span>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Master Volume:</span>
+                                <span class="config-description">Global audio volume level</span>
+                            </div>
+                            <div class="config-control">
+                                <input type="range" id="master-volume-slider" min="0" max="100" value="100" class="config-range">
+                                <span id="master-volume-value" class="config-value">100%</span>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Mute Status:</span>
+                                <span class="config-description">Current mute state</span>
+                            </div>
+                            <div class="config-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="master-mute-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="mute-status" class="config-status">Unmuted</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Track Playback -->
+                    <div class="config-group">
+                        <h5>🎮 Manual Track Playback</h5>
+                        <div class="audio-track-list">
+                            <div class="audio-track-item">
+                                <div class="track-info">
+                                    <span class="track-name">🎬 Traffic Light</span>
+                                    <span class="track-details">Manual test track</span>
+                                </div>
+                                <div class="track-controls">
+                                    <button class="track-play-btn" data-track-id="traffic-light">▶ Play</button>
+                                    <button class="track-stop-btn" data-track-id="traffic-light">⏹ Stop</button>
+                                    <span class="track-status" id="traffic-light-status">Ready</span>
+                                </div>
+                            </div>
+                            <div class="audio-track-item">
+                                <div class="track-info">
+                                    <span class="track-name">🌅 Ambient Intro</span>
+                                    <span class="track-details">Phase 1 background ambient</span>
+                                </div>
+                                <div class="track-controls">
+                                    <button class="track-play-btn" data-track-id="ambient-intro">▶ Play</button>
+                                    <button class="track-stop-btn" data-track-id="ambient-intro">⏹ Stop</button>
+                                    <span class="track-status" id="ambient-intro-status">Ready</span>
+                                </div>
+                            </div>
+                            <div class="audio-track-item">
+                                <div class="track-info">
+                                    <span class="track-name">👁️ Emergence Sound</span>
+                                    <span class="track-details">Phase 2 eye shape emergence</span>
+                                </div>
+                                <div class="track-controls">
+                                    <button class="track-play-btn" data-track-id="emergence-sound">▶ Play</button>
+                                    <button class="track-stop-btn" data-track-id="emergence-sound">⏹ Stop</button>
+                                    <span class="track-status" id="emergence-sound-status">Ready</span>
+                                </div>
+                            </div>
+                            <div class="audio-track-item">
+                                <div class="track-info">
+                                    <span class="track-name">⚡ Convergence Build</span>
+                                    <span class="track-details">Phase 3 tension building</span>
+                                </div>
+                                <div class="track-controls">
+                                    <button class="track-play-btn" data-track-id="convergence-build">▶ Play</button>
+                                    <button class="track-stop-btn" data-track-id="convergence-build">⏹ Stop</button>
+                                    <span class="track-status" id="convergence-build-status">Ready</span>
+                                </div>
+                            </div>
+                            <div class="audio-track-item">
+                                <div class="track-info">
+                                    <span class="track-name">🌀 Portal Departure</span>
+                                    <span class="track-details">Phase 5 final dramatic moment</span>
+                                </div>
+                                <div class="track-controls">
+                                    <button class="track-play-btn" data-track-id="portal-departure">▶ Play</button>
+                                    <button class="track-stop-btn" data-track-id="portal-departure">⏹ Stop</button>
+                                    <span class="track-status" id="portal-departure-status">Ready</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cue System Controls -->
+                    <div class="config-group">
+                        <h5>🎭 Cue System</h5>
+                        <div class="config-item">
+                            <div class="config-label">
+                                <span>Active Cues:</span>
+                                <span class="config-description">Number of triggered cues</span>
+                            </div>
+                            <div class="config-control">
+                                <span id="active-cues-count" class="config-value">0/0</span>
+                            </div>
+                        </div>
+                        <div class="config-controls">
+                            <div class="button-group">
+                                <button id="trigger-manual-cue">🎵 Trigger Manual Cue</button>
+                                <button id="reset-cue-system">↺ Reset Cues</button>
+                                <button id="emergency-stop-audio">🛑 Emergency Stop</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard Controls Reference -->
+                    <div class="config-group">
+                        <h5>⌨️ Keyboard Controls</h5>
+                        <div class="keyboard-controls-ref">
+                            <div class="keyboard-item">
+                                <span class="key">→</span>
+                                <span class="description">Trigger next manual cue</span>
+                            </div>
+                            <div class="keyboard-item">
+                                <span class="key">M</span>
+                                <span class="description">Mute/unmute audio</span>
+                            </div>
+                            <div class="keyboard-item">
+                                <span class="key">+</span>
+                                <span class="description">Volume up</span>
+                            </div>
+                            <div class="keyboard-item">
+                                <span class="key">-</span>
+                                <span class="description">Volume down</span>
+                            </div>
+                            <div class="keyboard-item">
+                                <span class="key">Esc</span>
+                                <span class="description">Emergency stop all audio</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -760,6 +958,8 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ShaderPass.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.js"></script>
+    <!-- 🎵 NEW: Sound system -->
+    <script src="{{ url_for('static', filename='js/soundSystem.js') }}"></script>
     <script src="{{ url_for('static', filename='js/client.js') }}"></script>
     
     <script>
@@ -806,7 +1006,8 @@
                 'texture-display-section',
                 'flow-dynamics-section',
                 'morphing-section',
-                'emergence-section'
+                'emergence-section',
+                'audio-system-section'
             ];
             
             sectionsToOpen.forEach(sectionId => {

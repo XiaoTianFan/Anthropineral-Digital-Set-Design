@@ -92,6 +92,76 @@ const VISUAL_CONFIG = {
             centerRepulsion: 0.5,    // Additional repulsion from center during burst
             resetThreshold: 0.5,      // Progress threshold to trigger particle resets (creates more dramatic spread)
             newParticleSpeed: 2.0     // Speed for newly reset particles during dispersion
+        },
+        
+        // 🌀 NEW: Portal Departure effect configuration - creature teleportation
+        portalDeparture: {
+            enabled: true,            // Enable portal departure effect
+            duration: 8.0,            // Total duration of portal departure (seconds)
+            
+            // 🕐 NEW: Auto-trigger configuration
+            autoTrigger: {
+                enabled: true,        // Enable automatic trigger after timeout
+                maxWaitTime: 120.0,   // Maximum wait time before auto-trigger (seconds) - 2 minutes
+                manualTriggerKey: 'ArrowDown', // Key for manual trigger (down arrow)
+                showCountdown: true,  // Show countdown timer in UI
+                countdownWarning: 30.0, // Show warning when X seconds remain
+                allowEarlyTrigger: true // Allow manual trigger before timeout
+            },
+            
+            // Shape flickering/instability effect
+            flickering: {
+                enabled: true,        // Enable opacity flickering
+                frequency: 8.0,       // Flickers per second (higher = more frantic)
+                minOpacity: 0.1,      // Minimum opacity during flicker
+                maxOpacity: 1.0,      // Maximum opacity during flicker
+                intensityIncrease: true, // Increase flicker intensity over time
+                finalFrequency: 15.0  // Final flicker frequency before disappearance
+            },
+            
+            // Shape shrinking effect
+            shrinking: {
+                enabled: true,        // Enable size decrease
+                startDelay: 1.0,      // Delay before shrinking starts (seconds)
+                shrinkDuration: 6.0,  // Duration of shrinking process (seconds)
+                finalScale: 0.02,     // Final scale before disappearance (very small)
+                easing: 'easeInQuart', // Easing: 'linear', 'easeInQuart', 'easeInCubic'
+                disappearThreshold: 0.05 // Scale threshold for shape disappearance
+            },
+            
+            // Particle shell effect during departure
+            shellShrinkage: {
+                enabled: true,        // Enable shell radius shrinkage
+                radiusMultiplier: 1.5, // Shell radius = shape scale * this multiplier
+                minRadius: 0.5,       // Minimum shell radius before collapse
+                collapseSpeed: 2.0,   // Speed multiplier for final shell collapse
+                turbulenceIncrease: true // Increase turbulence as shell shrinks
+            },
+            
+            // Final departure trigger
+            finalDeparture: {
+                simultaneousDisappear: true, // All shapes disappear at exactly the same time
+                flashEffect: {
+                    enabled: true,    // Brief flash when shapes disappear
+                    duration: 0.2,    // Flash duration (seconds)
+                    color: 0xffffff,  // Flash color
+                    intensity: 2.0    // Flash intensity multiplier
+                },
+                particleDispersion: {
+                    enabled: true,    // Disperse particles after shapes disappear
+                    burstStrength: 1.2, // Outward burst strength
+                    returnDelay: 2.0, // Delay before returning to center attraction (seconds)
+                    returnDuration: 4.0 // Duration to transition back to Phase 1 (seconds)
+                }
+            },
+            
+            // Transition back to Phase 1
+            cycleReset: {
+                clearAllShapes: true, // Remove all shape data for fresh start
+                resetParticles: true, // Reset particle system to initial state
+                transitionDuration: 3.0, // Smooth transition duration to Phase 1
+                fadeToBlack: false    // Optional: brief fade to black during transition
+            }
         }
     },
     
@@ -128,6 +198,10 @@ const VISUAL_CONFIG = {
                 baseMin: 0.75,         // Base minimum intensity during convergence
                 baseMax: 0.4,         // Additional intensity range during convergence
                 maxMultiplier: 2.0    // Maximum intensity multiplier for particles
+            },
+            manualTrigger: {
+                enabled: true,        // Enable manual convergence trigger
+                key: 'ArrowUp'        // Key for manual convergence trigger (up arrow)
             }
         },
         // 🔄 NEW: Morphing Configuration for Constantly Changing 3D Shapes
@@ -818,6 +892,9 @@ class Particle {
                 // Dispersion effect: dramatic outward burst
                 const dispersionProgress = parseFloat(mode.split('_')[1]) || 0;
                 this.updateWithDispersionEffect(deltaTime, dispersionProgress, config);
+            } else if (mode === 'portal_shell' && config.portalDeparture.enabled) {
+                // 🌀 NEW: Portal shell effect: shrinking shell around departing shapes
+                this.updateWithPortalShell(deltaTime, attractors, config);
             } else if (config.flowDynamics.enabled) {
                 // Enhanced flow dynamics system
                 this.updateWithFlowDynamics(deltaTime, attractors, config);
@@ -1080,6 +1157,76 @@ class Particle {
         // 5. Apply reduced drag for more dramatic movement
         const dragMultiplier = config.drag.normal * dispersion.dragReduction;
         this.velocity.multiplyScalar(dragMultiplier);
+    }
+
+    // 🌀 NEW: Portal shell effect - particles form shrinking shell around departing shapes
+    updateWithPortalShell(deltaTime, attractors, config) {
+        const totalForce = new THREE.Vector3();
+        const portalConfig = config.portalDeparture;
+        
+        if (!portalConfig.enabled || !portalConfig.shellShrinkage.enabled) {
+            // Fallback to normal shell effect
+            this.updateWithShellEffect(deltaTime, attractors, config);
+            return;
+        }
+        
+        // 1. Center attraction - weaker than normal shell effect
+        const centerDistance = this.position.length();
+        if (centerDistance > 0.001) {
+            const centerDirection = new THREE.Vector3().copy(this.position).negate().normalize();
+            const centerForce = centerDirection.multiplyScalar(portalConfig.shellShrinkage.minRadius * 0.1);
+            totalForce.add(centerForce);
+        }
+        
+        // 2. Dynamic shell radius based on shrinking shapes
+        let dynamicShellRadius = portalConfig.shellShrinkage.minRadius;
+        
+        attractors.forEach(attractor => {
+            // Use shellRadius from attractor if available
+            if (attractor.shellRadius !== undefined) {
+                dynamicShellRadius = Math.max(dynamicShellRadius, attractor.shellRadius);
+            }
+            
+            // Shape repulsion - push particles away from departing shapes
+            const direction = new THREE.Vector3().subVectors(this.position, attractor.position);
+            const distance = direction.length();
+            
+            if (distance < dynamicShellRadius && distance > config.minDistance) {
+                direction.normalize();
+                const repulsionStrength = 0.3 * (1 - distance / dynamicShellRadius);
+                const repulsionForce = direction.multiplyScalar(repulsionStrength);
+                totalForce.add(repulsionForce);
+            }
+        });
+        
+        // 3. Shell stabilization with dynamic radius
+        const radiusError = centerDistance - dynamicShellRadius;
+        if (centerDistance > 0.001) {
+            const stabilizationDirection = new THREE.Vector3().copy(this.position).normalize();
+            const stabilizationForce = stabilizationDirection.multiplyScalar(-radiusError * 0.15);
+            totalForce.add(stabilizationForce);
+        }
+        
+        // 4. Increased turbulence as shell shrinks
+        let turbulenceStrength = 0.03; // Base turbulence
+        if (portalConfig.shellShrinkage.turbulenceIncrease) {
+            // Increase turbulence as shell gets smaller
+            const shrinkRatio = dynamicShellRadius / portalConfig.shellShrinkage.radiusMultiplier;
+            turbulenceStrength *= (2.0 - shrinkRatio); // More turbulence when smaller
+        }
+        
+        const turbulence = new THREE.Vector3(
+            (Math.random() - 0.5) * turbulenceStrength,
+            (Math.random() - 0.5) * turbulenceStrength,
+            (Math.random() - 0.5) * turbulenceStrength
+        );
+        totalForce.add(turbulence);
+        
+        // 5. Apply the total force to velocity
+        this.velocity.add(totalForce);
+        
+        // 6. Apply normal drag
+        this.velocity.multiplyScalar(config.drag.normal);
     }
 
     getOpacity() {
@@ -1345,6 +1492,18 @@ class EyeShape {
         // 🎨 NEW: Artistic processor reference
         this.artisticProcessor = null; // Will be set by TheatreClient
         
+        // 🌀 NEW: Portal Departure animation properties
+        this.isPortalDeparting = false;
+        this.portalDepartureProgress = 0; // 0 to 1
+        this.portalDepartureDuration = VISUAL_CONFIG.attraction.portalDeparture.duration;
+        this.portalDepartureStartTime = 0;
+        this.flickerTimer = 0; // Timer for opacity flickering
+        this.currentFlickerOpacity = 1.0; // Current flicker opacity
+        this.shrinkProgress = 0; // 0 to 1 for shrinking animation
+        this.originalScale = 1.0; // Store original scale for shrinking calculation
+        this.hasDisappeared = false; // Track if shape has disappeared
+        this.disappearanceTime = 0; // Time when shape disappeared
+        
         this.createShape();
     }
 
@@ -1523,12 +1682,24 @@ class EyeShape {
         if (this.isEmerging) {
             this.updateEmergence(deltaTime);
         }
-        // Handle convergence animation (only if not emerging)
+        // Handle portal departure animation (takes priority over convergence)
+        else if (this.isPortalDeparting) {
+            this.updatePortalDeparture(deltaTime);
+            
+            // Skip normal orbital movement during portal departure
+            // Only update rotation for dramatic effect
+            const rotationMultiplier = 1 + this.portalDepartureProgress * 3; // Faster rotation during departure
+            this.mesh.rotation.x += this.rotationSpeed.x * rotationMultiplier;
+            this.mesh.rotation.y += this.rotationSpeed.y * rotationMultiplier;
+            this.mesh.rotation.z += this.rotationSpeed.z * rotationMultiplier;
+            return; // Skip normal orbital movement
+        }
+        // Handle convergence animation (only if not emerging or departing)
         else if (this.isConverging) {
             this.updateConvergence(deltaTime);
         }
 
-        // Update orbital position
+        // Update orbital position (normal operation)
         this.orbitalAngle += (this.orbitalSpeed * this.speedMultiplier) * deltaTime;
         
         // Calculate position on the orbital plane
@@ -1660,6 +1831,143 @@ class EyeShape {
         return this.isConverging && this.convergenceProgress >= 1.0;
     }
 
+    // 🌀 NEW: Portal Departure Animation Methods
+    startPortalDeparture(currentTime) {
+        if (!this.isPortalDeparting && VISUAL_CONFIG.attraction.portalDeparture.enabled) {
+            this.isPortalDeparting = true;
+            this.portalDepartureStartTime = currentTime;
+            this.portalDepartureProgress = 0;
+            this.flickerTimer = 0;
+            this.shrinkProgress = 0;
+            this.hasDisappeared = false;
+            
+            // Store current scale as original scale for shrinking calculation
+            if (this.mesh) {
+                this.originalScale = this.mesh.scale.x; // Assume uniform scaling
+            }
+            
+            console.log(`🌀 Starting portal departure for shape: ${this.id}`);
+        }
+    }
+
+    updatePortalDeparture(deltaTime) {
+        if (!this.isPortalDeparting || this.hasDisappeared) return;
+        
+        const currentTime = performance.now() / 1000;
+        const elapsed = currentTime - this.portalDepartureStartTime;
+        
+        // Calculate overall progress (0 to 1)
+        this.portalDepartureProgress = Math.min(elapsed / this.portalDepartureDuration, 1);
+        
+        const config = VISUAL_CONFIG.attraction.portalDeparture;
+        
+        // 1. Update flickering effect
+        this.updatePortalFlickering(deltaTime, config);
+        
+        // 2. Update shrinking effect
+        this.updatePortalShrinking(deltaTime, config);
+        
+        // 3. Check for disappearance
+        this.checkPortalDisappearance(config);
+    }
+
+    updatePortalFlickering(deltaTime, config) {
+        if (!config.flickering.enabled || !this.mesh || !this.mesh.material) return;
+        
+        // Update flicker timer
+        this.flickerTimer += deltaTime;
+        
+        // Calculate current flicker frequency (increases over time if enabled)
+        let currentFrequency = config.flickering.frequency;
+        if (config.flickering.intensityIncrease) {
+            const intensityProgress = this.portalDepartureProgress;
+            currentFrequency = config.flickering.frequency + 
+                (config.flickering.finalFrequency - config.flickering.frequency) * intensityProgress;
+        }
+        
+        // Calculate flicker opacity using sine wave
+        const flickerCycle = Math.sin(this.flickerTimer * currentFrequency * Math.PI * 2);
+        const normalizedFlicker = (flickerCycle + 1) / 2; // Convert from [-1,1] to [0,1]
+        
+        // Map to opacity range
+        this.currentFlickerOpacity = config.flickering.minOpacity + 
+            (config.flickering.maxOpacity - config.flickering.minOpacity) * normalizedFlicker;
+        
+        // Apply flicker opacity to material
+        this.mesh.material.opacity = this.currentFlickerOpacity;
+    }
+
+    updatePortalShrinking(deltaTime, config) {
+        if (!config.shrinking.enabled || !this.mesh) return;
+        
+        const elapsed = this.portalDepartureProgress * this.portalDepartureDuration;
+        
+        // Check if shrinking should start
+        if (elapsed >= config.shrinking.startDelay) {
+            // Calculate shrink progress
+            const shrinkElapsed = elapsed - config.shrinking.startDelay;
+            this.shrinkProgress = Math.min(shrinkElapsed / config.shrinking.shrinkDuration, 1);
+            
+            // Apply easing to shrink progress
+            const easedShrinkProgress = this.applyPortalEasing(this.shrinkProgress, config.shrinking.easing);
+            
+            // Calculate current scale
+            const currentScale = this.originalScale + 
+                (config.shrinking.finalScale - this.originalScale) * easedShrinkProgress;
+            
+            // Apply scale to mesh
+            this.mesh.scale.setScalar(currentScale);
+        }
+    }
+
+    checkPortalDisappearance(config) {
+        if (this.hasDisappeared) return;
+        
+        // Check if shape should disappear based on scale threshold
+        if (this.mesh && this.mesh.scale.x <= config.shrinking.disappearThreshold) {
+            this.triggerPortalDisappearance();
+        }
+    }
+
+    triggerPortalDisappearance() {
+        if (this.hasDisappeared) return;
+        
+        this.hasDisappeared = true;
+        this.disappearanceTime = performance.now() / 1000;
+        
+        // Hide the mesh immediately
+        if (this.mesh) {
+            this.mesh.visible = false;
+        }
+        
+        console.log(`🌀 Shape disappeared through portal: ${this.id}`);
+    }
+
+    applyPortalEasing(t, easingType) {
+        switch (easingType) {
+            case 'linear':
+                return t;
+                
+            case 'easeInQuart':
+                return t * t * t * t;
+                
+            case 'easeInCubic':
+                return t * t * t;
+                
+            default:
+                return t; // fallback to linear
+        }
+    }
+
+    isPortalDepartureComplete() {
+        return this.isPortalDeparting && this.hasDisappeared;
+    }
+
+    getCurrentPortalScale() {
+        // Return current scale for particle shell radius calculation
+        return this.mesh ? this.mesh.scale.x : 1.0;
+    }
+
     resetConvergence() {
         this.isConverging = false;
         this.convergenceProgress = 0;
@@ -1671,8 +1979,20 @@ class EyeShape {
         this.emergenceProgress = 0;
         // Note: We don't reset hasCompletedEmergence - we want to remember this
         
+        // 🌀 NEW: Reset portal departure state
+        this.isPortalDeparting = false;
+        this.portalDepartureProgress = 0;
+        this.flickerTimer = 0;
+        this.currentFlickerOpacity = 1.0;
+        this.shrinkProgress = 0;
+        this.hasDisappeared = false;
+        this.disappearanceTime = 0;
+        
         if (this.mesh) {
+            // Reset scale and visibility
             this.mesh.scale.setScalar(1.0);
+            this.mesh.visible = true;
+            
             if (this.mesh.material) {
                 // Set opacity based on emergence completion status
                 if (this.hasCompletedEmergence || !VISUAL_CONFIG.shapes.emergence.enabled) {
@@ -1685,7 +2005,7 @@ class EyeShape {
             }
         }
         
-        console.log(`Reset convergence for shape: ${this.id}`);
+        console.log(`Reset convergence and portal departure for shape: ${this.id}`);
     }
 
     addToScene(scene) {
@@ -2158,6 +2478,76 @@ class ShapeManager {
             intensity: shape.isConverging ? (1.0 + shape.convergenceProgress * VISUAL_CONFIG.shapes.convergence.intensity.maxMultiplier) : 1.0
         }));
     }
+
+    // 🌀 NEW: Portal Departure Methods
+    startPortalDeparture() {
+        const currentTime = performance.now() / 1000;
+        
+        for (const shape of this.shapes.values()) {
+            shape.startPortalDeparture(currentTime);
+        }
+        
+        console.log(`🌀 Started portal departure for ${this.shapes.size} shapes`);
+    }
+
+    isPortalDepartureComplete() {
+        if (this.shapes.size === 0) return true;
+        
+        for (const shape of this.shapes.values()) {
+            if (!shape.isPortalDepartureComplete()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    allShapesDisappeared() {
+        if (this.shapes.size === 0) return true;
+        
+        for (const shape of this.shapes.values()) {
+            if (!shape.hasDisappeared) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    getPortalDepartureProgress() {
+        if (this.shapes.size === 0) return 1.0;
+        
+        let totalProgress = 0;
+        for (const shape of this.shapes.values()) {
+            totalProgress += shape.portalDepartureProgress || 0;
+        }
+        return totalProgress / this.shapes.size;
+    }
+
+    // Get current minimum scale for particle shell radius calculation
+    getMinimumPortalScale() {
+        if (this.shapes.size === 0) return 1.0;
+        
+        let minScale = 1.0;
+        for (const shape of this.shapes.values()) {
+            if (shape.isPortalDeparting && !shape.hasDisappeared) {
+                minScale = Math.min(minScale, shape.getCurrentPortalScale());
+            }
+        }
+        return minScale;
+    }
+
+    // Get portal shell attraction points with dynamic radius
+    getPortalShellAttractionPoints() {
+        const config = VISUAL_CONFIG.attraction.portalDeparture.shellShrinkage;
+        const minScale = this.getMinimumPortalScale();
+        const shellRadius = Math.max(minScale * config.radiusMultiplier, config.minRadius);
+        
+        return this.getAllShapes().map(shape => ({
+            position: shape.getAttractionPosition(),
+            id: shape.id,
+            intensity: 1.0,
+            shellRadius: shellRadius // Dynamic shell radius based on shape scale
+        }));
+    }
 }
 
 class TheatreClient {
@@ -2173,8 +2563,30 @@ class TheatreClient {
         this.particleSystem = null;
         this.shapeManager = null; // New shape manager for eye-textured shapes
         this.eyeShapes = []; // Legacy - keeping for compatibility
-        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence, 4: dispersion
+        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence, 4: dispersion, 5: portal departure
         this.lastTime = 0;
+        
+        // Phase 4 tracking
+        this.isInShellTransition = false;
+        this.shellTransitionStartTime = 0;
+        this.isInDispersionPhase = false;
+        this.dispersionCompleted = false;
+        
+        // 🌀 NEW: Phase 5 portal departure tracking
+        this.isInPortalDeparture = false;
+        this.portalDepartureStartTime = 0;
+        this.allShapesDisappeared = false;
+        this.portalReturnStartTime = 0;
+        this.isReturningToPhase1 = false;
+        
+        // 🕐 NEW: Auto-trigger system tracking
+        this.autoTriggerEnabled = false;
+        this.autoTriggerStartTime = 0;
+        this.autoTriggerTimeoutId = null;
+        this.countdownIntervalId = null;
+        this.manualTriggerAllowed = false;
+        this.lastAutoTriggerDebugTime = 0;
+        this.isManualPhase4Transition = false; // Track if Phase 4 was manually triggered
         
         // Camera rotation tracking
         this.cameraRotationTime = 0;
@@ -2182,6 +2594,9 @@ class TheatreClient {
         
         // 🎨 NEW: Artistic texture processor
         this.artisticProcessor = null;
+        
+        // 🎵 NEW: Sound system integration
+        this.soundManager = null;
         
         this.init();
     }
@@ -2198,11 +2613,67 @@ class TheatreClient {
         // Initialize texture display system
         this.initTextureDisplay();
         
+        // 🎵 NEW: Initialize sound system
+        this.initSoundSystem();
+        
         // Setup event listeners
         this.setupEventListeners();
         
         // Start render loop
         this.animate();
+    }
+
+    // 🎵 NEW: Sound system initialization
+    async initSoundSystem() {
+        if (SOUND_CONFIG.master.enabled) {
+            try {
+                this.soundManager = new SoundManager();
+                const success = await this.soundManager.init();
+                
+                if (success) {
+                    this.setupSoundEventHandlers();
+                    this.addDebugMessage('🎵 Sound system initialized successfully');
+                    
+                    // Log sound system status
+                    const status = this.soundManager.getStatus();
+                    this.addDebugMessage(`🎵 Loaded ${status.tracksLoaded} audio tracks, ${status.totalCues} cues programmed`);
+                    
+                    // 🎵 NEW: Initialize audio debug panel
+                    this.initAudioDebugPanel();
+                } else {
+                    this.addDebugMessage('🎵 Sound system initialization failed', 'error');
+                }
+            } catch (error) {
+                console.error('🎵 Sound system initialization error:', error);
+                this.addDebugMessage(`🎵 Sound system error: ${error.message}`, 'error');
+            }
+        } else {
+            this.addDebugMessage('🎵 Sound system disabled in configuration');
+        }
+    }
+
+    // 🎵 NEW: Setup sound event handlers for visual triggers
+    setupSoundEventHandlers() {
+        if (!this.soundManager) return;
+
+        // Integration with existing visual triggers
+        this.soundManager.onVisualTrigger('phase2-transition', () => {
+            if (SOUND_CONFIG.debug.enabled) {
+                this.addDebugMessage('🎵 Visual trigger: Phase 2 transition (first eye shape emergence)');
+            }
+        });
+
+        this.soundManager.onVisualTrigger('convergence-start', () => {
+            if (SOUND_CONFIG.debug.enabled) {
+                this.addDebugMessage('🎵 Visual trigger: Convergence animation started');
+            }
+        });
+
+        this.soundManager.onVisualTrigger('portal-departure-start', () => {
+            if (SOUND_CONFIG.debug.enabled) {
+                this.addDebugMessage('🎵 Visual trigger: Portal departure started');
+            }
+        });
     }
 
     initSocketIO() {
@@ -2666,6 +3137,11 @@ class TheatreClient {
         console.log('Transitioning to Phase 2: Particles + Eye Shapes');
         this.visualPhase = 2;
         
+        // 🎵 NEW: Trigger sound cue for phase 2 transition
+        if (this.soundManager) {
+            this.soundManager.triggerVisualCue('phase2-transition');
+        }
+        
         // Create eye shapes for existing eye images
         if (this.shapeManager) {
             const eyeImages = document.querySelectorAll('#eye-images-container .eye-image');
@@ -2703,6 +3179,11 @@ class TheatreClient {
         this.visualPhase = 3;
         this.addDebugMessage('Phase 3: Starting convergence animation', 'info');
         
+        // 🎵 NEW: Trigger sound cue for convergence start
+        if (this.soundManager) {
+            this.soundManager.triggerVisualCue('convergence-start');
+        }
+        
         // Start convergence animation for all shapes
         if (this.shapeManager) {
             this.shapeManager.startConvergence();
@@ -2718,6 +3199,7 @@ class TheatreClient {
         this.visualPhase = 4;
         this.isInShellTransition = true;
         this.shellTransitionStartTime = performance.now() / 1000; // Convert to seconds
+        this.isManualPhase4Transition = true; // Mark this as a manual transition
         
         this.addDebugMessage('Phase 4: Shell effect - particles forming protective shell', 'info');
         
@@ -2730,19 +3212,21 @@ class TheatreClient {
     }
 
     startDispersionPhase() {
-        this.visualPhase = 4; // Move to Phase 4 but start with dispersion
-        this.isInDispersionPhase = true;
+        this.visualPhase = 4;
         this.isInShellTransition = true;
+        this.isInDispersionPhase = true;
         this.dispersionCompleted = false;
+        this.isManualPhase4Transition = false; // Clear manual flag for natural flow
+        this.shellTransitionStartTime = performance.now() / 1000; // Convert to seconds
         
-        this.addDebugMessage('Phase 4a: Dispersion burst - particles exploding outward!', 'success');
+        this.addDebugMessage('Phase 4a: Starting dispersion burst - particles dispersing outward', 'info');
         
-        // Start the dispersion effect
+        // Start particle dispersion
         if (this.particleSystem) {
             this.particleSystem.startDispersion();
         }
         
-        console.log('Started dispersion phase: particles bursting outward from converged shapes');
+        console.log('Started dispersion phase - particles bursting outward');
     }
 
     completeDispersionPhase() {
@@ -2757,6 +3241,143 @@ class TheatreClient {
         }
         
         console.log('Dispersion phase completed, beginning shell effect');
+    }
+
+    // 🌀 NEW: Phase 5 Portal Departure Methods
+    transitionToPhase5() {
+        this.visualPhase = 5;
+        this.isInPortalDeparture = true;
+        this.portalDepartureStartTime = performance.now() / 1000;
+        this.allShapesDisappeared = false;
+        this.isReturningToPhase1 = false;
+        
+        this.addDebugMessage('🌀 Phase 5: Portal departure - shapes becoming unstable and shrinking', 'info');
+        
+        // 🎵 NEW: Trigger sound cue for portal departure start
+        if (this.soundManager) {
+            this.soundManager.triggerVisualCue('portal-departure-start');
+        }
+        
+        // Start portal departure for all shapes
+        if (this.shapeManager) {
+            this.shapeManager.startPortalDeparture();
+        }
+        
+        // Switch particles to portal shell mode
+        if (this.particleSystem) {
+            this.particleSystem.setParticleMode('portal_shell');
+        }
+        
+        console.log('Transitioned to Phase 5: Portal departure');
+    }
+
+    checkPortalDepartureProgress() {
+        if (!this.isInPortalDeparture || !this.shapeManager) return;
+        
+        // Check if all shapes have disappeared
+        if (!this.allShapesDisappeared && this.shapeManager.allShapesDisappeared()) {
+            this.triggerFinalDeparture();
+        }
+    }
+
+    triggerFinalDeparture() {
+        this.allShapesDisappeared = true;
+        this.addDebugMessage('🌀 All shapes have disappeared through the portal!', 'success');
+        
+        const config = VISUAL_CONFIG.attraction.portalDeparture.finalDeparture;
+        
+        // Optional flash effect
+        if (config.flashEffect.enabled) {
+            this.triggerPortalFlash();
+        }
+        
+        // Start particle dispersion
+        if (config.particleDispersion.enabled && this.particleSystem) {
+            this.startPortalParticleDispersion();
+        }
+        
+        // Schedule return to Phase 1
+        setTimeout(() => {
+            this.startReturnToPhase1();
+        }, config.particleDispersion.returnDelay * 1000);
+    }
+
+    triggerPortalFlash() {
+        // Brief flash effect when shapes disappear
+        const config = VISUAL_CONFIG.attraction.portalDeparture.finalDeparture.flashEffect;
+        
+        // Temporarily increase bloom or add flash effect
+        // This could be implemented as a temporary background color change
+        // or increased particle brightness
+        if (this.scene && config.enabled) {
+            const originalBackground = this.scene.background;
+            this.scene.background = new THREE.Color(config.color);
+            
+            setTimeout(() => {
+                this.scene.background = originalBackground;
+            }, config.duration * 1000);
+        }
+        
+        console.log('🌀 Portal flash effect triggered');
+    }
+
+    startPortalParticleDispersion() {
+        const config = VISUAL_CONFIG.attraction.portalDeparture.finalDeparture.particleDispersion;
+        
+        // Start particle dispersion effect
+        if (this.particleSystem) {
+            this.particleSystem.startDispersion();
+            this.addDebugMessage('🌀 Particles dispersing after portal departure', 'info');
+        }
+    }
+
+    startReturnToPhase1() {
+        this.isReturningToPhase1 = true;
+        this.portalReturnStartTime = performance.now() / 1000;
+        
+        const config = VISUAL_CONFIG.attraction.portalDeparture.cycleReset;
+        
+        this.addDebugMessage('🔄 Returning to Phase 1 - new cycle beginning', 'success');
+        
+        // Clear all shapes if configured
+        if (config.clearAllShapes && this.shapeManager) {
+            this.shapeManager.clearAllShapes();
+        }
+        
+        // Reset particle system
+        if (config.resetParticles && this.particleSystem) {
+            this.particleSystem.setParticleMode('normal');
+            // Set up center attraction for Phase 1
+            const centerAttractor = [{
+                position: new THREE.Vector3(0, 0, 0),
+                id: 'center',
+                intensity: VISUAL_CONFIG.attraction.centerAttraction.intensity
+            }];
+            this.particleSystem.setAttractionMode(true, centerAttractor);
+        }
+        
+        // Complete transition after configured duration
+        setTimeout(() => {
+            this.completeReturnToPhase1();
+        }, config.transitionDuration * 1000);
+    }
+
+    completeReturnToPhase1() {
+        // Reset all tracking variables
+        this.visualPhase = 1;
+        this.isInPortalDeparture = false;
+        this.isReturningToPhase1 = false;
+        this.allShapesDisappeared = false;
+        
+        // Reset Phase 4 tracking too
+        this.isInShellTransition = false;
+        this.isInDispersionPhase = false;
+        this.dispersionCompleted = false;
+        this.isManualPhase4Transition = false; // Reset manual transition flag
+        
+        this.addDebugMessage('✨ Cycle complete - returned to Phase 1: Seeking', 'success');
+        
+        console.log('Portal departure cycle completed - returned to Phase 1');
     }
 
     triggerFinalAnimation() {
@@ -2810,11 +3431,22 @@ class TheatreClient {
         // Reset dispersion tracking
         this.isInDispersionPhase = false;
         this.dispersionCompleted = false;
+        this.isManualPhase4Transition = false; // Reset manual transition flag
+        
+        // 🌀 NEW: Reset portal departure tracking
+        this.isInPortalDeparture = false;
+        this.portalDepartureStartTime = 0;
+        this.allShapesDisappeared = false;
+        this.portalReturnStartTime = 0;
+        this.isReturningToPhase1 = false;
         
         // Re-enable orbital animation for shapes
         this.setPlaceholderMeshesVisibility(false);
         
         this.addDebugMessage('Animation reset - returned to normal orbital patterns', 'info');
+
+        // 🕐 NEW: Stop auto-trigger system
+        this.stopAutoTriggerSystem();
     }
 
     animateToPosition(mesh, x, y, z, duration) {
@@ -2853,6 +3485,11 @@ class TheatreClient {
         // Update orbital controls
         if (this.controls) {
             this.controls.update();
+        }
+
+        // 🎵 NEW: Update sound system
+        if (this.soundManager) {
+            this.soundManager.update(currentTime);
         }
 
         // Update visual effects based on current phase
@@ -2976,6 +3613,70 @@ class TheatreClient {
                 // Continue updating eye shapes (they remain stationary at center)
                 if (this.shapeManager) {
                     this.shapeManager.update(deltaTime);
+                }
+                
+                // Check if we should start auto-trigger system after shell effect stabilizes
+                // Two scenarios: 1) Natural flow - after dispersion completes, 2) Manual Phase 4 - directly  
+                const canStartAutoTrigger = !this.isInDispersionPhase && this.shapeManager && this.shapeManager.isConvergenceComplete() && !this.autoTriggerEnabled;
+                const hasCompletedDispersion = this.dispersionCompleted; // Natural flow
+                const isManualPhase4 = this.isManualPhase4Transition; // Manual transition
+                
+                if (canStartAutoTrigger && (hasCompletedDispersion || isManualPhase4)) {
+                    // Add a delay before starting auto-trigger to let shell effect stabilize
+                    const elapsed = (performance.now() / 1000) - this.shellTransitionStartTime;
+                    if (elapsed > 5.0) { // 5 seconds of shell effect before enabling auto-trigger
+                        this.startAutoTriggerSystem();
+                    }
+                } else {
+                    // 🕐 DEBUG: Log why auto-trigger is not starting
+                    if (this.visualPhase === 4 && !this.autoTriggerEnabled) {
+                        const debugReasons = [];
+                        if (this.isInDispersionPhase) debugReasons.push('in dispersion phase');
+                        if (!this.shapeManager) debugReasons.push('no shape manager');
+                        if (this.shapeManager && !this.shapeManager.isConvergenceComplete()) debugReasons.push('convergence not complete');
+                        if (this.autoTriggerEnabled) debugReasons.push('auto-trigger already enabled');
+                        if (!hasCompletedDispersion && !isManualPhase4) debugReasons.push('waiting for dispersion completion or manual Phase 4');
+                        
+                        const elapsed = (performance.now() / 1000) - this.shellTransitionStartTime;
+                        if (elapsed <= 5.0) debugReasons.push(`waiting for stabilization (${elapsed.toFixed(1)}s/5.0s)`);
+                        
+                        if (debugReasons.length > 0) {
+                            // Only log every 2 seconds to avoid spam
+                            if (!this.lastAutoTriggerDebugTime || (performance.now() - this.lastAutoTriggerDebugTime) > 2000) {
+                                this.lastAutoTriggerDebugTime = performance.now();
+                                this.addDebugMessage(`Auto-trigger not starting: ${debugReasons.join(', ')}`, 'debug');
+                            }
+                        }
+                    }
+                }
+                break;
+                
+            case 5: // 🌀 Portal departure - shapes flicker, shrink, and disappear
+                if (this.particleSystem) {
+                    // Update camera position for depth-based brightness
+                    this.particleSystem.setCameraPosition(this.camera.position);
+                    
+                    // Use portal shell attraction points with dynamic shrinking radius
+                    if (this.shapeManager) {
+                        const portalShellPoints = this.shapeManager.getPortalShellAttractionPoints();
+                        this.particleSystem.setAttractionMode(true, portalShellPoints);
+                    }
+                    
+                    this.particleSystem.update(deltaTime);
+                }
+                
+                // Update eye shapes during portal departure (flickering and shrinking)
+                if (this.shapeManager) {
+                    this.shapeManager.update(deltaTime);
+                    
+                    // Check portal departure progress
+                    this.checkPortalDepartureProgress();
+                }
+                
+                // Handle returning to Phase 1 if in progress
+                if (this.isReturningToPhase1) {
+                    // Particle system should already be set up for Phase 1 in startReturnToPhase1()
+                    // Just wait for the transition to complete
                 }
                 break;
         }
@@ -3321,6 +4022,39 @@ class TheatreClient {
             });
         }
 
+        // 🌀 NEW: Test portal departure button
+        const testPortalDepartureBtn = document.getElementById('test-portal-departure');
+        if (testPortalDepartureBtn) {
+            testPortalDepartureBtn.addEventListener('click', () => {
+                // Test portal departure effect
+                if (this.shapeManager && this.shapeManager.getShapeCount() > 0) {
+                    if (!this.isInPortalDeparture) {
+                        this.transitionToPhase5();
+                        this.addDebugMessage('🌀 Manually triggered portal departure for testing');
+                    } else {
+                        this.addDebugMessage('🌀 Portal departure already in progress');
+                    }
+                } else {
+                    this.addDebugMessage('🌀 No eye shapes available - need shapes for portal departure', 'warning');
+                }
+            });
+        }
+
+        // Test portal departure button - Updated for auto-trigger system
+        const testPortalBtn = document.getElementById('test-portal-departure');
+        if (testPortalBtn) {
+            testPortalBtn.addEventListener('click', () => {
+                if (this.autoTriggerEnabled) {
+                    this.triggerPortalDepartureManual();
+                    this.addDebugMessage('Manually triggered portal departure for testing');
+                } else {
+                    // Start auto-trigger system for testing
+                    this.startAutoTriggerSystem();
+                    this.addDebugMessage('Started auto-trigger system for testing');
+                }
+            });
+        }
+
         // Bloom controls
         if (document.getElementById('bloom-enabled')) {
             document.getElementById('bloom-enabled').addEventListener('change', (e) => {
@@ -3642,6 +4376,72 @@ class TheatreClient {
                 this.addDebugMessage('🔄 Refreshed morphing statistics', 'info');
             });
         }
+
+        // 🕐 NEW: Keyboard event for manual portal departure trigger
+        document.addEventListener('keydown', (event) => {
+            const portalConfig = VISUAL_CONFIG.attraction.portalDeparture.autoTrigger;
+            const convergenceConfig = VISUAL_CONFIG.shapes.convergence.manualTrigger;
+            
+            // Manual convergence trigger (ArrowUp)
+            if (event.code === convergenceConfig.key && convergenceConfig.enabled) {
+                event.preventDefault();
+                // Use the same method as the test animation button - emit to server
+                this.socket.emit('trigger_animation_test');
+                this.addDebugMessage(`🎭 Manual convergence triggered with ${convergenceConfig.key} key!`, 'success');
+            }
+            
+            // Manual portal departure trigger (ArrowDown)
+            if (event.code === portalConfig.manualTriggerKey && this.autoTriggerEnabled && this.manualTriggerAllowed) {
+                event.preventDefault();
+                this.triggerPortalDepartureManual();
+            }
+            
+            // 🎵 NEW: Sound system keyboard controls
+            if (this.soundManager) {
+                // Manual sound cue trigger (Right Arrow)
+                if (event.code === SOUND_CONFIG.controls.manualCueKey) {
+                    event.preventDefault();
+                    const success = this.soundManager.triggerNextManualCue();
+                    if (success) {
+                        this.addDebugMessage('🎵 Manual sound cue triggered', 'success');
+                    } else {
+                        this.addDebugMessage('🎵 No manual cues available', 'warning');
+                    }
+                }
+                
+                // Emergency stop all audio (Escape)
+                if (event.code === SOUND_CONFIG.controls.emergencyStop) {
+                    event.preventDefault();
+                    this.soundManager.stopAllAudio(0.5);
+                    this.addDebugMessage('🎵 Emergency stop - all audio stopped', 'warning');
+                }
+                
+                // Master mute toggle (M key)
+                if (event.code === SOUND_CONFIG.controls.masterMute) {
+                    event.preventDefault();
+                    this.soundManager.toggleMute();
+                    const status = this.soundManager.getStatus();
+                    this.addDebugMessage(`🎵 Audio ${status.isMuted ? 'muted' : 'unmuted'}`, 'info');
+                }
+                
+                // Volume controls
+                if (event.code === SOUND_CONFIG.controls.volumeUp) {
+                    event.preventDefault();
+                    const status = this.soundManager.getStatus();
+                    const newVolume = Math.min(1.0, status.masterVolume + 0.1);
+                    this.soundManager.setMasterVolume(newVolume, 0.2);
+                    this.addDebugMessage(`🎵 Volume up: ${Math.round(newVolume * 100)}%`, 'info');
+                }
+                
+                if (event.code === SOUND_CONFIG.controls.volumeDown) {
+                    event.preventDefault();
+                    const status = this.soundManager.getStatus();
+                    const newVolume = Math.max(0.0, status.masterVolume - 0.1);
+                    this.soundManager.setMasterVolume(newVolume, 0.2);
+                    this.addDebugMessage(`🎵 Volume down: ${Math.round(newVolume * 100)}%`, 'info');
+                }
+            }
+        });
     }
 
     addDebugMessage(message, type = 'info') {
@@ -4485,6 +5285,369 @@ class TheatreClient {
         }
 
         console.log(`Created ${this.animationMeshes.length} placeholder meshes`);
+    }
+
+    // 🕐 NEW: Auto-Trigger System Methods
+    startAutoTriggerSystem() {
+        const config = VISUAL_CONFIG.attraction.portalDeparture.autoTrigger;
+        
+        if (!config.enabled) return;
+        
+        this.autoTriggerEnabled = true;
+        this.autoTriggerStartTime = performance.now() / 1000;
+        this.manualTriggerAllowed = config.allowEarlyTrigger;
+        
+        // Set up automatic trigger timeout
+        this.autoTriggerTimeoutId = setTimeout(() => {
+            this.triggerPortalDepartureAuto();
+        }, config.maxWaitTime * 1000);
+        
+        // Set up countdown display if enabled
+        if (config.showCountdown) {
+            this.startCountdownDisplay();
+        }
+        
+        this.addDebugMessage(`🕐 Auto-trigger started: ${config.maxWaitTime}s countdown. Press ${config.manualTriggerKey} for manual trigger.`, 'info');
+        
+        console.log(`🕐 Auto-trigger system started with ${config.maxWaitTime}s timeout`);
+    }
+
+    startCountdownDisplay() {
+        const config = VISUAL_CONFIG.attraction.portalDeparture.autoTrigger;
+        
+        this.countdownIntervalId = setInterval(() => {
+            if (!this.autoTriggerEnabled) {
+                this.stopCountdownDisplay();
+                return;
+            }
+            
+            const elapsed = (performance.now() / 1000) - this.autoTriggerStartTime;
+            const remaining = config.maxWaitTime - elapsed;
+            
+            if (remaining <= 0) {
+                this.stopCountdownDisplay();
+                return;
+            }
+            
+            // Update countdown in UI
+            this.updateCountdownDisplay(remaining);
+            
+            // Show warning when time is running low
+            if (remaining <= config.countdownWarning && remaining > config.countdownWarning - 1) {
+                this.addDebugMessage(`⚠️ Portal departure in ${Math.ceil(remaining)}s - Press ${config.manualTriggerKey} to trigger now!`, 'warning');
+            }
+            
+        }, 1000); // Update every second
+    }
+
+    updateCountdownDisplay(remainingSeconds) {
+        // Update UI countdown display
+        const countdownElement = document.getElementById('portal-countdown');
+        if (countdownElement) {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = Math.floor(remainingSeconds % 60);
+            countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Add visual warning when time is low
+            if (remainingSeconds <= 30) {
+                countdownElement.className = 'countdown-warning';
+            } else {
+                countdownElement.className = 'countdown-normal';
+            }
+        }
+        
+        // Update status text
+        const statusElement = document.getElementById('portal-status');
+        if (statusElement) {
+            statusElement.textContent = `Portal departure in ${Math.ceil(remainingSeconds)}s`;
+        }
+    }
+
+    stopCountdownDisplay() {
+        if (this.countdownIntervalId) {
+            clearInterval(this.countdownIntervalId);
+            this.countdownIntervalId = null;
+        }
+        
+        // Clear countdown display
+        const countdownElement = document.getElementById('portal-countdown');
+        if (countdownElement) {
+            countdownElement.textContent = '--:--';
+            countdownElement.className = 'countdown-inactive';
+        }
+        
+        const statusElement = document.getElementById('portal-status');
+        if (statusElement) {
+            statusElement.textContent = 'Inactive';
+        }
+    }
+
+    stopAutoTriggerSystem() {
+        // Clear timeout
+        if (this.autoTriggerTimeoutId) {
+            clearTimeout(this.autoTriggerTimeoutId);
+            this.autoTriggerTimeoutId = null;
+        }
+        
+        // Stop countdown
+        this.stopCountdownDisplay();
+        
+        // Reset tracking
+        this.autoTriggerEnabled = false;
+        this.manualTriggerAllowed = false;
+        
+        console.log('🕐 Auto-trigger system stopped');
+    }
+
+    triggerPortalDepartureManual() {
+        const config = VISUAL_CONFIG.attraction.portalDeparture.autoTrigger;
+        
+        if (!this.autoTriggerEnabled) {
+            this.addDebugMessage('🕐 Manual trigger not available - auto-trigger system not active', 'warning');
+            return false;
+        }
+        
+        if (!this.manualTriggerAllowed) {
+            this.addDebugMessage('🕐 Manual trigger not allowed in current configuration', 'warning');
+            return false;
+        }
+        
+        // Stop auto-trigger system
+        this.stopAutoTriggerSystem();
+        
+        // Trigger portal departure immediately
+        this.transitionToPhase5();
+        
+        this.addDebugMessage(`🕐 Manual trigger activated with ${config.manualTriggerKey} key!`, 'success');
+        
+        return true;
+    }
+
+    triggerPortalDepartureAuto() {
+        if (!this.autoTriggerEnabled) return;
+        
+        // Stop auto-trigger system
+        this.stopAutoTriggerSystem();
+        
+        // Trigger portal departure
+        this.transitionToPhase5();
+        
+        this.addDebugMessage('🕐 Auto-trigger activated - maximum wait time reached!', 'info');
+        
+        console.log('🕐 Auto-trigger fired after timeout');
+    }
+
+    // 🎵 NEW: Audio Debug Panel Functionality
+    // =========================================================
+    
+    initAudioDebugPanel() {
+        if (!this.soundManager) {
+            this.addDebugMessage('🎵 Audio debug panel: Sound system not available', 'warning');
+            return;
+        }
+
+        this.setupAudioDebugEventHandlers();
+        this.updateAudioDebugStatus();
+        
+        // Update audio status every second
+        this.audioStatusInterval = setInterval(() => {
+            this.updateAudioDebugStatus();
+        }, 1000);
+        
+        this.addDebugMessage('🎵 Audio debug panel initialized');
+    }
+
+    setupAudioDebugEventHandlers() {
+        // Manual track play buttons
+        document.querySelectorAll('.track-play-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const trackId = e.target.getAttribute('data-track-id');
+                this.playTrackManually(trackId);
+            });
+        });
+
+        // Manual track stop buttons
+        document.querySelectorAll('.track-stop-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const trackId = e.target.getAttribute('data-track-id');
+                this.stopTrackManually(trackId);
+            });
+        });
+
+        // Master volume slider
+        const volumeSlider = document.getElementById('master-volume-slider');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                const volume = parseFloat(e.target.value) / 100;
+                this.soundManager.setMasterVolume(volume, 0.2);
+                this.updateAudioDebugStatus();
+            });
+        }
+
+        // Master mute toggle
+        const muteToggle = document.getElementById('master-mute-toggle');
+        if (muteToggle) {
+            muteToggle.addEventListener('change', (e) => {
+                this.soundManager.setMute(e.target.checked, 0.5);
+                this.updateAudioDebugStatus();
+            });
+        }
+
+        // Cue system controls
+        const triggerCueBtn = document.getElementById('trigger-manual-cue');
+        if (triggerCueBtn) {
+            triggerCueBtn.addEventListener('click', () => {
+                const success = this.soundManager.triggerNextManualCue();
+                if (success) {
+                    this.addDebugMessage('🎵 Manual cue triggered from debug panel', 'success');
+                } else {
+                    this.addDebugMessage('🎵 No manual cues available', 'warning');
+                }
+                this.updateAudioDebugStatus();
+            });
+        }
+
+        const resetCuesBtn = document.getElementById('reset-cue-system');
+        if (resetCuesBtn) {
+            resetCuesBtn.addEventListener('click', () => {
+                this.soundManager.resetCues();
+                this.addDebugMessage('🎵 Cue system reset from debug panel', 'info');
+                this.updateAudioDebugStatus();
+            });
+        }
+
+        const emergencyStopBtn = document.getElementById('emergency-stop-audio');
+        if (emergencyStopBtn) {
+            emergencyStopBtn.addEventListener('click', () => {
+                this.soundManager.stopAllAudio(0.5);
+                this.addDebugMessage('🎵 Emergency stop triggered from debug panel', 'warning');
+                this.updateAudioDebugStatus();
+            });
+        }
+    }
+
+    playTrackManually(trackId) {
+        if (!this.soundManager) {
+            this.addDebugMessage('🎵 Cannot play track: Sound system not available', 'error');
+            return;
+        }
+
+        try {
+            const track = this.soundManager.tracks.get(trackId);
+            if (!track) {
+                this.addDebugMessage(`🎵 Track not found: ${trackId}`, 'error');
+                return;
+            }
+
+            // Resume audio context if needed
+            this.soundManager.resumeAudioContext();
+
+            // Stop track if already playing
+            if (track.isPlaying) {
+                track.stop(0.2);
+                setTimeout(() => {
+                    track.play(0.5);
+                }, 300);
+            } else {
+                track.play(0.5);
+            }
+
+            this.addDebugMessage(`🎵 Playing track: ${trackId}`, 'success');
+            this.updateTrackStatus(trackId, 'Playing');
+        } catch (error) {
+            this.addDebugMessage(`🎵 Error playing track ${trackId}: ${error.message}`, 'error');
+        }
+    }
+
+    stopTrackManually(trackId) {
+        if (!this.soundManager) {
+            this.addDebugMessage('🎵 Cannot stop track: Sound system not available', 'error');
+            return;
+        }
+
+        try {
+            const track = this.soundManager.tracks.get(trackId);
+            if (!track) {
+                this.addDebugMessage(`🎵 Track not found: ${trackId}`, 'error');
+                return;
+            }
+
+            track.stop(0.5);
+            this.addDebugMessage(`🎵 Stopped track: ${trackId}`, 'info');
+            this.updateTrackStatus(trackId, 'Stopped');
+        } catch (error) {
+            this.addDebugMessage(`🎵 Error stopping track ${trackId}: ${error.message}`, 'error');
+        }
+    }
+
+    updateTrackStatus(trackId, status) {
+        const statusElement = document.getElementById(`${trackId}-status`);
+        if (statusElement) {
+            statusElement.textContent = status;
+            statusElement.className = `track-status ${status.toLowerCase()}`;
+        }
+    }
+
+    updateAudioDebugStatus() {
+        if (!this.soundManager) return;
+
+        try {
+            const status = this.soundManager.getStatus();
+
+            // Update audio context status
+            const contextStatus = document.getElementById('audio-context-status');
+            if (contextStatus) {
+                contextStatus.textContent = status.audioContextState;
+                contextStatus.className = `config-status ${status.audioContextState === 'running' ? 'enabled' : 'disabled'}`;
+            }
+
+            // Update tracks loaded
+            const tracksLoaded = document.getElementById('audio-tracks-loaded');
+            if (tracksLoaded) {
+                const totalTracks = Object.keys(SOUND_CONFIG.tracks).length;
+                tracksLoaded.textContent = `${status.tracksLoaded}/${totalTracks}`;
+            }
+
+            // Update master volume
+            const volumeValue = document.getElementById('master-volume-value');
+            const volumeSlider = document.getElementById('master-volume-slider');
+            if (volumeValue && volumeSlider) {
+                const volumePercent = Math.round(status.masterVolume * 100);
+                volumeValue.textContent = `${volumePercent}%`;
+                volumeSlider.value = volumePercent;
+            }
+
+            // Update mute status
+            const muteStatus = document.getElementById('mute-status');
+            const muteToggle = document.getElementById('master-mute-toggle');
+            if (muteStatus && muteToggle) {
+                muteStatus.textContent = status.isMuted ? 'Muted' : 'Unmuted';
+                muteStatus.className = `config-status ${status.isMuted ? 'disabled' : 'enabled'}`;
+                muteToggle.checked = status.isMuted;
+            }
+
+            // Update active cues
+            const activeCues = document.getElementById('active-cues-count');
+            if (activeCues) {
+                activeCues.textContent = `${status.triggeredCues}/${status.totalCues}`;
+            }
+
+            // Update individual track statuses
+            this.soundManager.tracks.forEach((track, trackId) => {
+                const trackStatus = track.isPlaying ? 'Playing' : 'Ready';
+                this.updateTrackStatus(trackId, trackStatus);
+            });
+
+        } catch (error) {
+            console.error('🎵 Error updating audio debug status:', error);
+        }
+    }
+
+    disposeAudioDebugPanel() {
+        if (this.audioStatusInterval) {
+            clearInterval(this.audioStatusInterval);
+            this.audioStatusInterval = null;
+        }
     }
 }
 

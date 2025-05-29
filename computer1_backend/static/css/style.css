@@ -1073,6 +1073,7 @@ body.production .debug-toggle-btn {
     overflow: hidden;
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    margin: 5px 0;
 }
 
 /* Camera speed progress bar */
@@ -1143,5 +1144,341 @@ body.production .debug-toggle-btn {
     
     .camera-speed-progress-container {
         height: 16px;
+    }
+}
+
+/* 🕐 NEW: Portal Controls Styling */
+.portal-controls {
+    background: rgba(0,0,0,0.8);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+.countdown-display {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 80px;
+    display: inline-block;
+}
+
+.countdown-normal { 
+    color: #00ff00; 
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.countdown-warning { 
+    color: #ff6600; 
+    background: rgba(255, 102, 0, 0.1);
+    border: 1px solid rgba(255, 102, 0, 0.3);
+    animation: blink 1s infinite; 
+}
+
+.countdown-inactive { 
+    color: #666666; 
+    background: rgba(102, 102, 102, 0.1);
+    border: 1px solid rgba(102, 102, 102, 0.3);
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.portal-status {
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.portal-instructions {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border-left: 3px solid #4477ff;
+}
+
+.portal-instructions p {
+    margin: 0;
+    font-size: 0.85em;
+    color: #cccccc;
+    font-style: italic;
+}
+
+/* 🎵 NEW: Audio Debug Panel Styles
+   ======================================== */
+
+/* Audio track list styling */
+.audio-track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.audio-track-item {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.audio-track-item:hover {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.track-info {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+.track-name {
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 1em;
+    margin-bottom: 3px;
+}
+
+.track-details {
+    font-size: 0.8em;
+    color: #cccccc;
+    font-style: italic;
+}
+
+.track-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.track-play-btn, .track-stop-btn {
+    padding: 6px 12px !important;
+    font-size: 0.85em !important;
+    border-radius: 4px !important;
+    border: 1px solid transparent !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    min-width: 70px;
+}
+
+.track-play-btn {
+    background: rgba(34, 197, 94, 0.8) !important;
+    color: white !important;
+}
+
+.track-play-btn:hover {
+    background: rgba(34, 197, 94, 1) !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+}
+
+.track-stop-btn {
+    background: rgba(239, 68, 68, 0.8) !important;
+    color: white !important;
+}
+
+.track-stop-btn:hover {
+    background: rgba(239, 68, 68, 1) !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.track-status {
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 60px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.track-status.ready {
+    background: rgba(156, 163, 175, 0.2);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+.track-status.playing {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    animation: pulse-glow 2s infinite;
+}
+
+.track-status.stopped {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@keyframes pulse-glow {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
+        opacity: 1;
+    }
+    50% { 
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        opacity: 0.8;
+    }
+}
+
+/* Keyboard controls reference */
+.keyboard-controls-ref {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.keyboard-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.keyboard-item:hover {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.keyboard-item .key {
+    background: linear-gradient(145deg, #4a5568, #2d3748);
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.9em;
+    min-width: 25px;
+    text-align: center;
+    border: 1px solid #718096;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.keyboard-item .description {
+    font-size: 0.85em;
+    color: #e2e8f0;
+    flex: 1;
+}
+
+/* Audio system status indicators */
+#audio-context-status.enabled {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+#audio-context-status.disabled {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Master volume slider special styling */
+#master-volume-slider {
+    background: linear-gradient(to right, #1f2937 0%, #374151 50%, #4b5563 100%) !important;
+}
+
+#master-volume-slider::-webkit-slider-thumb {
+    background: linear-gradient(145deg, #3b82f6, #1d4ed8) !important;
+    border: 2px solid #1e40af !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
+}
+
+#master-volume-slider::-moz-range-thumb {
+    background: linear-gradient(145deg, #3b82f6, #1d4ed8) !important;
+    border: 2px solid #1e40af !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Cue system controls */
+#trigger-manual-cue {
+    background: rgba(147, 51, 234, 0.8) !important;
+    color: white !important;
+}
+
+#trigger-manual-cue:hover {
+    background: rgba(147, 51, 234, 1) !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.4);
+}
+
+#reset-cue-system {
+    background: rgba(245, 158, 11, 0.8) !important;
+    color: white !important;
+}
+
+#reset-cue-system:hover {
+    background: rgba(245, 158, 11, 1) !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+#emergency-stop-audio {
+    background: rgba(220, 38, 38, 0.8) !important;
+    color: white !important;
+    font-weight: bold !important;
+}
+
+#emergency-stop-audio:hover {
+    background: rgba(220, 38, 38, 1) !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+}
+
+/* Responsive adjustments for audio panel */
+@media (max-width: 768px) {
+    .audio-track-item {
+        padding: 8px;
+    }
+    
+    .track-controls {
+        gap: 6px;
+    }
+    
+    .track-play-btn, .track-stop-btn {
+        padding: 4px 8px !important;
+        font-size: 0.8em !important;
+        min-width: 60px;
+    }
+    
+    .keyboard-controls-ref {
+        grid-template-columns: 1fr;
+    }
+    
+    .keyboard-item {
+        padding: 6px;
+    }
+    
+    .keyboard-item .key {
+        font-size: 0.8em;
+        padding: 3px 6px;
+        min-width: 20px;
+    }
+    
+    .keyboard-item .description {
+        font-size: 0.8em;
     }
 } 
