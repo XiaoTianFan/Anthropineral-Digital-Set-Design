@@ -6,7 +6,7 @@
 const VISUAL_CONFIG = {
     // Particle System Configuration
     particles: {
-        count: 500,                    // Number of particles in the system
+        count: 1000,                    // Number of particles in the system
         size: 0.01,                   // Size of individual particles (sphere radius) - increased for visibility
         resetDistance: 6,            // Distance from center before particle resets - reduced for camera scale
         depthEffect: {
@@ -14,14 +14,14 @@ const VISUAL_CONFIG = {
             dimming: 0.1              // How much to dim far particles (0-1)
         },
         distribution: {
-            radiusMultiplier: 0.3,    // Percentage of reset distance for initial distribution
+            radiusMultiplier: 0.6,    // Percentage of reset distance for initial distribution
             initialSpeed: 0.8         // Initial random velocity speed
         },
         color: {
             hueBase: 0.6,             // Base hue for particle colors
             hueVariation: 0.2,        // Random hue variation range
             saturation: 0.3,          // Color saturation
-            lightness: 0.9            // Color lightness
+            lightness: 0.95            // Color lightness
         },
         opacity: {
             minimum: 0.4,             // Minimum opacity for far particles
@@ -41,12 +41,12 @@ const VISUAL_CONFIG = {
     
     // Particle Attraction Configuration
     attraction: {
-        baseStrength: 0.06,           // Base attraction force strength - increased from 0.02
-        maxStrength: 0.15,             // Maximum attraction force cap - increased from 0.1
+        baseStrength: 0.08,           // Base attraction force strength - increased from 0.02
+        maxStrength: 0.6,             // Maximum attraction force cap - increased from 0.1
         minDistance: 0.1,             // Minimum distance to avoid division by zero
-        distanceOffset: 0.1,          // Distance offset for force calculation
+        distanceOffset: 0.2,          // Distance offset for force calculation
         drag: {
-            normal: 0.85,             // Normal drag multiplier (less = more drag)
+            normal: 0.9,             // Normal drag multiplier (less = more drag)
             intense: 0.95             // Drag during intense convergence
         },
         intensityThreshold: 1.5,      // Threshold for switching to intense mode
@@ -56,19 +56,42 @@ const VISUAL_CONFIG = {
         // Enhanced flow dynamics
         flowDynamics: {
             enabled: true,            // Enable enhanced flow system
-            turbulenceStrength: 0.02, // Random turbulence force strength
-            repulsionRadius: 0.4,     // Distance at which repulsion starts
-            repulsionStrength: 0.09,  // Strength of repulsion force
+            turbulenceStrength: 0.3, // Random turbulence force strength
+            repulsionRadius: 0.5,     // Distance at which repulsion starts
+            repulsionStrength: 0.1,  // Strength of repulsion force
             circulationStrength: 0.05, // Strength of tangential circulation force
             distributionRadius: 2.0,  // Radius for spatial distribution
             forceBalancing: true,     // Enable force balancing between attractors
-            escapeVelocity: 0.5,      // Minimum velocity to escape attractor influence
+            escapeVelocity: 0.35,      // Minimum velocity to escape attractor influence
             flowField: {
                 enabled: true,        // Enable global flow field
-                strength: 0.04,       // Global flow field strength
+                strength: 0.08,       // Global flow field strength
                 scale: 0.5,           // Scale of flow field noise
-                timeScale: 0.3        // Time scale for animated flow field
+                timeScale: 1.0        // Time scaling for flow field animation
             }
+        },
+        // Shell effect configuration - new addition
+        shellEffect: {
+            enabled: true,            // Enable shell effect after convergence
+            centerAttraction: 0.08,   // Attraction to center during shell phase
+            shapeRepulsion: 0.2,     // Repulsion from converged shapes
+            repulsionRadius: 1,     // Distance at which shape repulsion starts
+            shellRadius: 2.8,         // Target radius for particle shell
+            stabilizationForce: 0.08, // Force to maintain shell radius
+            turbulence: 0.015,        // Additional turbulence during shell phase
+            transitionDuration: 3.0   // Duration to transition into shell effect (seconds)
+        },
+        // Dispersion effect configuration - particle burst at end of convergence
+        dispersionEffect: {
+            enabled: true,            // Enable dispersion burst effect
+            duration: 2.0,            // Duration of dispersion burst (seconds)
+            burstStrength: 0.3,       // Initial outward burst force strength
+            randomization: 0.8,       // Amount of randomization in burst direction
+            velocityMultiplier: 3.0,  // Velocity multiplier during burst
+            dragReduction: 0.3,       // Reduced drag during dispersion (more = less drag)
+            centerRepulsion: 0.15,    // Additional repulsion from center during burst
+            resetThreshold: 0.9,      // Progress threshold to trigger particle resets (creates more dramatic spread)
+            newParticleSpeed: 2.0     // Speed for newly reset particles during dispersion
         }
     },
     
@@ -120,7 +143,7 @@ const VISUAL_CONFIG = {
     
     // Scene and Camera Configuration
     scene: {
-        background: 0x0a0a0a,         // Scene background color
+        background: 0x00000a,         // Scene background color
         lighting: {
             ambient: {
                 color: 0x404040,      // Ambient light color - reduced for better contrast
@@ -136,7 +159,7 @@ const VISUAL_CONFIG = {
             near: 0.1,                // Camera near clipping plane
             far: 1000,                // Camera far clipping plane
             position: {
-                z: 5                  // Camera Z position
+                z: 4                  // Camera Z position
             }
         },
         // Orbital Controls Configuration
@@ -148,7 +171,7 @@ const VISUAL_CONFIG = {
             maxDistance: 20,          // Maximum zoom distance
             maxPolarAngle: Math.PI,   // Allow full vertical rotation
             autoRotate: true,         // Auto-rotate the camera
-            autoRotateSpeed: 1.0      // Auto-rotation speed (if enabled)
+            autoRotateSpeed: 3.0      // Auto-rotation speed (if enabled)
         }
     },
     
@@ -206,6 +229,7 @@ class Particle {
         this.position = new THREE.Vector3();
         this.velocity = new THREE.Vector3();
         this.originalColor = new THREE.Color();
+        this.dispersionDirection = new THREE.Vector3(); // Pre-assigned direction for uniform dispersion
         this.reset();
     }
 
@@ -240,12 +264,34 @@ class Particle {
         );
     }
 
-    update(deltaTime, attractors = []) {
-        // Apply attraction forces if in attraction mode
+    assignDispersionDirection() {
+        // Generate uniform random direction on sphere surface using Marsaglia method
+        let x, y, z;
+        do {
+            x = Math.random() * 2 - 1;
+            y = Math.random() * 2 - 1;
+            z = Math.random() * 2 - 1;
+        } while (x*x + y*y + z*z > 1);
+        
+        // Normalize to get point on unit sphere
+        const length = Math.sqrt(x*x + y*y + z*z);
+        this.dispersionDirection.set(x/length, y/length, z/length);
+    }
+
+    update(deltaTime, attractors = [], mode = 'normal') {
+        // Only apply forces if there are attractors
         if (attractors.length > 0) {
             const config = VISUAL_CONFIG.attraction;
             
-            if (config.flowDynamics.enabled) {
+            // Choose behavior based on mode
+            if (mode === 'shell' && config.shellEffect.enabled) {
+                // Shell effect: center attraction + shape repulsion
+                this.updateWithShellEffect(deltaTime, attractors, config);
+            } else if (mode.startsWith('dispersion') && config.dispersionEffect.enabled) {
+                // Dispersion effect: dramatic outward burst
+                const dispersionProgress = parseFloat(mode.split('_')[1]) || 0;
+                this.updateWithDispersionEffect(deltaTime, dispersionProgress, config);
+            } else if (config.flowDynamics.enabled) {
                 // Enhanced flow dynamics system
                 this.updateWithFlowDynamics(deltaTime, attractors, config);
             } else {
@@ -260,6 +306,12 @@ class Particle {
         // Check if particle should be reset (only distance-based now)
         if (this.position.length() > VISUAL_CONFIG.particles.resetDistance) {
             this.reset();
+            
+            // Special behavior during dispersion: give newly reset particles extra speed
+            if (mode.startsWith('dispersion')) {
+                const dispersionSpeed = VISUAL_CONFIG.attraction.dispersionEffect.newParticleSpeed;
+                this.velocity.multiplyScalar(dispersionSpeed);
+            }
         }
     }
 
@@ -413,6 +465,96 @@ class Particle {
         this.velocity.multiplyScalar(dragMultiplier);
     }
 
+    updateWithShellEffect(deltaTime, attractors, config) {
+        const totalForce = new THREE.Vector3();
+        const shell = config.shellEffect;
+        
+        // 1. Center attraction - pull particles toward center
+        const centerDistance = this.position.length();
+        if (centerDistance > 0.001) { // Avoid division by zero
+            const centerDirection = new THREE.Vector3().copy(this.position).negate().normalize();
+            const centerForce = centerDirection.multiplyScalar(shell.centerAttraction);
+            totalForce.add(centerForce);
+        }
+        
+        // 2. Shape repulsion - push particles away from converged shapes
+        attractors.forEach(attractor => {
+            const direction = new THREE.Vector3().subVectors(this.position, attractor.position);
+            const distance = direction.length();
+            
+            if (distance < shell.repulsionRadius && distance > config.minDistance) {
+                direction.normalize();
+                // Stronger repulsion when closer to shape
+                const repulsionStrength = shell.shapeRepulsion * (1 - distance / shell.repulsionRadius);
+                const repulsionForce = direction.multiplyScalar(repulsionStrength);
+                totalForce.add(repulsionForce);
+            }
+        });
+        
+        // 3. Shell stabilization - maintain target shell radius
+        const targetRadius = shell.shellRadius;
+        const radiusError = centerDistance - targetRadius;
+        if (centerDistance > 0.001) { // Avoid division by zero
+            const stabilizationDirection = new THREE.Vector3().copy(this.position).normalize();
+            const stabilizationForce = stabilizationDirection.multiplyScalar(-radiusError * shell.stabilizationForce);
+            totalForce.add(stabilizationForce);
+        }
+        
+        // 4. Additional turbulence for dynamic shell movement
+        const turbulence = new THREE.Vector3(
+            (Math.random() - 0.5) * shell.turbulence,
+            (Math.random() - 0.5) * shell.turbulence,
+            (Math.random() - 0.5) * shell.turbulence
+        );
+        totalForce.add(turbulence);
+        
+        // 5. Apply the total force to velocity
+        this.velocity.add(totalForce);
+        
+        // 6. Apply drag
+        this.velocity.multiplyScalar(config.drag.normal);
+    }
+
+    updateWithDispersionEffect(deltaTime, dispersionProgress, config) {
+        const totalForce = new THREE.Vector3();
+        const dispersion = config.dispersionEffect;
+        
+        // 1. Use pre-assigned uniform direction for main burst force
+        if (this.dispersionDirection.length() > 0) {
+            // Burst strength decreases over time
+            const burstIntensity = dispersion.burstStrength * (1 - dispersionProgress);
+            
+            // Use the pre-assigned uniform direction - apply velocity multiplier here
+            const burstForce = this.dispersionDirection.clone().multiplyScalar(burstIntensity * dispersion.velocityMultiplier);
+            totalForce.add(burstForce);
+        }
+        
+        // 2. Additional center repulsion ONLY for particles very close to center (reduced interference)
+        const centerDistance = this.position.length();
+        if (centerDistance > 0.001 && centerDistance < 0.8) { // Reduced range from 2.0 to 0.8
+            const repulsionDirection = new THREE.Vector3().copy(this.position).normalize();
+            const repulsionIntensity = dispersion.centerRepulsion * (1 - dispersionProgress) * (1 - centerDistance / 0.8);
+            const repulsionForce = repulsionDirection.multiplyScalar(repulsionIntensity);
+            totalForce.add(repulsionForce);
+        }
+        
+        // 3. Minimal turbulence for natural variation (further reduced)
+        const turbulenceIntensity = dispersion.burstStrength * 0.1 * (1 - dispersionProgress); // Reduced from 0.2 to 0.1
+        const turbulence = new THREE.Vector3(
+            (Math.random() - 0.5) * turbulenceIntensity,
+            (Math.random() - 0.5) * turbulenceIntensity,
+            (Math.random() - 0.5) * turbulenceIntensity
+        );
+        totalForce.add(turbulence);
+        
+        // 4. Apply the total force to velocity (velocity multiplier already applied to main burst)
+        this.velocity.add(totalForce);
+        
+        // 5. Apply reduced drag for more dramatic movement
+        const dragMultiplier = config.drag.normal * dispersion.dragReduction;
+        this.velocity.multiplyScalar(dragMultiplier);
+    }
+
     getOpacity() {
         // Distance-based opacity instead of lifetime-based
         const distanceFromCenter = this.position.length();
@@ -434,6 +576,12 @@ class ParticleSystem {
         this.attractionMode = false;
         this.attractors = [];
         this.cameraPosition = new THREE.Vector3();
+        this.particleMode = 'normal'; // Add mode tracking: 'normal', 'shell', 'dispersion_X'
+        
+        // Dispersion effect tracking
+        this.isDispersing = false;
+        this.dispersionStartTime = 0;
+        this.dispersionProgress = 0;
         
         // Create particles
         for (let i = 0; i < count; i++) {
@@ -447,16 +595,12 @@ class ParticleSystem {
             VISUAL_CONFIG.particles.rendering.sphereDetail.heightSegments
         );
         
-        // Enhanced material for bloom emission
+        // Material with proper settings for bloom emission
         this.material = new THREE.MeshBasicMaterial({
             color: VISUAL_CONFIG.particles.rendering.material.color,
             transparent: true,
             opacity: VISUAL_CONFIG.particles.rendering.material.baseOpacity,
-            blending: THREE.AdditiveBlending,
-            // Enhanced properties for constant bloom emission like light bulbs
-            emissive: new THREE.Color(VISUAL_CONFIG.bloom.constantEmission.baseEmissive), // Use config emissive color
-            emissiveIntensity: VISUAL_CONFIG.bloom.constantEmission.emissiveIntensity, // Strong constant emission
-            depthWrite: false, // Disable depth writing for better blending
+            depthWrite: false, // Allow particles to blend properly
             depthTest: true    // Keep depth testing for proper layering
         });
         
@@ -478,12 +622,77 @@ class ParticleSystem {
         this.cameraPosition.copy(position);
     }
 
+    setParticleMode(mode) {
+        this.particleMode = mode;
+        console.log(`Particle mode set to: ${mode}`);
+    }
+
+    startDispersion() {
+        if (!this.isDispersing) {
+            this.isDispersing = true;
+            this.dispersionStartTime = performance.now() / 1000;
+            this.dispersionProgress = 0;
+            
+            // Assign uniform directions for even distribution
+            this.assignUniformDispersionDirections();
+            
+            console.log('Started particle dispersion effect with uniform distribution');
+        }
+    }
+
+    assignUniformDispersionDirections() {
+        // Assign uniform dispersion directions to all particles
+        this.particles.forEach(particle => {
+            particle.assignDispersionDirection();
+        });
+        console.log('Assigned uniform dispersion directions to all particles');
+        
+        // Also ensure particles get fresh directions by reassigning
+        // This fixes any potential issues with stale or corrupted directions
+        this.particles.forEach((particle, index) => {
+            // Double-check that direction is properly normalized and not zero
+            if (particle.dispersionDirection.length() < 0.9) {
+                particle.assignDispersionDirection();
+                console.log(`Fixed dispersion direction for particle ${index}`);
+            }
+        });
+    }
+
+    updateDispersion(deltaTime) {
+        if (this.isDispersing) {
+            const currentTime = performance.now() / 1000;
+            const elapsed = currentTime - this.dispersionStartTime;
+            const duration = VISUAL_CONFIG.attraction.dispersionEffect.duration;
+            
+            this.dispersionProgress = Math.min(elapsed / duration, 1.0);
+            
+            // Update particle mode with progress
+            this.particleMode = `dispersion_${this.dispersionProgress.toFixed(3)}`;
+            
+            // Check if dispersion is complete
+            if (this.dispersionProgress >= 1.0) {
+                this.isDispersing = false;
+                this.particleMode = 'normal';
+                console.log('Particle dispersion effect completed');
+                return true; // Dispersion complete
+            }
+        }
+        return false; // Dispersion ongoing or not active
+    }
+
+    isDispersionComplete() {
+        return !this.isDispersing && this.dispersionProgress >= 1.0;
+    }
+
     update(deltaTime) {
         const maxDepth = VISUAL_CONFIG.particles.depthEffect.maxDistance; // Maximum distance from camera for depth calculation
         
-        // Update each particle
+        // Update dispersion state if active
+        this.updateDispersion(deltaTime);
+        
+        // Update each particle with current mode
         this.particles.forEach((particle, index) => {
-            particle.update(deltaTime, this.attractionMode ? this.attractors : []);
+            particle.update(deltaTime, this.attractionMode ? this.attractors : [], this.particleMode);
             
             // Update instance matrix (position and scale)
             this.dummy.position.copy(particle.position);
@@ -509,6 +718,11 @@ class ParticleSystem {
                 if (VISUAL_CONFIG.bloom.constantEmission.enabled && maxIntensity > 1.0) {
                     intensityMultiplier *= VISUAL_CONFIG.bloom.constantEmission.convergenceMultiplier;
                 }
+            }
+            
+            // Enhanced brightness during dispersion for dramatic effect
+            if (this.isDispersing) {
+                intensityMultiplier *= 1.5; // Boost brightness during dispersion
             }
             
             // Calculate final brightness with constant emission base
@@ -955,8 +1169,16 @@ class TheatreClient {
         this.particleSystem = null;
         this.shapeManager = null; // New shape manager for eye-textured shapes
         this.eyeShapes = []; // Legacy - keeping for compatibility
-        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence
+        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence, 4: shell effect
         this.lastTime = 0;
+        
+        // Shell effect transition tracking
+        this.shellTransitionStartTime = 0;
+        this.isInShellTransition = false;
+        
+        // Dispersion effect tracking
+        this.isInDispersionPhase = false;
+        this.dispersionCompleted = false;
         
         this.init();
     }
@@ -1021,7 +1243,10 @@ class TheatreClient {
         this.socket.on('trigger_final_animation', (data) => {
             console.log('Trigger final animation received:', data);
             this.triggerFinalAnimation();
-            this.addDebugMessage('Animation triggered from server');
+            
+            const source = data.source || 'unknown';
+            const sourceText = source === 'keyboard' ? `keyboard (${data.hotkey})` : source;
+            this.addDebugMessage(`🎭 Animation triggered from ${sourceText}`);
         });
 
         this.socket.on('connection_status', (data) => {
@@ -1130,6 +1355,12 @@ class TheatreClient {
             this.addDebugMessage(`🤖 Auto-import error: ${data.error_message}`, 'error');
             this.hideImportProgress();
             this.updateImportStatus('error');
+        });
+
+        // Keyboard trigger event handlers
+        this.socket.on('keyboard_status', (data) => {
+            console.log('Keyboard status update:', data);
+            this.updateKeyboardStatus(data);
         });
 
         // Request status updates periodically
@@ -1438,22 +1669,63 @@ class TheatreClient {
 
     // Method to be called by external animation trigger
     transitionToPhase3() {
-        console.log('Transitioning to Phase 3: Convergence Animation');
         this.visualPhase = 3;
+        this.addDebugMessage('Phase 3: Starting convergence animation', 'info');
         
-        // Start convergence animation for all eye shapes
+        // Start convergence animation for all shapes
         if (this.shapeManager) {
             this.shapeManager.startConvergence();
-            
-            // Enable intense particle attraction
-            if (this.particleSystem) {
-                const intenseAttractionPoints = this.shapeManager.getIntenseAttractionPoints();
-                this.particleSystem.setAttractionMode(true, intenseAttractionPoints);
-                console.log(`Enabled intense particle attraction with ${intenseAttractionPoints.length} convergence points`);
-            }
         }
         
-        this.addDebugMessage(`Visual Phase 3: Convergence animation started (${this.shapeManager ? this.shapeManager.getShapeCount() : 0} shapes converging)`, 'success');
+        // Remove placeholder meshes if they exist
+        this.setPlaceholderMeshesVisibility(false);
+        
+        console.log('Transitioned to Phase 3: Convergence animation');
+    }
+
+    transitionToPhase4() {
+        this.visualPhase = 4;
+        this.isInShellTransition = true;
+        this.shellTransitionStartTime = performance.now() / 1000; // Convert to seconds
+        
+        this.addDebugMessage('Phase 4: Shell effect - particles forming protective shell', 'info');
+        
+        // Reset particle mode will be handled in updateVisualEffects
+        if (this.particleSystem) {
+            this.particleSystem.setParticleMode('normal'); // Start with normal mode, will switch to shell
+        }
+        
+        console.log('Transitioned to Phase 4: Shell effect around converged shapes');
+    }
+
+    startDispersionPhase() {
+        this.visualPhase = 4; // Move to Phase 4 but start with dispersion
+        this.isInDispersionPhase = true;
+        this.isInShellTransition = true;
+        this.dispersionCompleted = false;
+        
+        this.addDebugMessage('Phase 4a: Dispersion burst - particles exploding outward!', 'success');
+        
+        // Start the dispersion effect
+        if (this.particleSystem) {
+            this.particleSystem.startDispersion();
+        }
+        
+        console.log('Started dispersion phase: particles bursting outward from converged shapes');
+    }
+
+    completeDispersionPhase() {
+        this.isInDispersionPhase = false;
+        this.dispersionCompleted = true;
+        
+        this.addDebugMessage('Phase 4b: Dispersion complete - transitioning to shell formation', 'info');
+        
+        // Begin shell effect
+        if (this.particleSystem) {
+            this.particleSystem.setParticleMode('normal'); // Reset mode before shell
+        }
+        
+        console.log('Dispersion phase completed, beginning shell effect');
     }
 
     triggerFinalAnimation() {
@@ -1482,25 +1754,36 @@ class TheatreClient {
     }
 
     resetAnimation() {
-        console.log('Resetting convergence animation...');
+        console.log('Resetting convergence animation');
         
-        // Reset convergence state
+        // Reset visual phase
+        this.visualPhase = this.shapeManager && this.shapeManager.getShapeCount() > 0 ? 2 : 1;
+        
+        // Reset convergence animation
         if (this.shapeManager) {
             this.shapeManager.resetConvergence();
         }
         
-        // Reset to appropriate phase based on eye images
-        const eyeImages = document.querySelectorAll('#eye-images-container .eye-image');
-        if (eyeImages.length > 0) {
-            this.visualPhase = 2; // Back to particle + shapes phase
-            this.addDebugMessage('Reset to Phase 2: Particles + Eye Shapes');
-        } else {
-            this.visualPhase = 1; // Back to center attraction phase
-            this.addDebugMessage('Reset to Phase 1: Particles with Center Attraction');
+        // Reset particle system to normal mode
+        if (this.particleSystem) {
+            this.particleSystem.setParticleMode('normal');
+            // Reset dispersion state
+            this.particleSystem.isDispersing = false;
+            this.particleSystem.dispersionProgress = 0;
         }
         
-        this.isAnimationTriggered = false;
-        this.addDebugMessage('Animation reset complete');
+        // Reset shell effect transition tracking
+        this.isInShellTransition = false;
+        this.shellTransitionStartTime = 0;
+        
+        // Reset dispersion tracking
+        this.isInDispersionPhase = false;
+        this.dispersionCompleted = false;
+        
+        // Re-enable orbital animation for shapes
+        this.setPlaceholderMeshesVisibility(false);
+        
+        this.addDebugMessage('Animation reset - returned to normal orbital patterns', 'info');
     }
 
     animateToPosition(mesh, x, y, z, duration) {
@@ -1605,9 +1888,9 @@ class TheatreClient {
                         // Check if convergence is complete
                         if (this.shapeManager.isConvergenceComplete()) {
                             const progress = this.shapeManager.getConvergenceProgress();
-                            if (progress >= 1.0) {
-                                this.addDebugMessage('Convergence animation completed! All shapes have reached the center.', 'success');
-                                // Optional: Could transition to a new phase or loop
+                            if (progress >= 1.0 && !this.isInShellTransition) {
+                                this.addDebugMessage('Convergence completed! Triggering dispersion burst...', 'success');
+                                this.startDispersionPhase();
                             }
                         }
                     }
@@ -1616,6 +1899,47 @@ class TheatreClient {
                 }
                 
                 // Update eye shapes during convergence
+                if (this.shapeManager) {
+                    this.shapeManager.update(deltaTime);
+                }
+                break;
+                
+            case 4: // Shell effect - particles form shell around converged shapes
+                // Handle dispersion phase within Phase 4
+                if (this.isInDispersionPhase && this.particleSystem) {
+                    // Update camera position for depth-based brightness
+                    this.particleSystem.setCameraPosition(this.camera.position);
+                    
+                    // During dispersion, no attractors - just let particles burst outward
+                    this.particleSystem.setAttractionMode(false, []);
+                    
+                    // Check if dispersion is complete
+                    if (this.particleSystem.isDispersionComplete()) {
+                        this.completeDispersionPhase();
+                    }
+                    
+                    this.particleSystem.update(deltaTime);
+                } else if (this.particleSystem) {
+                    // Normal shell effect after dispersion
+                    // Update camera position for depth-based brightness
+                    this.particleSystem.setCameraPosition(this.camera.position);
+                    
+                    // Get converged shape positions for repulsion
+                    if (this.shapeManager) {
+                        const shapePositions = this.shapeManager.getAllShapes().map(shape => ({
+                            position: shape.getAttractionPosition(),
+                            id: shape.id,
+                            intensity: 1.0 // Normal intensity for shell effect
+                        }));
+                        
+                        this.particleSystem.setAttractionMode(true, shapePositions);
+                        this.particleSystem.setParticleMode('shell'); // Enable shell behavior
+                    }
+                    
+                    this.particleSystem.update(deltaTime);
+                }
+                
+                // Continue updating eye shapes (they remain stationary at center)
                 if (this.shapeManager) {
                     this.shapeManager.update(deltaTime);
                 }
@@ -1690,6 +2014,24 @@ class TheatreClient {
             resetAnimationBtn.addEventListener('click', () => {
                 this.resetAnimation();
                 this.addDebugMessage('Reset convergence animation');
+            });
+        }
+
+        // Test shell effect button
+        const testShellEffectBtn = document.getElementById('test-shell-effect');
+        if (testShellEffectBtn) {
+            testShellEffectBtn.addEventListener('click', () => {
+                // If we have shapes and not already in shell mode, test shell effect
+                if (this.shapeManager && this.shapeManager.getShapeCount() > 0) {
+                    if (this.visualPhase !== 4) {
+                        this.transitionToPhase4();
+                        this.addDebugMessage('Manually triggered shell effect for testing');
+                    } else {
+                        this.addDebugMessage('Already in shell effect mode');
+                    }
+                } else {
+                    this.addDebugMessage('No eye shapes available - need shapes for shell effect', 'warning');
+                }
             });
         }
 
@@ -1827,6 +2169,24 @@ class TheatreClient {
                 this.addDebugMessage(`Constant Emission ${enabled ? 'enabled' : 'disabled'} - ${enabled ? 'Particles emit constant light like bulbs for bloom effect' : 'Standard particle brightness'}`);
             });
         }
+
+        // Test dispersion button
+        const testDispersionBtn = document.getElementById('test-dispersion');
+        if (testDispersionBtn) {
+            testDispersionBtn.addEventListener('click', () => {
+                // Test dispersion effect
+                if (this.particleSystem) {
+                    if (!this.isInDispersionPhase) {
+                        this.startDispersionPhase();
+                        this.addDebugMessage('Manually triggered dispersion burst for testing');
+                    } else {
+                        this.addDebugMessage('Dispersion already in progress');
+                    }
+                } else {
+                    this.addDebugMessage('Particle system not available', 'warning');
+                }
+            });
+        }
     }
 
     addDebugMessage(message, type = 'info') {
@@ -1911,6 +2271,19 @@ class TheatreClient {
         // Update SD card display if cards data is provided
         if (data.cards) {
             this.updateSDCardDisplay(data.cards);
+        }
+    }
+
+    updateKeyboardStatus(data) {
+        const keyboardStatus = document.getElementById('keyboard-status');
+        if (keyboardStatus) {
+            if (data.active) {
+                keyboardStatus.textContent = `✅ Active (${data.hotkey})`;
+                keyboardStatus.className = 'status-connected';
+            } else {
+                keyboardStatus.textContent = '❌ Inactive';
+                keyboardStatus.className = 'status-error';
+            }
         }
     }
 
@@ -2059,6 +2432,7 @@ class TheatreClient {
 
     requestStatusUpdate() {
         this.socket.emit('request_status');
+        this.socket.emit('request_keyboard_status');
         this.addDebugMessage('Requested system status update');
     }
 

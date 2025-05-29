@@ -47,6 +47,10 @@
                         <span>SD Card Monitor:</span>
                         <span id="sd-monitor-status">Unknown</span>
                     </div>
+                    <div class="status-item">
+                        <span>Keyboard Trigger:</span>
+                        <span id="keyboard-status">Unknown</span>
+                    </div>
                 </div>
             </div>
 
@@ -193,10 +197,12 @@
                     </div>
                     <div class="button-group">
                         <button id="reset-animation">Reset Animation</button>
+                        <button id="test-shell-effect">Test Shell Effect</button>
+                        <button id="test-dispersion">Test Dispersion</button>
                         <button onclick="client.sendTestMessage()">Send Test Message</button>
-                        <button onclick="client.requestTestProcessing()">Test Processing</button>
                     </div>
                     <div class="button-group">
+                        <button onclick="client.requestTestProcessing()">Test Processing</button>
                         <button onclick="client.requestStatusUpdate()">Refresh Status</button>
                     </div>
                 </div>

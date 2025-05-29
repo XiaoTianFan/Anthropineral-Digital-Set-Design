@@ -5,6 +5,7 @@ import threading
 import time
 from image_processor import ImageProcessor
 from sd_card_monitor import SDCardMonitor
+from keyboard_listener import KeyboardTriggerListener
 import socket
 
 app = Flask(__name__)
@@ -20,6 +21,7 @@ ORIGINALS_DIR = os.path.join(DATA_DIR, 'originals')
 # Global instances
 image_processor = None
 sd_card_monitor = None
+keyboard_listener = None
 
 @app.route('/')
 def index():
@@ -185,6 +187,16 @@ def handle_request_existing_eyes():
     """Handle request for existing eye images"""
     send_existing_eye_images()
 
+@socketio.on('request_keyboard_status')
+def handle_keyboard_status_request():
+    """Handle request for keyboard listener status"""
+    global keyboard_listener
+    emit('keyboard_status', {
+        'active': keyboard_listener.is_listening if keyboard_listener else False,
+        'hotkey': keyboard_listener.hotkey if keyboard_listener else None,
+        'cooldown_seconds': keyboard_listener.cooldown_seconds if keyboard_listener else None
+    })
+
 def send_existing_eye_images():
     """Send existing eye images to the requesting client"""
     try:
@@ -290,6 +302,28 @@ def initialize_sd_card_monitor():
         traceback.print_exc()
         sd_card_monitor = None
 
+def initialize_keyboard_listener():
+    """Initialize the keyboard trigger listener"""
+    global keyboard_listener
+    
+    try:
+        print("Initializing keyboard trigger listener...")
+        keyboard_listener = KeyboardTriggerListener(
+            socketio_instance=socketio,
+            hotkey="down"  # Using down arrow key as the trigger key
+        )
+        
+        # Start listening for keyboard shortcuts
+        keyboard_listener.start_listening()
+        
+        print("Keyboard trigger listener initialized")
+        
+    except Exception as e:
+        print(f"Error initializing keyboard listener: {e}")
+        import traceback
+        traceback.print_exc()
+        keyboard_listener = None
+
 def get_local_ip():
     """Get the local IP address"""
     try:
@@ -328,16 +362,22 @@ def startup_sequence():
         print("\n💾 Initializing SD Card Monitor...")
         initialize_sd_card_monitor()
         
+        # Initialize keyboard listener
+        print("\n🎹 Initializing Keyboard Trigger Listener...")
+        initialize_keyboard_listener()
+        
         processor_status = "✅ Ready" if image_processor else "❌ Error"
         monitoring_status = "✅ Active" if (image_processor and image_processor.is_monitoring) else "❌ Inactive"
         sd_monitor_status = "✅ Active" if (sd_card_monitor and sd_card_monitor.is_monitoring) else "❌ Inactive"
         sd_cards_count = len(sd_card_monitor.get_current_cards()) if sd_card_monitor else 0
+        keyboard_status = "✅ Active (down)" if (keyboard_listener and keyboard_listener.is_listening) else "❌ Inactive"
         
         print(f"\n🔧 System Status:")
         print(f"   Image Processor:  {processor_status}")
         print(f"   File Monitoring:  {monitoring_status}")
         print(f"   SD Card Monitor:  {sd_monitor_status}")
         print(f"   SD Cards Found:   {sd_cards_count}")
+        print(f"   Keyboard Trigger: {keyboard_status}")
         
         if image_processor is None:
             print("⚠️  WARNING: Image processor failed to initialize!")
@@ -346,6 +386,10 @@ def startup_sequence():
         if sd_card_monitor is None:
             print("⚠️  WARNING: SD card monitor failed to initialize!")
             print("   SD card detection will not be available.")
+        
+        if keyboard_listener is None:
+            print("⚠️  WARNING: Keyboard listener failed to initialize!")
+            print("   Global keyboard triggers will not be available.")
         
         print(f"\n🚀 Ready for connections!")
         print("="*60)

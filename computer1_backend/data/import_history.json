@@ -1,37 +1,37 @@
 {
   "imported_files": {
-    "14a696c29e43c040306e56c44fd6c4cb4941e19c08d5add9c2f284b09d98dc1c": {
-      "original_path": "F:\\DCIM\\102EOS5D\\_I0A1356.JPG",
-      "imported_path": "C:\\Users\\20378\\OneDrive\\\u684c\u9762\\NYUAD\\Make Art Here\\Project 2\\Program\\Program\\computer1_backend\\data\\originals\\_I0A1356_imported_20250529_004220.JPG",
-      "import_timestamp": "2025-05-29T00:42:20.132406",
-      "file_size": 764988,
-      "sd_card_id": "Unknown_F_",
-      "original_filename": "_I0A1356.JPG",
-      "target_filename": "_I0A1356_imported_20250529_004220.JPG"
-    },
-    "d8812026ebbf5bcf55785dbcddac3beb201570aeffd373781572eaa6b68ee648": {
-      "original_path": "F:\\DCIM\\102EOS5D\\_I0A1355.JPG",
-      "imported_path": "C:\\Users\\20378\\OneDrive\\\u684c\u9762\\NYUAD\\Make Art Here\\Project 2\\Program\\Program\\computer1_backend\\data\\originals\\_I0A1355_imported_20250529_004220.JPG",
-      "import_timestamp": "2025-05-29T00:42:20.133439",
-      "file_size": 701843,
-      "sd_card_id": "Unknown_F_",
-      "original_filename": "_I0A1355.JPG",
-      "target_filename": "_I0A1355_imported_20250529_004220.JPG"
-    },
     "9639218e03d622f1721d213b1686daa97cd6fbb17df680cfa26aca2fe6383a0f": {
       "original_path": "F:\\DCIM\\102EOS5D\\_I0A1357.JPG",
-      "imported_path": "C:\\Users\\20378\\OneDrive\\\u684c\u9762\\NYUAD\\Make Art Here\\Project 2\\Program\\Program\\computer1_backend\\data\\originals\\_I0A1357_imported_20250529_012050.JPG",
-      "import_timestamp": "2025-05-29T01:20:50.338396",
+      "imported_path": "C:\\Users\\20378\\OneDrive\\\u684c\u9762\\NYUAD\\Make Art Here\\Project 2\\Program\\Program\\computer1_backend\\data\\originals\\_I0A1357_imported_20250529_113601.JPG",
+      "import_timestamp": "2025-05-29T11:36:01.433834",
       "file_size": 414577,
       "sd_card_id": "Unknown_F_",
       "original_filename": "_I0A1357.JPG",
-      "target_filename": "_I0A1357_imported_20250529_012050.JPG"
+      "target_filename": "_I0A1357_imported_20250529_113601.JPG"
+    },
+    "d8812026ebbf5bcf55785dbcddac3beb201570aeffd373781572eaa6b68ee648": {
+      "original_path": "F:\\DCIM\\102EOS5D\\_I0A1355.JPG",
+      "imported_path": "C:\\Users\\20378\\OneDrive\\\u684c\u9762\\NYUAD\\Make Art Here\\Project 2\\Program\\Program\\computer1_backend\\data\\originals\\_I0A1355_imported_20250529_113601.JPG",
+      "import_timestamp": "2025-05-29T11:36:01.438843",
+      "file_size": 701843,
+      "sd_card_id": "Unknown_F_",
+      "original_filename": "_I0A1355.JPG",
+      "target_filename": "_I0A1355_imported_20250529_113601.JPG"
+    },
+    "14a696c29e43c040306e56c44fd6c4cb4941e19c08d5add9c2f284b09d98dc1c": {
+      "original_path": "F:\\DCIM\\102EOS5D\\_I0A1356.JPG",
+      "imported_path": "C:\\Users\\20378\\OneDrive\\\u684c\u9762\\NYUAD\\Make Art Here\\Project 2\\Program\\Program\\computer1_backend\\data\\originals\\_I0A1356_imported_20250529_113601.JPG",
+      "import_timestamp": "2025-05-29T11:36:01.444836",
+      "file_size": 764988,
+      "sd_card_id": "Unknown_F_",
+      "original_filename": "_I0A1356.JPG",
+      "target_filename": "_I0A1356_imported_20250529_113601.JPG"
     }
   },
   "sd_cards_seen": {
     "Unknown_F_": {
-      "first_seen": "2025-05-29T00:42:17.740470",
-      "last_seen": "2025-05-29T11:32:29.335600",
+      "first_seen": "2025-05-29T11:35:59.033520",
+      "last_seen": "2025-05-29T13:03:25.252337",
       "total_imports": 3
     }
   }

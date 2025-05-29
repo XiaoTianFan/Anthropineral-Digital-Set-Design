@@ -14,6 +14,18 @@ This system consists of:
 
 ## Current Status
 
+### ✅ **Milestone 7: Global Keyboard Trigger System - COMPLETED** 🎹
+- **🎹 Global Hotkey Support**: Complete keyboard trigger system using Python `keyboard` library for system-wide detection
+- **⬇️ Down Arrow Trigger**: Configured to use down arrow key as the animation trigger (easily configurable)
+- **🛡️ Safety Mechanisms**: 2-second cooldown prevents accidental double-triggers during live performance
+- **📡 Real-time Integration**: Immediate Socket.IO event emission to all connected clients when trigger is activated
+- **📊 Status Monitoring**: Live keyboard listener status display in web interface (Active/Inactive)
+- **🧵 Background Operation**: Runs in separate thread without blocking main server operations
+- **🎭 Theatre Integration**: Professional control allowing operators to trigger convergence animation seamlessly
+- **🔄 Source Tracking**: Animation events include source information (keyboard vs. manual trigger)
+- **🌐 Non-intrusive**: Global hotkey works regardless of active window or application focus
+- **⚙️ Error Resilience**: Comprehensive error handling with graceful degradation if keyboard system fails
+
 ### ✅ **Milestone 6: Constant Bloom Emission System - COMPLETED** 🌟
 - **✨ Professional Bloom Post-Processing**: Complete Three.js UnrealBloomPass integration with EffectComposer pipeline
 - **💡 Constant Light Emission**: Particles now act like individual light bulbs with continuous bloom glow (similar to Max jit.gl bloom)
@@ -143,13 +155,14 @@ The client interface includes:
 #### **🎭 Advanced Configurable 3D Visual Effects System**
 1. **Phase 1 - Center Attraction**: Particles distributed throughout space, gradually converging toward center with configurable attraction forces and constant bloom emission
 2. **Phase 2 - Eye Shape Animation**: Automatic creation of orbiting 3D shapes when eye images become available, with enhanced bloom effects
-3. **Phase 3 - Convergence Animation**: Manual trigger via "Trigger Animation" button for dramatic convergence effect with intensified bloom
-4. **✨ Constant Bloom Emission**: Professional post-processing bloom effects where each particle acts like a light bulb (similar to Max jit.gl bloom)
-5. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation (1.0 speed) around the center for dynamic theatrical presentation
-6. **Real-time Transitions**: System automatically detects eye images and transitions between phases
-7. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object including bloom settings
-8. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
-9. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
+3. **Phase 3 - Convergence Animation**: Manual trigger via "Trigger Animation" button OR **🎹 Down Arrow Key** for dramatic convergence effect with intensified bloom
+4. **🎹 Global Keyboard Triggers**: Press **Down Arrow** key from anywhere on the server computer to instantly trigger convergence animation (2-second cooldown prevents double-triggers)
+5. **✨ Constant Bloom Emission**: Professional post-processing bloom effects where each particle acts like a light bulb (similar to Max jit.gl bloom)
+6. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation (1.0 speed) around the center for dynamic theatrical presentation
+7. **Real-time Transitions**: System automatically detects eye images and transitions between phases
+8. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object including bloom settings
+9. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
+10. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
 
 #### **Automatic Eye Images Display**
 1. **Client Connection**: When you open the web interface, existing eye images automatically load
@@ -169,6 +182,7 @@ The client interface includes:
 - **Test Connection**: Verify Socket.IO communication
 - **Test Processing**: Generate and process a test face image
 - **🎭 Animation Controls**: "Trigger Animation" and "Reset Animation" buttons for convergence effects
+- **🎹 Keyboard Status**: Shows if global keyboard triggers are active (Down Arrow key)
 - **🌊 Flow Dynamics Toggle**: Switch between simple attraction and enhanced flow systems in real-time
 - **✨ Bloom Post-Processing Toggle**: Enable/disable professional bloom effects with real-time control
 - **🌟 Constant Emission Toggle**: Control particle light bulb emission for bloom effects
@@ -201,6 +215,7 @@ The client interface includes:
 - **Client Interface**: Complete web interface with real-time updates and auto-import controls
 - **✨ Professional Bloom Visual Effects System**: Complete 3-phase system with constant bloom emission and 35+ configurable parameters
 - **🎨 Constant Bloom Emission**: Professional post-processing with UnrealBloomPass creating light-bulb particle effects
+- **🎹 Global Keyboard Trigger System**: Down arrow key triggers with safety mechanisms, status monitoring, and real-time integration
 - **Real-time Communication**: Bidirectional Socket.IO events with comprehensive auto-import events
 - **Debug Tools**: Comprehensive testing and status monitoring with SD card management, animation controls, and bloom toggles
 - **Eye Images Display**: Automatic loading and real-time display of processed eye images
@@ -208,11 +223,21 @@ The client interface includes:
 - **Auto-Import Configuration**: Professional toggle controls with live status indicators and progress tracking
 
 ### 🚧 **Current Issues**
-None - All core functionality including complete SD card auto-import pipeline, advanced configurable 3D visual effects system, and professional constant bloom emission is working correctly! 🎉
+None - All core functionality including complete SD card auto-import pipeline, advanced configurable 3D visual effects system, professional constant bloom emission, and global keyboard triggers is working correctly! 🎉
 
-### 🔄 **Next Milestones**
-1. **Keyboard Triggers**: Global hotkey support for animation control (final automation feature)
-2. **Final Polish**: Performance optimization and production deployment features
+### 🎉 **CORE THEATRE AUTOMATION COMPLETE**
+All essential features for live theatre production are now fully implemented and operational:
+- ✅ **SD Card Auto-Import**: Automatic detection and background processing
+- ✅ **Eye Detection & Processing**: Real-time image processing pipeline  
+- ✅ **3D Visual Effects**: Professional configurable animation system with constant bloom
+- ✅ **Keyboard Triggers**: Global hotkey system for live performance control
+- ✅ **Real-time Communication**: Complete Socket.IO integration
+- ✅ **Status Monitoring**: Comprehensive system status and controls
+
+### 🔄 **Optional Enhancements**
+1. **Production Deployment**: Server configuration for permanent installation
+2. **User Training**: Materials for theatre operators
+3. **Performance Optimization**: Additional fine-tuning for specific hardware
 
 ## Technical Architecture
 
@@ -759,83 +784,4 @@ VISUAL_CONFIG.scene.controls.enableDamping = true;
 
 ### 💡 **Configuration Pro Tips**
 
-- **🎨 Color Harmony**: Adjust `hueBase` and `hueVariation` for different color palettes
-- **⚡ Performance Tuning**: Monitor frame rate when increasing `count` and adjust `sphereDetail` accordingly
-- **🎭 Theatre Timing**: Use `convergence.duration` to match your performance timing
-- **🔍 Viewing Distance**: Adjust `resetDistance` and camera `position.z` for optimal viewing scale
-- **🌟 Visual Impact**: Balance `attraction.baseStrength` with `particles.opacity.minimum` for desired intensity
-- **💾 Backup Settings**: Save your favorite configurations before experimenting
-- **🧪 A/B Testing**: Easy to test different parameter combinations for different scenes
-
-## Troubleshooting
-
-### **Status Shows "Error"**
-- Check console output for detailed error messages
-- Use "Refresh Status" button in debug panel
-- Verify all dependencies are properly installed
-
-### **Images Not Processing**
-- Verify images contain faces (use portrait photos)
-- Check `data/originals/` folder permissions
-- Monitor console for processing logs
-- Try "Test Processing" button for generated test image
-
-### **🎭 Visual Effects Issues**
-- **Particles Not Showing**: 
-  - Check Three.js canvas area, verify WebGL support in browser
-  - Verify `VISUAL_CONFIG.particles.size` is not too small (try 0.03+)
-  - Check `VISUAL_CONFIG.particles.resetDistance` matches camera scale
-- **Belt Formation Issues**: 
-  - Enable Enhanced Flow Dynamics toggle in debug panel
-  - Check `VISUAL_CONFIG.attraction.flowDynamics.enabled = true`
-  - Adjust `repulsionRadius` and `circulationStrength` for better flow
-  - Verify `forceBalancing` is enabled for multiple shapes
-  - Monitor particles to ensure they flow around all shapes, not just one
-- **Orbital Controls Not Working**:
-  - Verify OrbitControls script is loading properly (check browser console)
-  - Ensure Three.js version compatibility with OrbitControls CDN
-  - Check `VISUAL_CONFIG.scene.controls` settings for proper configuration
-  - Try disabling auto-rotation temporarily: `VISUAL_CONFIG.scene.controls.autoRotate = false`
-- **Poor Performance**: 
-  - Reduce `VISUAL_CONFIG.particles.count` (try 250)
-  - Lower `VISUAL_CONFIG.particles.rendering.sphereDetail` segments
-  - Disable auto-rotation: `VISUAL_CONFIG.scene.controls.autoRotate = false`
-  - Check browser console for WebGL errors
-- **Eye Shapes Not Creating**: 
-  - Ensure eye images are processed and available in cropped_eyes folder
-  - Check `VISUAL_CONFIG.system.maxShapes` limit
-- **Convergence Issues**: 
-  - Use "Trigger Animation" button in debug panel
-  - Check `VISUAL_CONFIG.shapes.convergence.duration` setting
-  - Verify `VISUAL_CONFIG.attraction` force settings
-
-### **Connection Issues**
-- Verify server is running on correct IP and port
-- Check firewall settings for port 5000
-- Use "Test Connection" button in debug panel
-
-### **OpenCV Issues**
-- Ensure all dependencies installed: `pip install -r requirements.txt`
-- Check Python version compatibility (3.8+)
-- Verify OpenCV cascade files are accessible
-
-### **🤖 SD Card Auto-Import Issues**
-- **SD Card Not Detected**: 
-  - Verify SD card contains camera folder structure (DCIM, etc.)
-  - Check if SD card is properly mounted and accessible
-  - Use "Scan for Cards" button to manually trigger detection
-  - Ensure SD card size is within supported range (32MB - 512GB)
-- **Auto-Import Not Working**:
-  - Check auto-import toggle is enabled in SD Card Management section
-  - Verify SD card contains image files with supported extensions
-  - Monitor console for import error messages
-  - Use manual "Import New" button to test import functionality
-- **Import Progress Stuck**:
-  - Check file permissions on SD card and originals folder
-  - Verify sufficient disk space for import operation
-  - Monitor console for file copy errors
-  - Try refreshing the page and checking import status
-
----
-
-*Part of the Make Art Here Project 2 at NYUAD* 
+- **🎨 Color Harmony**: Adjust `hueBase` and `hueVariation`
