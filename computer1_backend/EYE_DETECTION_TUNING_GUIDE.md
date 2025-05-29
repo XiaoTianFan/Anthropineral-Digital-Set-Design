@@ -26,18 +26,6 @@ self.detection_params = {
 }
 ```
 
-### **Results Achieved**
-
-**Before (Permissive Settings):**
-- 15 detections including false positives
-- Nose holes and mouth detected as eyes
-- Many overlapping detections
-
-**After (Strict Settings):**
-- 4 high-quality eye detections
-- Natural aspect ratios maintained (2.02-2.07:1)
-- False positives eliminated
-
 ## 🔧 **Parameter Tuning Reference**
 
 ### **🎯 To REDUCE False Positives (Current Need)**

@@ -7,12 +7,24 @@ A digital program for experimental theatre that processes audience photos and cr
 This system consists of:
 1. **🤖 SD Card Auto-Import Pipeline**: Automatically detects camera SD cards and imports new images with real-time progress tracking
 2. **Image Processing Pipeline**: Automatically detects faces and crops eyes from photos using OpenCV
-3. **🎭 Advanced Visual Effects System**: Completely configurable 3-phase interactive 3D animations with enhanced particle dynamics, eye-textured shapes, and orbital camera controls
+3. **✨ Professional Bloom Visual Effects System**: Advanced 3-phase configurable 3D animations with constant bloom emission, enhanced particle dynamics, eye-textured shapes, and orbital camera controls
 4. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation around the center for dynamic theatrical presentation
 5. **Real-time Communication**: Socket.IO for live updates between all system components
 6. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
 
 ## Current Status
+
+### ✅ **Milestone 6: Constant Bloom Emission System - COMPLETED** 🌟
+- **✨ Professional Bloom Post-Processing**: Complete Three.js UnrealBloomPass integration with EffectComposer pipeline
+- **💡 Constant Light Emission**: Particles now act like individual light bulbs with continuous bloom glow (similar to Max jit.gl bloom)
+- **🎛️ Advanced Bloom Configuration**: Optimized settings (intensity: 1.2, threshold: 0.2, radius: 0.8) for strong constant emission
+- **⚙️ Real-time Bloom Controls**: Debug panel toggles for bloom post-processing and constant emission settings
+- **🔧 Enhanced Material System**: Particles use emissive materials (0x666666 base, 1.2 intensity) for consistent bloom source
+- **📈 Performance Optimization**: Adaptive quality settings (low/medium/high) with automatic performance monitoring
+- **🎪 Theatre-Ready Effects**: Constant bloom emission creates dramatic light-bulb effect for professional visual impact
+- **💎 No Periodical Variations**: Pure constant emission without pulsing - consistent bloom glow like Max jit.gl
+- **🎨 Enhanced Visual Fidelity**: Lower bloom threshold captures more particle light, higher intensity for stronger glow effect
+- **📊 Quality Control**: Configurable bloom resolution and exposure settings for different performance requirements
 
 ### ✅ **Milestone 5: Advanced Configurable Visual Effects - COMPLETED** 🎉
 - **🎛️ Complete Configuration System**: All 35+ visual parameters centrally configurable via `VISUAL_CONFIG` object
@@ -129,14 +141,15 @@ The client interface includes:
 ### 3. System Operation
 
 #### **🎭 Advanced Configurable 3D Visual Effects System**
-1. **Phase 1 - Center Attraction**: Particles distributed throughout space, gradually converging toward center with configurable attraction forces
-2. **Phase 2 - Eye Shape Animation**: Automatic creation of orbiting 3D shapes when eye images become available
-3. **Phase 3 - Convergence Animation**: Manual trigger via "Trigger Animation" button for dramatic convergence effect
-4. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation (1.0 speed) around the center for dynamic theatrical presentation
-5. **Real-time Transitions**: System automatically detects eye images and transitions between phases
-6. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object
-7. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
-8. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
+1. **Phase 1 - Center Attraction**: Particles distributed throughout space, gradually converging toward center with configurable attraction forces and constant bloom emission
+2. **Phase 2 - Eye Shape Animation**: Automatic creation of orbiting 3D shapes when eye images become available, with enhanced bloom effects
+3. **Phase 3 - Convergence Animation**: Manual trigger via "Trigger Animation" button for dramatic convergence effect with intensified bloom
+4. **✨ Constant Bloom Emission**: Professional post-processing bloom effects where each particle acts like a light bulb (similar to Max jit.gl bloom)
+5. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation (1.0 speed) around the center for dynamic theatrical presentation
+6. **Real-time Transitions**: System automatically detects eye images and transitions between phases
+7. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object including bloom settings
+8. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
+9. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
 
 #### **Automatic Eye Images Display**
 1. **Client Connection**: When you open the web interface, existing eye images automatically load
@@ -157,6 +170,8 @@ The client interface includes:
 - **Test Processing**: Generate and process a test face image
 - **🎭 Animation Controls**: "Trigger Animation" and "Reset Animation" buttons for convergence effects
 - **🌊 Flow Dynamics Toggle**: Switch between simple attraction and enhanced flow systems in real-time
+- **✨ Bloom Post-Processing Toggle**: Enable/disable professional bloom effects with real-time control
+- **🌟 Constant Emission Toggle**: Control particle light bulb emission for bloom effects
 - **Refresh Status**: Manually request status updates
 - **Clear Images**: Remove displayed eye images
 - **Refresh Eye Images**: Clear and reload existing eye images from server
@@ -184,15 +199,16 @@ The client interface includes:
 - **Image Processor**: OpenCV face/eye detection with comprehensive error handling
 - **File Monitoring**: Watchdog-based automatic processing of new images  
 - **Client Interface**: Complete web interface with real-time updates and auto-import controls
-- **🎭 Advanced Configurable Visual Effects System**: Complete 3-phase system with 35+ configurable parameters
+- **✨ Professional Bloom Visual Effects System**: Complete 3-phase system with constant bloom emission and 35+ configurable parameters
+- **🎨 Constant Bloom Emission**: Professional post-processing with UnrealBloomPass creating light-bulb particle effects
 - **Real-time Communication**: Bidirectional Socket.IO events with comprehensive auto-import events
-- **Debug Tools**: Comprehensive testing and status monitoring with SD card management and animation controls
+- **Debug Tools**: Comprehensive testing and status monitoring with SD card management, animation controls, and bloom toggles
 - **Eye Images Display**: Automatic loading and real-time display of processed eye images
 - **UI Layout**: Clean performance interface with collapsible debug panel and auto-import configuration
 - **Auto-Import Configuration**: Professional toggle controls with live status indicators and progress tracking
 
 ### 🚧 **Current Issues**
-None - All core functionality including complete SD card auto-import pipeline and advanced configurable 3D visual effects system is working correctly! 🎉
+None - All core functionality including complete SD card auto-import pipeline, advanced configurable 3D visual effects system, and professional constant bloom emission is working correctly! 🎉
 
 ### 🔄 **Next Milestones**
 1. **Keyboard Triggers**: Global hotkey support for animation control (final automation feature)

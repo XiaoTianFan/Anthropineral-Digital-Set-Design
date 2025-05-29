@@ -8,13 +8,13 @@ const VISUAL_CONFIG = {
     particles: {
         count: 500,                    // Number of particles in the system
         size: 0.01,                   // Size of individual particles (sphere radius) - increased for visibility
-        resetDistance: 8,            // Distance from center before particle resets - reduced for camera scale
+        resetDistance: 6,            // Distance from center before particle resets - reduced for camera scale
         depthEffect: {
-            maxDistance: 8,          // Maximum distance for depth brightness calculation
-            dimming: 0.2              // How much to dim far particles (0-1)
+            maxDistance: 6,          // Maximum distance for depth brightness calculation
+            dimming: 0.1              // How much to dim far particles (0-1)
         },
         distribution: {
-            radiusMultiplier: 0.5,    // Percentage of reset distance for initial distribution
+            radiusMultiplier: 0.3,    // Percentage of reset distance for initial distribution
             initialSpeed: 0.8         // Initial random velocity speed
         },
         color: {
@@ -41,7 +41,7 @@ const VISUAL_CONFIG = {
     
     // Particle Attraction Configuration
     attraction: {
-        baseStrength: 0.05,           // Base attraction force strength - increased from 0.02
+        baseStrength: 0.06,           // Base attraction force strength - increased from 0.02
         maxStrength: 0.15,             // Maximum attraction force cap - increased from 0.1
         minDistance: 0.1,             // Minimum distance to avoid division by zero
         distanceOffset: 0.1,          // Distance offset for force calculation
@@ -177,19 +177,19 @@ const VISUAL_CONFIG = {
         enabled: true,                // Enable post-processing bloom
         intensity: 1.2,               // Higher bloom intensity for constant glow effect
         threshold: 0.2,               // Lower threshold to capture more particle emission  
-        radius: 0.8,                  // Increased radius for better glow spread
+        radius: 0.6,                  // Increased radius for better glow spread
         // Advanced bloom settings for constant emission
-        exposure: 1.0,                // Tone mapping exposure for bloom
+        exposure: 1.05,                // Tone mapping exposure for bloom
         constantEmission: {
             enabled: true,            // Enable constant emission mode
             baseEmissive: 0x666666,   // Brighter base emissive color for stronger bloom
-            emissiveIntensity: 1.2,   // Base emissive intensity for constant glow
+            emissiveIntensity: 1.3,   // Base emissive intensity for constant glow
             convergenceMultiplier: 1.5, // Multiplier during convergence (reduced from 2.0)
             // Removed pulsing effect - particles now emit constant light like bulbs
         },
         // Performance settings
         performance: {
-            quality: 'high',          // 'low', 'medium', 'high' - affects bloom quality
+            quality: 'medium',          // 'low', 'medium', 'high' - affects bloom quality
             adaptiveQuality: true,    // Automatically adjust quality based on performance
             targetFPS: 60             // Target frame rate for adaptive quality
         }

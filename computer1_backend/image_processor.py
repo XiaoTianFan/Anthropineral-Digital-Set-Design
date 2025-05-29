@@ -59,17 +59,17 @@ class ImageProcessor:
         # Enhanced detection parameters - Tuned to reduce false positives
         self.detection_params = {
             'face_scale_factor': 1.1,       # Less sensitive face detection (was 1.05)
-            'face_min_neighbors': 5,        # More strict face detection (was 4)
-            'face_min_size': (50, 50),      # Larger minimum face size (was 40x40)
-            'eye_scale_factor': 1.1,        # Less sensitive eye detection (was 1.03)
-            'eye_min_neighbors': 6,         # Much more strict for eyes (was 3)
+            'face_min_neighbors': 4,        # More strict face detection (was 4)
+            'face_min_size': (100, 100),      # Larger minimum face size (was 40x40)
+            'eye_scale_factor': 1.05,        # Less sensitive eye detection (was 1.03)
+            'eye_min_neighbors': 4,         # Much more strict for eyes (was 3)
             'eye_min_size': (15, 15),       # Larger minimum eye size (was 8x8)
             'padding_factor': 0.2,          # 20% padding around detected eyes
             'max_dimension': 120,           # Maximum dimension while preserving aspect ratio
             'min_dimension': 15,            # Larger minimum dimension (was 12)
-            'quality_threshold': 80,        # Higher area threshold (was 40)
+            'quality_threshold': 55,        # Higher area threshold (was 40)
             # Additional filtering for anatomical constraints
-            'max_eyes_per_face': 4,         # Maximum reasonable eyes per face
+            'max_eyes_per_face': 3,         # Maximum reasonable eyes per face
             'eye_position_filter': True,    # Enable position-based filtering
             'upper_face_ratio': 0.7         # Eyes should be in upper 70% of face
         }
