@@ -25,7 +25,7 @@ const VISUAL_CONFIG = {
         },
         opacity: {
             minimum: 0.4,             // Minimum opacity for far particles
-            falloffRate: 0.5          // How quickly opacity falls off with distance
+            falloffRate: 0.3          // How quickly opacity falls off with distance
         },
         rendering: {
             sphereDetail: {
@@ -33,7 +33,7 @@ const VISUAL_CONFIG = {
                 heightSegments: 6     // Sphere geometry height segments
             },
             material: {
-                baseOpacity: 0.8,     // Base material opacity
+                baseOpacity: 0.9,     // Base material opacity
                 color: 0xffffff       // Base material color
             }
         }
@@ -41,8 +41,8 @@ const VISUAL_CONFIG = {
     
     // Particle Attraction Configuration
     attraction: {
-        baseStrength: 0.03,           // Base attraction force strength - increased from 0.02
-        maxStrength: 0.12,             // Maximum attraction force cap - increased from 0.1
+        baseStrength: 0.05,           // Base attraction force strength - increased from 0.02
+        maxStrength: 0.15,             // Maximum attraction force cap - increased from 0.1
         minDistance: 0.1,             // Minimum distance to avoid division by zero
         distanceOffset: 0.1,          // Distance offset for force calculation
         drag: {
@@ -52,6 +52,23 @@ const VISUAL_CONFIG = {
         intensityThreshold: 1.5,      // Threshold for switching to intense mode
         centerAttraction: {
             intensity: 1.0            // Intensity of center attraction in Phase 1
+        },
+        // Enhanced flow dynamics
+        flowDynamics: {
+            enabled: true,            // Enable enhanced flow system
+            turbulenceStrength: 0.02, // Random turbulence force strength
+            repulsionRadius: 0.4,     // Distance at which repulsion starts
+            repulsionStrength: 0.09,  // Strength of repulsion force
+            circulationStrength: 0.05, // Strength of tangential circulation force
+            distributionRadius: 2.0,  // Radius for spatial distribution
+            forceBalancing: true,     // Enable force balancing between attractors
+            escapeVelocity: 0.5,      // Minimum velocity to escape attractor influence
+            flowField: {
+                enabled: true,        // Enable global flow field
+                strength: 0.04,       // Global flow field strength
+                scale: 0.5,           // Scale of flow field noise
+                timeScale: 0.3        // Time scale for animated flow field
+            }
         }
     },
     
@@ -130,8 +147,8 @@ const VISUAL_CONFIG = {
             minDistance: 1,           // Minimum zoom distance
             maxDistance: 20,          // Maximum zoom distance
             maxPolarAngle: Math.PI,   // Allow full vertical rotation
-            autoRotate: false,        // Auto-rotate the camera
-            autoRotateSpeed: 2.0      // Auto-rotation speed (if enabled)
+            autoRotate: true,         // Auto-rotate the camera
+            autoRotateSpeed: 1.0      // Auto-rotation speed (if enabled)
         }
     },
     
@@ -153,6 +170,29 @@ const VISUAL_CONFIG = {
         maxShapes: 30,                // Maximum number of eye shapes
         shapeTypes: ['cube', 'bipyramid', 'pentagon'],  // Available shape types
         maxEyeImages: 30              // Maximum eye images to keep in UI
+    },
+    
+    // Post-Processing Bloom Configuration
+    bloom: {
+        enabled: true,                // Enable post-processing bloom
+        intensity: 1.2,               // Higher bloom intensity for constant glow effect
+        threshold: 0.2,               // Lower threshold to capture more particle emission  
+        radius: 0.8,                  // Increased radius for better glow spread
+        // Advanced bloom settings for constant emission
+        exposure: 1.0,                // Tone mapping exposure for bloom
+        constantEmission: {
+            enabled: true,            // Enable constant emission mode
+            baseEmissive: 0x666666,   // Brighter base emissive color for stronger bloom
+            emissiveIntensity: 1.2,   // Base emissive intensity for constant glow
+            convergenceMultiplier: 1.5, // Multiplier during convergence (reduced from 2.0)
+            // Removed pulsing effect - particles now emit constant light like bulbs
+        },
+        // Performance settings
+        performance: {
+            quality: 'high',          // 'low', 'medium', 'high' - affects bloom quality
+            adaptiveQuality: true,    // Automatically adjust quality based on performance
+            targetFPS: 60             // Target frame rate for adaptive quality
+        }
     }
 };
 
@@ -203,32 +243,15 @@ class Particle {
     update(deltaTime, attractors = []) {
         // Apply attraction forces if in attraction mode
         if (attractors.length > 0) {
-            const attractionForce = new THREE.Vector3();
+            const config = VISUAL_CONFIG.attraction;
             
-            attractors.forEach(attractor => {
-                const direction = new THREE.Vector3().subVectors(attractor.position, this.position);
-                const distance = direction.length();
-                
-                if (distance > VISUAL_CONFIG.attraction.minDistance) { // Avoid division by zero
-                    direction.normalize();
-                    
-                    // Base attraction strength
-                    let strength = Math.min(VISUAL_CONFIG.attraction.baseStrength / (distance * distance + VISUAL_CONFIG.attraction.distanceOffset), VISUAL_CONFIG.attraction.maxStrength);
-                    
-                    // Apply intensity multiplier for convergence
-                    const intensity = attractor.intensity || 1.0;
-                    strength *= intensity;
-                    
-                    attractionForce.add(direction.multiplyScalar(strength));
-                }
-            });
-            
-            this.velocity.add(attractionForce);
-            
-            // Apply drag to prevent infinite acceleration (less drag during intense attraction)
-            const maxIntensity = Math.max(...attractors.map(a => a.intensity || 1.0));
-            const dragMultiplier = maxIntensity > VISUAL_CONFIG.attraction.intensityThreshold ? VISUAL_CONFIG.attraction.drag.intense : VISUAL_CONFIG.attraction.drag.normal;
-            this.velocity.multiplyScalar(dragMultiplier);
+            if (config.flowDynamics.enabled) {
+                // Enhanced flow dynamics system
+                this.updateWithFlowDynamics(deltaTime, attractors, config);
+            } else {
+                // Original simple attraction system (fallback)
+                this.updateWithSimpleAttraction(deltaTime, attractors, config);
+            }
         }
         
         // Update position
@@ -238,6 +261,156 @@ class Particle {
         if (this.position.length() > VISUAL_CONFIG.particles.resetDistance) {
             this.reset();
         }
+    }
+
+    updateWithFlowDynamics(deltaTime, attractors, config) {
+        const totalForce = new THREE.Vector3();
+        const flow = config.flowDynamics;
+        
+        // 1. Calculate distance-weighted forces from all attractors
+        const attractorData = attractors.map(attractor => {
+            const direction = new THREE.Vector3().subVectors(attractor.position, this.position);
+            const distance = direction.length();
+            return { attractor, direction: direction.clone(), distance, normalizedDirection: direction.normalize() };
+        });
+        
+        // 2. Apply balanced attraction forces
+        if (flow.forceBalancing && attractorData.length > 1) {
+            this.applyBalancedAttraction(totalForce, attractorData, config);
+        } else {
+            this.applySimpleAttraction(totalForce, attractorData, config);
+        }
+        
+        // 3. Add repulsion force when too close to any attractor
+        attractorData.forEach(({ attractor, distance, normalizedDirection }) => {
+            if (distance < flow.repulsionRadius && distance > config.minDistance) {
+                const repulsionStrength = flow.repulsionStrength * (1 - distance / flow.repulsionRadius);
+                const intensity = attractor.intensity || 1.0;
+                totalForce.add(normalizedDirection.clone().multiplyScalar(-repulsionStrength * intensity));
+            }
+        });
+        
+        // 4. Add circulation forces for flowing motion around attractors
+        attractorData.forEach(({ attractor, direction, distance, normalizedDirection }) => {
+            if (distance > config.minDistance && distance < flow.distributionRadius) {
+                const tangent = new THREE.Vector3().crossVectors(normalizedDirection, new THREE.Vector3(0, 1, 0));
+                if (tangent.length() < 0.1) {
+                    tangent.crossVectors(normalizedDirection, new THREE.Vector3(1, 0, 0));
+                }
+                tangent.normalize();
+                
+                const circulationStrength = flow.circulationStrength * (1 - distance / flow.distributionRadius);
+                const intensity = attractor.intensity || 1.0;
+                totalForce.add(tangent.multiplyScalar(circulationStrength * intensity));
+            }
+        });
+        
+        // 5. Add global flow field for continuous motion
+        if (flow.flowField.enabled) {
+            const flowFieldForce = this.calculateFlowField(flow.flowField);
+            totalForce.add(flowFieldForce);
+        }
+        
+        // 6. Add turbulence for natural randomness
+        const turbulence = new THREE.Vector3(
+            (Math.random() - 0.5) * flow.turbulenceStrength,
+            (Math.random() - 0.5) * flow.turbulenceStrength,
+            (Math.random() - 0.5) * flow.turbulenceStrength
+        );
+        totalForce.add(turbulence);
+        
+        // 7. Apply the total force to velocity
+        this.velocity.add(totalForce);
+        
+        // 8. Apply drag with escape velocity consideration
+        const speed = this.velocity.length();
+        const dragMultiplier = speed > flow.escapeVelocity ? config.drag.normal : config.drag.normal * 0.9;
+        this.velocity.multiplyScalar(dragMultiplier);
+    }
+
+    applyBalancedAttraction(totalForce, attractorData, config) {
+        // Weight forces to distribute particles more evenly among attractors
+        const totalWeight = attractorData.reduce((sum, { distance }) => {
+            return sum + (1 / (distance * distance + config.distanceOffset));
+        }, 0);
+        
+        attractorData.forEach(({ attractor, distance, normalizedDirection }) => {
+            if (distance > config.minDistance) {
+                // Base force calculation
+                let strength = Math.min(config.baseStrength / (distance * distance + config.distanceOffset), config.maxStrength);
+                
+                // Reduce dominance of closest attractors
+                const weight = (1 / (distance * distance + config.distanceOffset)) / totalWeight;
+                const balanceFactor = 1 - Math.pow(weight, 0.5); // Reduce influence of dominant attractors
+                strength *= (0.3 + 0.7 * balanceFactor); // Ensure minimum influence
+                
+                // Apply intensity multiplier
+                const intensity = attractor.intensity || 1.0;
+                strength *= intensity;
+                
+                totalForce.add(normalizedDirection.clone().multiplyScalar(strength));
+            }
+        });
+    }
+
+    applySimpleAttraction(totalForce, attractorData, config) {
+        // Original attraction method
+        attractorData.forEach(({ attractor, distance, normalizedDirection }) => {
+            if (distance > config.minDistance) {
+                let strength = Math.min(config.baseStrength / (distance * distance + config.distanceOffset), config.maxStrength);
+                const intensity = attractor.intensity || 1.0;
+                strength *= intensity;
+                totalForce.add(normalizedDirection.clone().multiplyScalar(strength));
+            }
+        });
+    }
+
+    calculateFlowField(flowConfig) {
+        // Create a noise-based flow field for global particle movement
+        const time = performance.now() * 0.001 * flowConfig.timeScale;
+        const scale = flowConfig.scale;
+        
+        // Simple pseudo-noise based on position and time
+        const x = this.position.x * scale + time;
+        const y = this.position.y * scale + time * 0.7;
+        const z = this.position.z * scale + time * 1.3;
+        
+        // Generate flow field vector using sine waves (simplified noise)
+        const flowX = Math.sin(x * 2.1 + Math.cos(y * 1.3)) * Math.cos(z * 1.7);
+        const flowY = Math.cos(y * 1.9 + Math.sin(z * 2.3)) * Math.sin(x * 1.1);
+        const flowZ = Math.sin(z * 2.7 + Math.cos(x * 1.9)) * Math.cos(y * 2.1);
+        
+        return new THREE.Vector3(flowX, flowY, flowZ).multiplyScalar(flowConfig.strength);
+    }
+
+    updateWithSimpleAttraction(deltaTime, attractors, config) {
+        // Original simple attraction method (kept as fallback)
+        const attractionForce = new THREE.Vector3();
+        
+        attractors.forEach(attractor => {
+            const direction = new THREE.Vector3().subVectors(attractor.position, this.position);
+            const distance = direction.length();
+            
+            if (distance > config.minDistance) { // Avoid division by zero
+                direction.normalize();
+                
+                // Base attraction strength
+                let strength = Math.min(config.baseStrength / (distance * distance + config.distanceOffset), config.maxStrength);
+                
+                // Apply intensity multiplier for convergence
+                const intensity = attractor.intensity || 1.0;
+                strength *= intensity;
+                
+                attractionForce.add(direction.multiplyScalar(strength));
+            }
+        });
+        
+        this.velocity.add(attractionForce);
+        
+        // Apply drag to prevent infinite acceleration
+        const maxIntensity = Math.max(...attractors.map(a => a.intensity || 1.0));
+        const dragMultiplier = maxIntensity > config.intensityThreshold ? config.drag.intense : config.drag.normal;
+        this.velocity.multiplyScalar(dragMultiplier);
     }
 
     getOpacity() {
@@ -273,11 +446,18 @@ class ParticleSystem {
             VISUAL_CONFIG.particles.rendering.sphereDetail.widthSegments, 
             VISUAL_CONFIG.particles.rendering.sphereDetail.heightSegments
         );
+        
+        // Enhanced material for bloom emission
         this.material = new THREE.MeshBasicMaterial({
             color: VISUAL_CONFIG.particles.rendering.material.color,
             transparent: true,
             opacity: VISUAL_CONFIG.particles.rendering.material.baseOpacity,
-            blending: THREE.AdditiveBlending
+            blending: THREE.AdditiveBlending,
+            // Enhanced properties for constant bloom emission like light bulbs
+            emissive: new THREE.Color(VISUAL_CONFIG.bloom.constantEmission.baseEmissive), // Use config emissive color
+            emissiveIntensity: VISUAL_CONFIG.bloom.constantEmission.emissiveIntensity, // Strong constant emission
+            depthWrite: false, // Disable depth writing for better blending
+            depthTest: true    // Keep depth testing for proper layering
         });
         
         // Create instanced mesh for efficient rendering of many spheres
@@ -324,15 +504,28 @@ class ParticleSystem {
                 // Check if any attractor has intensity (convergence mode)
                 const maxIntensity = Math.max(...this.attractors.map(a => a.intensity || 1.0));
                 intensityMultiplier = maxIntensity;
+                
+                // Apply convergence multiplier for bloom emission (constant, no pulsing)
+                if (VISUAL_CONFIG.bloom.constantEmission.enabled && maxIntensity > 1.0) {
+                    intensityMultiplier *= VISUAL_CONFIG.bloom.constantEmission.convergenceMultiplier;
+                }
             }
             
-            const finalBrightness = depthBrightness * lifeOpacity * intensityMultiplier;
+            // Calculate final brightness with constant emission base
+            let emissionBrightness = depthBrightness * lifeOpacity * intensityMultiplier;
             
-            // Update instance color with enhanced brightness
+            // Add constant emission base brightness for bloom effect (like light bulbs)
+            if (VISUAL_CONFIG.bloom.constantEmission.enabled) {
+                // Ensure particles always emit a minimum amount of light for bloom
+                const baseEmission = VISUAL_CONFIG.bloom.constantEmission.emissiveIntensity * 0.8;
+                emissionBrightness = Math.max(emissionBrightness, baseEmission) + baseEmission * 0.5;
+            }
+            
+            // Update instance color with constant emission brightness for bloom
             const i3 = index * 3;
-            this.colorArray[i3] = particle.originalColor.r * finalBrightness;
-            this.colorArray[i3 + 1] = particle.originalColor.g * finalBrightness;
-            this.colorArray[i3 + 2] = particle.originalColor.b * finalBrightness;
+            this.colorArray[i3] = particle.originalColor.r * emissionBrightness;
+            this.colorArray[i3 + 1] = particle.originalColor.g * emissionBrightness;
+            this.colorArray[i3 + 2] = particle.originalColor.b * emissionBrightness;
         });
         
         // Mark attributes as needing update
@@ -968,7 +1161,12 @@ class TheatreClient {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(container.clientWidth, container.clientHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.toneMapping = THREE.ReinhardToneMapping;
+        this.renderer.toneMappingExposure = 1.0;
         container.appendChild(this.renderer.domElement);
+
+        // Initialize post-processing pipeline
+        this.initPostProcessing();
 
         // Add OrbitControls for mouse grab orbital view
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -978,8 +1176,10 @@ class TheatreClient {
         this.controls.minDistance = VISUAL_CONFIG.scene.controls.minDistance;
         this.controls.maxDistance = VISUAL_CONFIG.scene.controls.maxDistance;
         this.controls.maxPolarAngle = VISUAL_CONFIG.scene.controls.maxPolarAngle;
+        this.controls.autoRotate = VISUAL_CONFIG.scene.controls.autoRotate;
+        this.controls.autoRotateSpeed = VISUAL_CONFIG.scene.controls.autoRotateSpeed;
         
-        console.log('OrbitControls initialized - Mouse grab orbital view enabled');
+        console.log('OrbitControls initialized - Mouse grab orbital view enabled with auto-rotation');
 
         // Add configurable lighting
         const ambientLight = new THREE.AmbientLight(
@@ -1003,6 +1203,96 @@ class TheatreClient {
         
         // Hide placeholder meshes initially since we start with particles
         this.setPlaceholderMeshesVisibility(false);
+    }
+
+    initPostProcessing() {
+        console.log('Initializing post-processing pipeline...');
+        
+        // Only initialize if bloom is enabled
+        if (!VISUAL_CONFIG.bloom.enabled) {
+            console.log('Bloom disabled in configuration');
+            return;
+        }
+
+        try {
+            // Check if required post-processing modules are available
+            if (typeof THREE.EffectComposer === 'undefined' || 
+                typeof THREE.RenderPass === 'undefined' || 
+                typeof THREE.UnrealBloomPass === 'undefined') {
+                console.warn('Post-processing modules not available. Bloom will be skipped.');
+                console.warn('Please include three/examples/js/postprocessing/EffectComposer.js and related files');
+                return;
+            }
+
+            // Create effect composer
+            this.composer = new THREE.EffectComposer(this.renderer);
+            
+            // Create render pass
+            this.renderPass = new THREE.RenderPass(this.scene, this.camera);
+            this.composer.addPass(this.renderPass);
+            
+            // Determine bloom quality based on configuration
+            const qualitySettings = this.getBloomQualitySettings();
+            
+            // Create bloom pass with configurable parameters and quality settings
+            this.bloomPass = new THREE.UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                VISUAL_CONFIG.bloom.intensity,
+                VISUAL_CONFIG.bloom.radius,
+                VISUAL_CONFIG.bloom.threshold
+            );
+            
+            // Apply quality settings
+            this.bloomPass.resolution = qualitySettings.resolution;
+            
+            this.composer.addPass(this.bloomPass);
+            
+            // Set tone mapping exposure
+            this.renderer.toneMappingExposure = VISUAL_CONFIG.bloom.exposure;
+            
+            // Initialize performance monitoring for adaptive quality
+            if (VISUAL_CONFIG.bloom.performance.adaptiveQuality) {
+                this.initPerformanceMonitoring();
+            }
+            
+            console.log(`Post-processing initialized - Bloom enabled with:`);
+            console.log(`  Intensity: ${VISUAL_CONFIG.bloom.intensity}, Threshold: ${VISUAL_CONFIG.bloom.threshold}, Radius: ${VISUAL_CONFIG.bloom.radius}`);
+            console.log(`  Quality: ${VISUAL_CONFIG.bloom.performance.quality}, Exposure: ${VISUAL_CONFIG.bloom.exposure}`);
+            console.log(`  Constant Emission: ${VISUAL_CONFIG.bloom.constantEmission.enabled ? 'Enabled' : 'Disabled'}`);
+            
+        } catch (error) {
+            console.error('Failed to initialize post-processing:', error);
+            console.warn('Falling back to standard renderer without bloom');
+        }
+    }
+
+    getBloomQualitySettings() {
+        const quality = VISUAL_CONFIG.bloom.performance.quality;
+        
+        switch (quality) {
+            case 'low':
+                return {
+                    resolution: new THREE.Vector2(256, 256)
+                };
+            case 'medium':
+                return {
+                    resolution: new THREE.Vector2(512, 512)
+                };
+            case 'high':
+            default:
+                return {
+                    resolution: new THREE.Vector2(1024, 1024)
+                };
+        }
+    }
+
+    initPerformanceMonitoring() {
+        // Simple performance monitoring for adaptive quality
+        this.frameCount = 0;
+        this.lastFPSCheck = performance.now();
+        this.currentFPS = 60;
+        
+        console.log('Performance monitoring initialized for adaptive bloom quality');
     }
 
     initVisualEffects() {
@@ -1254,7 +1544,12 @@ class TheatreClient {
         // Update placeholder meshes (backup system)
         this.updatePlaceholderMeshes(deltaTime);
 
-        this.renderer.render(this.scene, this.camera);
+        // Render with post-processing if available, otherwise use standard renderer
+        if (this.composer && VISUAL_CONFIG.bloom.enabled) {
+            this.composer.render();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 
     updateVisualEffects(deltaTime) {
@@ -1348,6 +1643,11 @@ class TheatreClient {
         this.camera.aspect = container.clientWidth / container.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(container.clientWidth, container.clientHeight);
+        
+        // Update composer for post-processing if it exists
+        if (this.composer) {
+            this.composer.setSize(container.clientWidth, container.clientHeight);
+        }
         
         // Update controls if they exist
         if (this.controls) {
@@ -1463,6 +1763,68 @@ class TheatreClient {
                 
                 // TODO: Send configuration update to server
                 this.addDebugMessage(`Auto-import ${enabled ? 'enabled' : 'disabled'}`);
+            });
+        }
+
+        // Flow dynamics toggle
+        const flowDynamicsToggle = document.getElementById('flow-dynamics-toggle');
+        if (flowDynamicsToggle) {
+            flowDynamicsToggle.addEventListener('change', (event) => {
+                const enabled = event.target.checked;
+                const statusText = document.getElementById('flow-dynamics-status');
+                
+                if (statusText) {
+                    statusText.textContent = enabled ? 'Enabled' : 'Disabled';
+                    statusText.className = enabled ? 'config-status enabled' : 'config-status disabled';
+                }
+                
+                // Update the configuration
+                VISUAL_CONFIG.attraction.flowDynamics.enabled = enabled;
+                
+                this.addDebugMessage(`Enhanced Flow Dynamics ${enabled ? 'enabled' : 'disabled'} - ${enabled ? 'Particles will flow around all shapes' : 'Using original simple attraction'}`);
+            });
+        }
+
+        // Bloom toggle
+        const bloomToggle = document.getElementById('bloom-toggle');
+        if (bloomToggle) {
+            bloomToggle.addEventListener('change', (event) => {
+                const enabled = event.target.checked;
+                const statusText = document.getElementById('bloom-status');
+                
+                if (statusText) {
+                    statusText.textContent = enabled ? 'Enabled' : 'Disabled';
+                    statusText.className = enabled ? 'config-status enabled' : 'config-status disabled';
+                }
+                
+                // Update the configuration
+                VISUAL_CONFIG.bloom.enabled = enabled;
+                
+                this.addDebugMessage(`Bloom Post-Processing ${enabled ? 'enabled' : 'disabled'} - ${enabled ? 'Professional bloom effects active' : 'Standard rendering'}`);
+                
+                // Note: Full bloom enable/disable requires reinitialization
+                if (enabled && !this.composer) {
+                    this.addDebugMessage('Bloom reinitialization required - please refresh the page for full effect');
+                }
+            });
+        }
+
+        // Constant emission toggle
+        const constantEmissionToggle = document.getElementById('constant-emission-toggle');
+        if (constantEmissionToggle) {
+            constantEmissionToggle.addEventListener('change', (event) => {
+                const enabled = event.target.checked;
+                const statusText = document.getElementById('constant-emission-status');
+                
+                if (statusText) {
+                    statusText.textContent = enabled ? 'Enabled' : 'Disabled';
+                    statusText.className = enabled ? 'config-status enabled' : 'config-status disabled';
+                }
+                
+                // Update the configuration
+                VISUAL_CONFIG.bloom.constantEmission.enabled = enabled;
+                
+                this.addDebugMessage(`Constant Emission ${enabled ? 'enabled' : 'disabled'} - ${enabled ? 'Particles emit constant light like bulbs for bloom effect' : 'Standard particle brightness'}`);
             });
         }
     }
@@ -1722,12 +2084,28 @@ class TheatreClient {
             this.controls = null;
         }
         
+        // Clean up post-processing resources
+        if (this.composer) {
+            this.composer.dispose();
+            this.composer = null;
+        }
+        
+        if (this.bloomPass) {
+            this.bloomPass.dispose();
+            this.bloomPass = null;
+        }
+        
+        if (this.renderPass) {
+            this.renderPass.dispose();
+            this.renderPass = null;
+        }
+        
         // Clear status update interval
         if (this.statusUpdateInterval) {
             clearInterval(this.statusUpdateInterval);
         }
         
-        console.log('Theatre client disposed');
+        console.log('Theatre client disposed - including post-processing resources');
     }
 }
 

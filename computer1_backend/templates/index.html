@@ -133,6 +133,53 @@
             <!-- Debug Controls Section -->
             <div class="debug-section">
                 <h4>Debug Controls</h4>
+                
+                <!-- Visual Effects Configuration -->
+                <div class="visual-config">
+                    <h5>🎭 Visual Effects Settings</h5>
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>Enhanced Flow Dynamics:</span>
+                            <span class="config-description">Advanced particle flow system that prevents belt formation</span>
+                        </div>
+                        <div class="config-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="flow-dynamics-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span id="flow-dynamics-status" class="config-status">Enabled</span>
+                        </div>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>✨ Bloom Post-Processing:</span>
+                            <span class="config-description">Professional bloom effects for constant particle emission</span>
+                        </div>
+                        <div class="config-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="bloom-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span id="bloom-status" class="config-status">Enabled</span>
+                        </div>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div class="config-label">
+                            <span>🌟 Constant Emission:</span>
+                            <span class="config-description">Particles continuously emit light like bulbs for bloom effect</span>
+                        </div>
+                        <div class="config-control">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="constant-emission-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span id="constant-emission-status" class="config-status">Enabled</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="debug-controls">
                     <div class="button-group">
                         <button id="test-connection">Test Connection</button>
@@ -167,6 +214,13 @@
     <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <!-- Post-processing libraries for bloom effects -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.js"></script>
     <script src="{{ url_for('static', filename='js/client.js') }}"></script>
     
     <script>

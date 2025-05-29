@@ -7,18 +7,22 @@ A digital program for experimental theatre that processes audience photos and cr
 This system consists of:
 1. **🤖 SD Card Auto-Import Pipeline**: Automatically detects camera SD cards and imports new images with real-time progress tracking
 2. **Image Processing Pipeline**: Automatically detects faces and crops eyes from photos using OpenCV
-3. **🎭 Advanced Visual Effects System**: Completely configurable 3-phase interactive 3D animations with enhanced particle dynamics and eye-textured shapes
-4. **Real-time Communication**: Socket.IO for live updates between all system components
-5. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
+3. **🎭 Advanced Visual Effects System**: Completely configurable 3-phase interactive 3D animations with enhanced particle dynamics, eye-textured shapes, and orbital camera controls
+4. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation around the center for dynamic theatrical presentation
+5. **Real-time Communication**: Socket.IO for live updates between all system components
+6. **File Monitoring**: Automatic processing of new images with comprehensive status tracking
 
 ## Current Status
 
 ### ✅ **Milestone 5: Advanced Configurable Visual Effects - COMPLETED** 🎉
 - **🎛️ Complete Configuration System**: All 35+ visual parameters centrally configurable via `VISUAL_CONFIG` object
+- **🌊 Enhanced Flow Dynamics System**: Revolutionary particle flow system with 6 sophisticated force mechanisms that prevents belt formation and ensures dynamic motion around all shapes
+- **🎛️ Real-time Flow Control**: Debug panel toggle to switch between simple attraction and advanced flow systems for easy comparison
 - **🌀 Enhanced Phase 1**: Particles now start distributed throughout space with center attraction (no more lifetime mechanism)
 - **🎨 Advanced Particle System**: Distance-based opacity, configurable colors, rendering quality, and distribution patterns
 - **⚙️ Flexible Rendering**: Configurable sphere geometry detail, material properties, and performance optimization settings
 - **🎭 Enhanced Scene Control**: Configurable camera, lighting, background, and animation parameters
+- **🎮 Interactive Orbital Controls**: Mouse grab orbital view with configurable auto-rotation for dynamic theatrical presentation
 - **🔧 Easy Customization**: Artist-friendly configuration without code diving - all parameters documented and accessible
 - **📊 Performance Tuning**: Configurable particle counts, shape limits, and rendering quality for different hardware
 - **🎯 Precise Control**: Fine-grained control over attraction forces, easing curves, and animation timings
@@ -56,7 +60,7 @@ This system consists of:
 2. **Auto-Import** → Background processing with progress tracking  
 3. **Eye Detection** → Immediate processing of imported images
 4. **Real-time Display** → Instant appearance of eye images in web interface
-5. **3D Animation System** → Configurable interactive visual effects with eye-textured shapes
+5. **3D Animation System** → Configurable interactive visual effects with eye-textured shapes and orbital camera controls
 6. **Manual Animation Control** → Test triggers for convergence animation
 7. **Professional Monitoring** → Live status updates and configuration controls
 
@@ -117,7 +121,8 @@ Open a web browser and navigate to `http://[COMPUTER1_IP]:5000`
 
 The client interface includes:
 - **Status Indicators**: Connection, Image Processor, and File Monitoring status
-- **🎭 3D Visual Effects Canvas**: Complete 3-phase configurable animation system
+- **🎭 3D Visual Effects Canvas**: Complete 3-phase configurable animation system with interactive orbital camera controls
+- **🎮 Camera Controls**: Mouse grab orbital view with constant auto-rotation for dynamic viewing experience
 - **Debug Panel**: Testing tools and system information
 - **🔧 Configuration Controls**: Easy parameter tweaking interface
 
@@ -127,10 +132,11 @@ The client interface includes:
 1. **Phase 1 - Center Attraction**: Particles distributed throughout space, gradually converging toward center with configurable attraction forces
 2. **Phase 2 - Eye Shape Animation**: Automatic creation of orbiting 3D shapes when eye images become available
 3. **Phase 3 - Convergence Animation**: Manual trigger via "Trigger Animation" button for dramatic convergence effect
-4. **Real-time Transitions**: System automatically detects eye images and transitions between phases
-5. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object
-6. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
-7. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
+4. **🎮 Interactive Camera Controls**: Mouse grab orbital view with constant auto-rotation (1.0 speed) around the center for dynamic theatrical presentation
+5. **Real-time Transitions**: System automatically detects eye images and transitions between phases
+6. **🎛️ Full Configuration Control**: All visual parameters easily customizable via centralized config object
+7. **Performance Optimized**: Smooth rendering with configurable particle counts (500 default) and shape limits (30 default)
+8. **Reset Capability**: "Reset Animation" button to restart convergence for multiple performances
 
 #### **Automatic Eye Images Display**
 1. **Client Connection**: When you open the web interface, existing eye images automatically load
@@ -150,6 +156,7 @@ The client interface includes:
 - **Test Connection**: Verify Socket.IO communication
 - **Test Processing**: Generate and process a test face image
 - **🎭 Animation Controls**: "Trigger Animation" and "Reset Animation" buttons for convergence effects
+- **🌊 Flow Dynamics Toggle**: Switch between simple attraction and enhanced flow systems in real-time
 - **Refresh Status**: Manually request status updates
 - **Clear Images**: Remove displayed eye images
 - **Refresh Eye Images**: Clear and reload existing eye images from server
@@ -204,6 +211,7 @@ None - All core functionality including complete SD card auto-import pipeline an
 8. **📊 Performance Optimization**: Configurable limits for particles, shapes, and rendering quality
 9. **🎯 Precise Attraction Forces**: Fine-grained control over attraction strength, drag coefficients, and intensity scaling
 10. **🎨 Material System**: Configurable placeholder and loaded material properties for eye shapes
+11. **🌊 Enhanced Flow Dynamics System**: Revolutionary 6-mechanism particle flow system preventing belt formation with configurable force balancing, repulsion, circulation, flow fields, turbulence, and escape velocity
 
 ### **Current Optimized Configuration:**
 ```javascript
@@ -309,6 +317,37 @@ attraction: {
 }
 ```
 
+#### 🌊 **Enhanced Flow Dynamics System**
+```javascript
+attraction: {
+    // ... existing attraction parameters ...
+    flowDynamics: {
+        enabled: true,            // Enable enhanced flow system
+        turbulenceStrength: 0.015, // Random turbulence force strength
+        repulsionRadius: 0.3,     // Distance at which repulsion starts
+        repulsionStrength: 0.08,  // Strength of repulsion force
+        circulationStrength: 0.04, // Strength of tangential circulation force
+        distributionRadius: 2.0,  // Radius for spatial distribution
+        forceBalancing: true,     // Enable force balancing between attractors
+        escapeVelocity: 0.5,      // Minimum velocity to escape attractor influence
+        flowField: {
+            enabled: true,        // Enable global flow field
+            strength: 0.02,       // Global flow field strength
+            scale: 0.5,           // Scale of flow field noise
+            timeScale: 0.3        // Time scale for animated flow field
+        }
+    }
+}
+```
+
+**🌊 Flow Dynamics Features:**
+- **Force Balancing**: Prevents any single shape from dominating all particles
+- **Repulsion Forces**: Creates "bubbles" around shapes preventing particle trapping
+- **Circulation Forces**: Makes particles flow **around** shapes rather than toward them
+- **Global Flow Field**: Provides animated background "current" for continuous motion
+- **Turbulence**: Adds natural randomness and organic movement patterns
+- **Escape Velocity**: Allows fast particles to break free and explore other areas
+
 #### 🎬 **Scene & Camera Control**
 ```javascript
 scene: {
@@ -328,6 +367,17 @@ scene: {
         near: 0.1,                // Camera near clipping plane
         far: 1000,                // Camera far clipping plane
         position: { z: 5 }        // Camera Z position
+    },
+    // 🎮 Orbital Controls Configuration
+    controls: {
+        enableDamping: true,      // Enable smooth damping (inertia)
+        dampingFactor: 0.05,      // Damping factor for smooth interactions
+        screenSpacePanning: false, // Disable screen space panning
+        minDistance: 1,           // Minimum zoom distance
+        maxDistance: 20,          // Maximum zoom distance
+        maxPolarAngle: Math.PI,   // Allow full vertical rotation
+        autoRotate: true,         // Auto-rotate the camera
+        autoRotateSpeed: 1.0      // Auto-rotation speed (revolutions per minute)
     }
 }
 ```
@@ -526,6 +576,37 @@ attraction: {
 }
 ```
 
+#### 🌊 **Enhanced Flow Dynamics System**
+```javascript
+attraction: {
+    // ... existing attraction parameters ...
+    flowDynamics: {
+        enabled: true,            // Enable enhanced flow system
+        turbulenceStrength: 0.015, // Random turbulence force strength
+        repulsionRadius: 0.3,     // Distance at which repulsion starts
+        repulsionStrength: 0.08,  // Strength of repulsion force
+        circulationStrength: 0.04, // Strength of tangential circulation force
+        distributionRadius: 2.0,  // Radius for spatial distribution
+        forceBalancing: true,     // Enable force balancing between attractors
+        escapeVelocity: 0.5,      // Minimum velocity to escape attractor influence
+        flowField: {
+            enabled: true,        // Enable global flow field
+            strength: 0.02,       // Global flow field strength
+            scale: 0.5,           // Scale of flow field noise
+            timeScale: 0.3        // Time scale for animated flow field
+        }
+    }
+}
+```
+
+**🌊 Flow Dynamics Features:**
+- **Force Balancing**: Prevents any single shape from dominating all particles
+- **Repulsion Forces**: Creates "bubbles" around shapes preventing particle trapping
+- **Circulation Forces**: Makes particles flow **around** shapes rather than toward them
+- **Global Flow Field**: Provides animated background "current" for continuous motion
+- **Turbulence**: Adds natural randomness and organic movement patterns
+- **Escape Velocity**: Allows fast particles to break free and explore other areas
+
 #### 🎬 **Scene & Camera Control**
 ```javascript
 scene: {
@@ -545,6 +626,17 @@ scene: {
         near: 0.1,                // Camera near clipping plane
         far: 1000,                // Camera far clipping plane
         position: { z: 5 }        // Camera Z position
+    },
+    // 🎮 Orbital Controls Configuration
+    controls: {
+        enableDamping: true,      // Enable smooth damping (inertia)
+        dampingFactor: 0.05,      // Damping factor for smooth interactions
+        screenSpacePanning: false, // Disable screen space panning
+        minDistance: 1,           // Minimum zoom distance
+        maxDistance: 20,          // Maximum zoom distance
+        maxPolarAngle: Math.PI,   // Allow full vertical rotation
+        autoRotate: true,         // Auto-rotate the camera
+        autoRotateSpeed: 1.0      // Auto-rotation speed (revolutions per minute)
     }
 }
 ```
@@ -585,6 +677,14 @@ VISUAL_CONFIG.particles.size = 0.05;
 VISUAL_CONFIG.shapes.convergence.duration = 5;
 VISUAL_CONFIG.shapes.convergence.speedMultiplier = 8.0;
 VISUAL_CONFIG.attraction.baseStrength = 0.15;
+
+// Enable enhanced flow for dynamic particle streams
+VISUAL_CONFIG.attraction.flowDynamics.enabled = true;
+VISUAL_CONFIG.attraction.flowDynamics.circulationStrength = 0.08;
+VISUAL_CONFIG.attraction.flowDynamics.turbulenceStrength = 0.025;
+
+// Faster camera rotation for more dynamic view
+VISUAL_CONFIG.scene.controls.autoRotateSpeed = 3.0;
 ```
 
 **For Subtle, Ambient Effects:**
@@ -594,9 +694,17 @@ VISUAL_CONFIG.particles.count = 200;
 VISUAL_CONFIG.particles.size = 0.02;
 VISUAL_CONFIG.attraction.baseStrength = 0.04;
 
+// Gentle flow dynamics for subtle movement
+VISUAL_CONFIG.attraction.flowDynamics.enabled = true;
+VISUAL_CONFIG.attraction.flowDynamics.circulationStrength = 0.02;
+VISUAL_CONFIG.attraction.flowDynamics.turbulenceStrength = 0.008;
+
 // Slower, wider orbital movements
 VISUAL_CONFIG.shapes.orbital.speed.max = 0.3;
 VISUAL_CONFIG.shapes.orbital.radius.max = 8;
+
+// Very slow camera rotation for calm ambience
+VISUAL_CONFIG.scene.controls.autoRotateSpeed = 0.3;
 ```
 
 **For Performance Optimization:**
@@ -608,15 +716,22 @@ VISUAL_CONFIG.particles.rendering.sphereDetail.heightSegments = 4;
 
 // Limit maximum shapes for better performance
 VISUAL_CONFIG.system.maxShapes = 15;
+
+// Disable auto-rotation to save processing power
+VISUAL_CONFIG.scene.controls.autoRotate = false;
 ```
 
-**For Tighter, More Focused View (Current Setup):**
+**For Theatre Presentation (Current Setup):**
 ```javascript
 // Compact viewing area with strong center attraction
 VISUAL_CONFIG.particles.resetDistance = 10;
 VISUAL_CONFIG.particles.depthEffect.maxDistance = 10;
 VISUAL_CONFIG.attraction.baseStrength = 0.08;
 VISUAL_CONFIG.attraction.maxStrength = 0.2;
+
+// Smooth, theatrical camera rotation
+VISUAL_CONFIG.scene.controls.autoRotateSpeed = 1.0;
+VISUAL_CONFIG.scene.controls.enableDamping = true;
 ```
 
 ### 🔄 **Applying Configuration Changes**
@@ -654,9 +769,21 @@ VISUAL_CONFIG.attraction.maxStrength = 0.2;
   - Check Three.js canvas area, verify WebGL support in browser
   - Verify `VISUAL_CONFIG.particles.size` is not too small (try 0.03+)
   - Check `VISUAL_CONFIG.particles.resetDistance` matches camera scale
+- **Belt Formation Issues**: 
+  - Enable Enhanced Flow Dynamics toggle in debug panel
+  - Check `VISUAL_CONFIG.attraction.flowDynamics.enabled = true`
+  - Adjust `repulsionRadius` and `circulationStrength` for better flow
+  - Verify `forceBalancing` is enabled for multiple shapes
+  - Monitor particles to ensure they flow around all shapes, not just one
+- **Orbital Controls Not Working**:
+  - Verify OrbitControls script is loading properly (check browser console)
+  - Ensure Three.js version compatibility with OrbitControls CDN
+  - Check `VISUAL_CONFIG.scene.controls` settings for proper configuration
+  - Try disabling auto-rotation temporarily: `VISUAL_CONFIG.scene.controls.autoRotate = false`
 - **Poor Performance**: 
   - Reduce `VISUAL_CONFIG.particles.count` (try 250)
   - Lower `VISUAL_CONFIG.particles.rendering.sphereDetail` segments
+  - Disable auto-rotation: `VISUAL_CONFIG.scene.controls.autoRotate = false`
   - Check browser console for WebGL errors
 - **Eye Shapes Not Creating**: 
   - Ensure eye images are processed and available in cropped_eyes folder
