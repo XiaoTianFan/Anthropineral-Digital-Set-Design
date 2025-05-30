@@ -8,15 +8,20 @@
 </head>
 <body>
     <div id="app">
-        <!-- Black Filter Overlay - NEW -->
-        <div id="black-filter-overlay"></div>
-        
         <!-- Three.js Animation Canvas - Now full screen -->
         <section id="animation-section">
+            <!-- Black Filter Overlay - MOVED inside animation section for fullscreen support -->
+            <div id="black-filter-overlay"></div>
+            
             <div id="three-canvas-container">
                 <!-- Three.js canvas will be inserted here -->
             </div>
         </section>
+
+        <!-- 🖤 NEW: Fullscreen mode hint -->
+        <div class="fullscreen-hint">
+            Press F for fullscreen
+        </div>
 
         <!-- Debug Panel Toggle Button -->
         <button id="debug-toggle" class="debug-toggle-btn">
@@ -1200,6 +1205,13 @@
                 panel.classList.remove('debug-panel-expanded');
             }
             
+            // 🎭 NEW: Hide cue debug panel initially
+            const cuePanel = document.getElementById('cue-debug-panel');
+            if (cuePanel) {
+                cuePanel.classList.add('cue-debug-panel-hidden');
+                cuePanel.classList.remove('cue-debug-panel-expanded');
+            }
+            
             // 🖤 NEW: Black filter control button
             const blackFilterBtn = document.getElementById('remove-black-filter');
             if (blackFilterBtn) {
@@ -1253,20 +1265,51 @@
                     toggleFullscreen();
                 }
             });
+
+            // 🖤 NEW: Add fullscreen event listeners for better tracking
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
         });
+
+        // 🖤 NEW: Handle fullscreen state changes
+        function handleFullscreenChange() {
+            const isFullscreen = !!(document.fullscreenElement || 
+                                   document.webkitFullscreenElement || 
+                                   document.mozFullScreenElement || 
+                                   document.msFullscreenElement);
+            
+            console.log(`Fullscreen mode: ${isFullscreen ? 'ON' : 'OFF'}`);
+            
+            // Update the Three.js renderer if it exists
+            if (window.theatreClient && window.theatreClient.renderer) {
+                // Force resize to ensure proper rendering in fullscreen
+                setTimeout(() => {
+                    window.theatreClient.onWindowResize();
+                }, 100);
+            }
+            
+            // Log black filter status in fullscreen
+            const blackFilter = document.getElementById('black-filter-overlay');
+            if (blackFilter && isFullscreen) {
+                console.log('🖤 Black filter overlay present in fullscreen mode');
+            }
+        }
 
         // Fullscreen functionality for Three.js canvas
         function toggleFullscreen() {
-            const canvas = document.querySelector('#three-canvas-container canvas');
+            // 🖤 UPDATED: Use animation section instead of just canvas to include black filter
+            const animationSection = document.getElementById('animation-section');
             
             if (!document.fullscreenElement) {
                 // Enter fullscreen
-                if (canvas && canvas.requestFullscreen) {
-                    canvas.requestFullscreen();
-                } else if (canvas && canvas.webkitRequestFullscreen) {
-                    canvas.webkitRequestFullscreen();
-                } else if (canvas && canvas.msRequestFullscreen) {
-                    canvas.msRequestFullscreen();
+                if (animationSection && animationSection.requestFullscreen) {
+                    animationSection.requestFullscreen();
+                } else if (animationSection && animationSection.webkitRequestFullscreen) {
+                    animationSection.webkitRequestFullscreen();
+                } else if (animationSection && animationSection.msRequestFullscreen) {
+                    animationSection.msRequestFullscreen();
                 }
             } else {
                 // Exit fullscreen

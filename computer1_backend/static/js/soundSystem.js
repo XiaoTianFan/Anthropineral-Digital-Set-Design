@@ -581,7 +581,8 @@ class SoundManager {
             trafficLightRate: 0.75,
             cueHistory: [],
             startTime: null,
-            cue05Executed: false          // 🎭 NEW: Track CUE-05 one-time execution
+            cue05Executed: false,         // 🎭 NEW: Track CUE-05 one-time execution
+            cue07Triggered: false         // 🎭 NEW: Track CUE-07 one-time execution
         };
         this.cueTimers = new Map();
         this.crossSystemEvents = new Map();
@@ -744,6 +745,16 @@ class SoundManager {
 
     // Trigger specific cue by ID
     triggerCue(cueId) {
+        // 🆕 NEW: Handle main cues (CUE-01 through CUE-14) directly
+        if (cueId.match(/^CUE-\d{2}$/)) {
+            console.log(`🎭 Triggering main cue: ${cueId}`);
+            return this.handleCueExecution({ 
+                cue: cueId, 
+                source: 'triggerCue' 
+            });
+        }
+        
+        // Handle standard cues from the cues array
         const cue = this.cues.find(c => c.id === cueId);
         if (!cue) {
             console.error(`🎵 Cue not found: ${cueId}`);
@@ -1053,9 +1064,53 @@ class SoundManager {
     // 🆕 NEW: Handle SD card cue events
     handleSDCardCue(data) {
         console.log('🎭 SD Card cue received:', data);
+        
+        // Use provided insert count or increment if not provided
+        if (data.insertCount !== undefined) {
+            this.performanceState.sdInsertCount = data.insertCount;
+            console.log(`🎭 SD card count set to: ${this.performanceState.sdInsertCount}`);
+        } else {
+            // Fallback: increment if no count provided
+            this.performanceState.sdInsertCount++;
+            console.log(`🎭 SD card inserted - count incremented to: ${this.performanceState.sdInsertCount}`);
+        }
+        
+        // If traffic light is active, speed it up
+        if (this.trafficLightController && this.performanceState.trafficLightActive) {
+            const success = this.trafficLightController.speedUp();
+            if (success) {
+                console.log(`🚦 Traffic light speed increased to ${this.trafficLightController.getCurrentRate()}x`);
+            } else {
+                console.log('🚦 Traffic light at maximum speed or not active');
+            }
+        } else {
+            console.log('🚦 Traffic light controller not available or traffic light not active');
+        }
+        
+        // 🆕 NEW: Check if SD insert count reaches 5 to trigger CUE-07
+        if (this.performanceState.sdInsertCount >= 5 && 
+            this.performanceState.trafficLightActive && 
+            !this.performanceState.cue07Triggered) {
+            console.log('🎭 SD insert count reached 5 - triggering CUE-07 (traffic light fade out)');
+            // Wait 10 seconds as specified in the cue sequence, then trigger CUE-07
+            setTimeout(() => {
+                this.triggerCue('CUE-07');
+            }, 10000); // 10 second delay as per specification
+            
+            // Mark that we've triggered CUE-07 so we don't trigger it again
+            this.performanceState.cue07Triggered = true;
+        }
+        
+        // Handle any specific cue if provided
         if (data.cue) {
             this.triggerCue(data.cue);
         }
+        
+        // Emit cross-system event
+        this.emitCrossSystemEvent('sd-card-inserted', {
+            insertCount: this.performanceState.sdInsertCount,
+            trafficLightRate: this.trafficLightController ? this.trafficLightController.getCurrentRate() : null
+        });
     }
     
     // 🆕 NEW: Handle manual cue events
@@ -1119,7 +1174,7 @@ class SoundManager {
                     break;
                 default:
                     console.warn(`🎭 Unknown cue: ${cueId}`);
-                    break;
+                    return false;
             }
             
             // Emit cross-system event to notify other components
@@ -1129,6 +1184,8 @@ class SoundManager {
                 timestamp: Date.now()
             });
             
+            return true;
+            
         } catch (error) {
             console.error(`🎭 Error executing cue ${cueId}:`, error);
             this.emitCrossSystemEvent('cue-error', {
@@ -1136,6 +1193,7 @@ class SoundManager {
                 error: error.message,
                 source: source
             });
+            return false;
         }
     }
     
@@ -1363,8 +1421,8 @@ class SoundManager {
             heartbeat.stop(0);
         }
         
-        // Schedule final cue 5 seconds later
-        this.scheduleCue(5.0, { cue: 'CUE-14' }, 'cue-14-trigger');
+        // Schedule final cue 10 seconds later
+        this.scheduleCue(10.0, { cue: 'CUE-14' }, 'cue-14-trigger');
     }
 
     executeCue14() {
@@ -1391,6 +1449,10 @@ class SoundManager {
         this.performanceState.isActive = true;
         this.performanceState.currentPhase = 'opening';
         this.performanceState.startTime = Date.now();
+        
+        // 🆕 NEW: Reset cue tracking flags for new performance
+        this.performanceState.cue05Executed = false;
+        this.performanceState.cue07Triggered = false;
         
         console.log('🎭 Performance state updated:', this.performanceState);
         console.log('🎭 Starting performance sequence - calling executeCue01()');
@@ -1419,48 +1481,6 @@ class SoundManager {
         console.log('🛑 Emergency stop - all cues cancelled');
     }
 
-    // 🆕 NEW: Enhanced cue execution using existing track system
-    async executeCue(cueData) {
-        const track = this.tracks.get(cueData.trackId);
-        if (!track) {
-            console.error(`❌ Cue execution failed: Track ${cueData.trackId} not found`);
-            return false;
-        }
-        
-        // Log cue execution
-        this.performanceState.cueHistory.push({
-            cue: cueData.id || cueData.trackId,
-            timestamp: Date.now(),
-            trackId: cueData.trackId
-        });
-        
-        console.log(`🎵 Executing cue: ${cueData.id || cueData.trackId}`);
-        
-        // Configure track settings before playing
-        if (cueData.volume !== undefined) {
-            track.setVolume(cueData.volume);
-        }
-        
-        if (cueData.loop !== undefined) {
-            track.setLoop(cueData.loop);
-        }
-        
-        if (cueData.playbackRate !== undefined) {
-            track.setPlaybackRate(cueData.playbackRate, 0);
-        }
-        
-        // Set track end callback for cue chaining
-        if (cueData.onEnd && typeof cueData.onEnd === 'function') {
-            track.onEnd = cueData.onEnd;
-        }
-        
-        // Use existing play method with fade in parameter
-        const fadeIn = cueData.fadeIn || 0;
-        const success = track.play(fadeIn);
-        
-        return success;
-    }
-    
     // 🆕 NEW: Schedule delayed cue execution
     scheduleCue(delay, cueData, cueId) {
         if (this.cueTimers.has(cueId)) {
@@ -1523,7 +1543,8 @@ class SoundManager {
             trafficLightRate: 0.75,
             cueHistory: [],
             startTime: null,
-            cue05Executed: false          // 🎭 NEW: Track CUE-05 one-time execution
+            cue05Executed: false,         // 🎭 NEW: Track CUE-05 one-time execution
+            cue07Triggered: false         // 🎭 NEW: Track CUE-07 one-time execution
         };
         
         // Reset traffic light controller if exists
@@ -1532,6 +1553,48 @@ class SoundManager {
         }
         
         console.log('🔄 Cue system reset completed');
+    }
+
+    // 🆕 NEW: Enhanced cue execution using existing track system
+    async executeCue(cueData) {
+        const track = this.tracks.get(cueData.trackId);
+        if (!track) {
+            console.error(`❌ Cue execution failed: Track ${cueData.trackId} not found`);
+            return false;
+        }
+        
+        // Log cue execution
+        this.performanceState.cueHistory.push({
+            cue: cueData.id || cueData.trackId,
+            timestamp: Date.now(),
+            trackId: cueData.trackId
+        });
+        
+        console.log(`🎵 Executing cue: ${cueData.id || cueData.trackId}`);
+        
+        // Configure track settings before playing
+        if (cueData.volume !== undefined) {
+            track.setVolume(cueData.volume);
+        }
+        
+        if (cueData.loop !== undefined) {
+            track.setLoop(cueData.loop);
+        }
+        
+        if (cueData.playbackRate !== undefined) {
+            track.setPlaybackRate(cueData.playbackRate, 0);
+        }
+        
+        // Set track end callback for cue chaining
+        if (cueData.onEnd && typeof cueData.onEnd === 'function') {
+            track.onEnd = cueData.onEnd;
+        }
+        
+        // Use existing play method with fade in parameter
+        const fadeIn = cueData.fadeIn || 0;
+        const success = track.play(fadeIn);
+        
+        return success;
     }
 }
 

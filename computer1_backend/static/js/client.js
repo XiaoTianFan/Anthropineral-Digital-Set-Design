@@ -2844,6 +2844,19 @@ class TheatreClient {
             console.log('SD card detected:', data);
             this.addDebugMessage(`SD card detected: ${data.label} (${data.total_images} images)`, 'success');
             this.updateSDCardDisplay();
+            
+            // 🎭 NEW: If performance is active, trigger cue system
+            if (this.soundManager && this.soundManager.performanceState && this.soundManager.performanceState.isActive) {
+                // Increment SD count and trigger cue
+                const currentCount = (this.soundManager.performanceState.sdInsertCount || 0) + 1;
+                this.handleSDCardCue({
+                    source: 'real',
+                    insertCount: currentCount,
+                    timestamp: Date.now(),
+                    cardData: data
+                });
+                console.log(`🎭 Real SD card detection triggered cue system - Count: ${currentCount}`);
+            }
         });
 
         this.socket.on('sd_card_removed', (data) => {
@@ -5824,14 +5837,22 @@ class TheatreClient {
     handleSDCardCue(data) {
         const insertCount = data.insertCount;
         console.log(`🎭 SD card cue: Insert #${insertCount}`);
+        console.log(`🔍 Sound manager available: ${!!this.soundManager}`);
+        console.log(`🔍 Performance state:`, this.soundManager ? this.soundManager.performanceState : 'N/A');
+        console.log(`🔍 Traffic light controller:`, this.soundManager ? !!this.soundManager.trafficLightController : 'N/A');
+        
         this.addDebugMessage(`💾 SD Card Insert #${insertCount} - Traffic light speed increase`, 'info');
         
         // 🎭 NEW: Update cue debug panel
         this.addCueLogEntry(`SD Card Insert #${insertCount} - Speed increase triggered`, 'info');
         
-        // Update traffic light controller if available
-        if (this.soundManager && this.soundManager.trafficLightController) {
-            this.soundManager.trafficLightController.handleSDCardInsert(insertCount);
+        // 🎭 NEW: Forward to sound manager for processing
+        if (this.soundManager) {
+            console.log(`🎭 Calling sound manager handleSDCardCue with data:`, data);
+            this.soundManager.handleSDCardCue(data);
+        } else {
+            console.warn('🎵 Sound manager not available for SD card cue');
+            this.addCueLogEntry('Sound manager not available for SD card cue', 'error');
         }
         
         // Update status display
@@ -6056,10 +6077,10 @@ class TheatreClient {
                     this.soundManager.performanceState.sdInsertCount = this.virtualSDCount;
                 }
                 
-                // Emit virtual SD card insertion event
-                this.socket.emit('cue-sd-card-detected', {
+                // Directly trigger SD card cue handling instead of emitting to server
+                this.handleSDCardCue({
                     source: 'virtual',
-                    count: this.virtualSDCount,
+                    insertCount: this.virtualSDCount,
                     timestamp: Date.now()
                 });
                 
@@ -6135,7 +6156,7 @@ class TheatreClient {
             }
             
             // Update SD insert count
-            const sdInsertCount = document.getElementById('cue-sd-insert-count');
+            const sdInsertCount = document.getElementById('cue-sd-count');
             if (sdInsertCount && this.soundManager && this.soundManager.performanceState) {
                 const insertCount = this.soundManager.performanceState.sdInsertCount || 0;
                 sdInsertCount.textContent = insertCount;
@@ -6143,6 +6164,18 @@ class TheatreClient {
             } else if (sdInsertCount) {
                 sdInsertCount.textContent = '0';
                 sdInsertCount.className = 'status-value status-inactive';
+            }
+            
+            // Update traffic light rate
+            const trafficRate = document.getElementById('cue-traffic-rate');
+            if (trafficRate && this.soundManager && this.soundManager.trafficLightController) {
+                const rate = this.soundManager.trafficLightController.getCurrentRate();
+                const isActive = this.soundManager.performanceState ? this.soundManager.performanceState.trafficLightActive : false;
+                trafficRate.textContent = `${rate}x${isActive ? ' (Active)' : ' (Inactive)'}`;
+                trafficRate.className = `status-value ${rate > 0.75 ? 'status-active' : 'status-inactive'}`;
+            } else if (trafficRate) {
+                trafficRate.textContent = '0.75x (Not Available)';
+                trafficRate.className = 'status-value status-inactive';
             }
             
             // Update audio track statuses

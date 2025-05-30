@@ -5,9 +5,9 @@
 class TrafficLightController {
     constructor(soundManager) {
         this.soundManager = soundManager;
-        this.currentRate = 0.75;        // Starting speed (slower than normal)
-        this.maxRate = 1.75;           // Maximum speed
-        this.rateIncrement = 0.25;     // Speed increase per SD card insertion
+        this.currentRate = 0.5;        // Starting speed (slower than normal)
+        this.maxRate = 3;           // Maximum speed
+        this.rateIncrement = 0.5;     // Speed increase per SD card insertion
         this.isActive = false;         // Whether traffic light is currently playing
     }
     
@@ -70,6 +70,26 @@ class TrafficLightController {
         
         this.isActive = false;
         this.soundManager.performanceState.trafficLightActive = false;
+    }
+    
+    handleSDCardInsert(insertCount) {
+        console.log(`🚦 SD Card #${insertCount} inserted - triggering speed increase`);
+        
+        // Update the sound manager's SD insert count
+        if (this.soundManager && this.soundManager.performanceState) {
+            this.soundManager.performanceState.sdInsertCount = insertCount;
+        }
+        
+        // Speed up the traffic light
+        const success = this.speedUp();
+        
+        if (success) {
+            console.log(`🚦 Traffic light speed increased to ${this.currentRate}x after SD card insertion`);
+        } else {
+            console.log('🚦 Traffic light speed could not be increased (inactive or at max speed)');
+        }
+        
+        return success;
     }
     
     getCurrentRate() {

@@ -7,6 +7,10 @@ from image_processor import ImageProcessor
 from sd_card_monitor import SDCardMonitor
 from keyboard_listener import KeyboardTriggerListener
 import socket
+import shutil
+import signal
+import atexit
+import sys
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'experimental_theatre_secret_key'
@@ -523,10 +527,58 @@ def handle_sd_card_status_request():
             'error': 'SD card monitor not initialized'
         })
 
+def cleanup_on_shutdown():
+    """Clean up data directories and import history on shutdown"""
+    print("\nPerforming cleanup...")
+    
+    try:
+        # Clear cropped eyes directory
+        if os.path.exists(CROPPED_EYES_DIR):
+            shutil.rmtree(CROPPED_EYES_DIR)
+            os.makedirs(CROPPED_EYES_DIR, exist_ok=True)
+            print(f"✓ Cleared cropped eyes directory: {CROPPED_EYES_DIR}")
+        
+        # Clear originals directory
+        if os.path.exists(ORIGINALS_DIR):
+            shutil.rmtree(ORIGINALS_DIR)
+            os.makedirs(ORIGINALS_DIR, exist_ok=True)
+            print(f"✓ Cleared originals directory: {ORIGINALS_DIR}")
+        
+        # Clear import history file
+        import_history_file = os.path.join(DATA_DIR, 'import_history.json')
+        if os.path.exists(import_history_file):
+            os.remove(import_history_file)
+            print(f"✓ Cleared import history: {import_history_file}")
+        
+        print("✓ Cleanup completed successfully")
+        
+    except Exception as e:
+        print(f"✗ Error during cleanup: {e}")
+
+def signal_handler(signum, frame):
+    """Handle shutdown signals"""
+    print(f"\nReceived signal {signum}, shutting down...")
+    cleanup_on_shutdown()
+    
+    # Stop monitoring services
+    global image_processor, sd_card_monitor
+    if image_processor:
+        image_processor.stop_monitoring()
+    if sd_card_monitor:
+        sd_card_monitor.stop_monitoring()
+    
+    print("Server stopped by signal")
+    sys.exit(0)
+
 if __name__ == '__main__':
     print("Starting Experimental Theatre Server...")
     print(f"Base directory: {BASE_DIR}")
     print(f"Data directory: {DATA_DIR}")
+    
+    # Register cleanup handlers
+    signal.signal(signal.SIGINT, signal_handler)  # Ctrl+C
+    signal.signal(signal.SIGTERM, signal_handler)  # Termination signal
+    atexit.register(cleanup_on_shutdown)  # Normal exit
     
     # Create data directories if they don't exist
     os.makedirs(CROPPED_EYES_DIR, exist_ok=True)
@@ -543,6 +595,7 @@ if __name__ == '__main__':
         socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)
     except KeyboardInterrupt:
         print("\nShutting down server...")
+        cleanup_on_shutdown()
         if image_processor:
             image_processor.stop_monitoring()
         if sd_card_monitor:

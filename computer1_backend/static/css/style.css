@@ -21,7 +21,7 @@ body {
 
 /* Black Filter Overlay - NEW */
 #black-filter-overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -40,6 +40,19 @@ body {
     pointer-events: none;
 }
 
+/* 🖤 NEW: Fullscreen support for black filter */
+:fullscreen #black-filter-overlay,
+:-webkit-full-screen #black-filter-overlay,
+:-moz-full-screen #black-filter-overlay,
+:-ms-fullscreen #black-filter-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
+
 /* Animation Section - Full Screen */
 #animation-section {
     position: absolute;
@@ -48,18 +61,43 @@ body {
     width: 100%;
     height: 100vh;
     overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 #three-canvas-container {
     width: 100%;
     height: 100%;
     position: relative;
+    transition: all 0.3s ease;
 }
 
 #three-canvas-container canvas {
     display: block;
     width: 100% !important;
     height: 100% !important;
+}
+
+/* 🖤 NEW: Fullscreen support for animation section */
+:fullscreen #animation-section,
+:-webkit-full-screen #animation-section,
+:-moz-full-screen #animation-section,
+:-ms-fullscreen #animation-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+:fullscreen #three-canvas-container,
+:-webkit-full-screen #three-canvas-container,
+:-moz-full-screen #three-canvas-container,
+:-ms-fullscreen #three-canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 /* Debug Panel Toggle Button */
@@ -1926,4 +1964,64 @@ body.production .debug-toggle-btn {
 
 .log-entry.success {
     color: #66ff99;
+}
+
+/* Hide debug panels in fullscreen mode */
+:fullscreen .debug-panel-expanded,
+:fullscreen .cue-debug-panel-expanded,
+:-webkit-full-screen .debug-panel-expanded,
+:-webkit-full-screen .cue-debug-panel-expanded,
+:-moz-full-screen .debug-panel-expanded,
+:-moz-full-screen .cue-debug-panel-expanded,
+:-ms-fullscreen .debug-panel-expanded,
+:-ms-fullscreen .cue-debug-panel-expanded {
+    display: none !important;
+}
+
+/* Hide debug toggle buttons in fullscreen mode */
+:fullscreen .debug-toggle-btn,
+:fullscreen .cue-debug-toggle-btn,
+:-webkit-full-screen .debug-toggle-btn,
+:-webkit-full-screen .cue-debug-toggle-btn,
+:-moz-full-screen .debug-toggle-btn,
+:-moz-full-screen .cue-debug-toggle-btn,
+:-ms-fullscreen .debug-toggle-btn,
+:-ms-fullscreen .cue-debug-toggle-btn {
+    display: none !important;
+}
+
+/* 🖤 NEW: Fullscreen mode indicator */
+.fullscreen-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.fullscreen-hint:hover {
+    opacity: 1;
+}
+
+/* Hide fullscreen hint when in fullscreen mode */
+:fullscreen .fullscreen-hint,
+:-webkit-full-screen .fullscreen-hint,
+:-moz-full-screen .fullscreen-hint,
+:-ms-fullscreen .fullscreen-hint {
+    display: none;
+}
+
+/* Ensure smooth transitions for fullscreen changes */
+#animation-section {
+    transition: all 0.3s ease;
+}
+
+#three-canvas-container {
+    transition: all 0.3s ease;
 } 
