@@ -2552,48 +2552,55 @@ class ShapeManager {
 
 class TheatreClient {
     constructor() {
-        // Initialize visual configuration
-        this.visualConfig = { ...VISUAL_CONFIG };
-        
-        // Initialize components
-        this.shapeManager = new ShapeManager();
-        this.particleSystem = new ParticleSystem();
-        this.artisticProcessor = new ArtisticTextureProcessor();
-        
-        // Initialize state
+        this.socket = null;
         this.scene = null;
         this.camera = null;
         this.renderer = null;
-        this.composer = null;
-        this.animationId = null;
-        this.socket = null;
+        this.animationMeshes = [];
+        this.isAnimationTriggered = false;
+        
+        // Visual effects system
+        this.particleSystem = null;
+        this.shapeManager = null; // New shape manager for eye-textured shapes
+        this.eyeShapes = []; // Legacy - keeping for compatibility
+        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence, 4: dispersion, 5: portal departure
+        this.lastTime = 0;
+        
+        // Phase 4 tracking
+        this.isInShellTransition = false;
+        this.shellTransitionStartTime = 0;
+        this.isInDispersionPhase = false;
+        this.dispersionCompleted = false;
+        
+        // 🌀 NEW: Phase 5 portal departure tracking
+        this.isInPortalDeparture = false;
+        this.portalDepartureStartTime = 0;
+        this.allShapesDisappeared = false;
+        this.portalReturnStartTime = 0;
+        this.isReturningToPhase1 = false;
+        
+        // 🕐 NEW: Auto-trigger system tracking
+        this.autoTriggerEnabled = false;
+        this.autoTriggerStartTime = 0;
+        this.autoTriggerTimeoutId = null;
+        this.countdownIntervalId = null;
+        this.manualTriggerAllowed = false;
+        this.lastAutoTriggerDebugTime = 0;
+        this.isManualPhase4Transition = false; // Track if Phase 4 was manually triggered
+        
+        // Camera rotation tracking
+        this.cameraRotationTime = 0;
+        this.baseRadius = VISUAL_CONFIG.scene.camera.position.z;
+        
+        // 🎨 NEW: Artistic texture processor
+        this.artisticProcessor = null;
+        
+        // 🎵 NEW: Sound system integration
         this.soundManager = null;
         
-        // Visual state management
-        this.currentPhase = 1;
-        this.shapesInScene = [];
-        this.visualEffectsEnabled = true;
-        this.performanceMetrics = {
-            frameCount: 0,
-            lastFpsUpdate: 0,
-            fps: 0
-        };
+        // 🎹 NEW: Keyboard status tracking for change detection
+        this.lastKeyboardStatus = null;
         
-        // Auto-trigger portal departure system
-        this.autoTriggerActive = false;
-        this.autoTriggerTimeout = null;
-        this.countdownInterval = null;
-        
-        // 🕐 NEW: Runtime clock system
-        this.runtimeClock = {
-            startTime: null,
-            isRunning: false,
-            elapsedTime: 0,
-            clockInterval: null,
-            status: 'not-started' // 'not-started', 'running', 'paused', 'completed'
-        };
-        
-        // Initialize systems
         this.init();
     }
 
@@ -5413,7 +5420,7 @@ class TheatreClient {
         this.manualTriggerAllowed = config.allowEarlyTrigger;
         
         // Set up automatic trigger timeout
-        this.autoTriggerTimeout = setTimeout(() => {
+        this.autoTriggerTimeoutId = setTimeout(() => {
             this.triggerPortalDepartureAuto();
         }, config.maxWaitTime * 1000);
         
@@ -5430,7 +5437,7 @@ class TheatreClient {
     startCountdownDisplay() {
         const config = VISUAL_CONFIG.attraction.portalDeparture.autoTrigger;
         
-        this.countdownInterval = setInterval(() => {
+        this.countdownIntervalId = setInterval(() => {
             if (!this.autoTriggerEnabled) {
                 this.stopCountdownDisplay();
                 return;
@@ -5479,9 +5486,9 @@ class TheatreClient {
     }
 
     stopCountdownDisplay() {
-        if (this.countdownInterval) {
-            clearInterval(this.countdownInterval);
-            this.countdownInterval = null;
+        if (this.countdownIntervalId) {
+            clearInterval(this.countdownIntervalId);
+            this.countdownIntervalId = null;
         }
         
         // Clear countdown display
@@ -5499,9 +5506,9 @@ class TheatreClient {
 
     stopAutoTriggerSystem() {
         // Clear timeout
-        if (this.autoTriggerTimeout) {
-            clearTimeout(this.autoTriggerTimeout);
-            this.autoTriggerTimeout = null;
+        if (this.autoTriggerTimeoutId) {
+            clearTimeout(this.autoTriggerTimeoutId);
+            this.autoTriggerTimeoutId = null;
         }
         
         // Stop countdown
@@ -5759,12 +5766,6 @@ class TheatreClient {
                 this.updateTrackStatus(trackId, trackStatus);
             });
 
-            // Update audio track statuses
-            this.updateAudioTrackStatuses();
-            
-            // 🕐 NEW: Update runtime clock display
-            this.updateRuntimeClockDisplay();
-            
         } catch (error) {
             console.error('🎵 Error updating audio debug status:', error);
         }
@@ -5810,11 +5811,6 @@ class TheatreClient {
         // 🎭 NEW: Update cue debug panel
         this.addCueLogEntry(`Executing ${cueId} from ${source}`, 'info');
         this.updateCueSequenceDisplay(cueId, this.getCompletedCues());
-        
-        // 🕐 NEW: Start runtime clock on CUE-01
-        if (cueId === 'CUE-01' && !this.runtimeClock.isRunning) {
-            this.startRuntimeClock();
-        }
         
         // Forward to sound manager if available
         if (this.soundManager) {
@@ -5877,11 +5873,17 @@ class TheatreClient {
         } else if (currentPhase === 'interactive' || currentPhase === 'opening') {
             // Performance active and in interactive or opening phase - trigger CUE-05
             console.log(`🎭 Triggering CUE-05 during ${currentPhase} phase (Spacebar)`);
-            this.addDebugMessage(`🎭 Manual CUE-05 trigger (${currentPhase}) (Spacebar)`, 'info');
-            this.addCueLogEntry(`Manual CUE-05 trigger during ${currentPhase} phase (Spacebar)`, 'info');
+            this.addDebugMessage(`🎭 Manual CUE-05 trigger (Spacebar) - ${currentPhase} phase`, 'info');
+            this.addCueLogEntry(`Manual CUE-05 trigger (Spacebar) - ${currentPhase} phase`, 'info');
             if (this.soundManager) {
                 console.log('🎵 Calling soundManager.executeCue05()...');
-                this.soundManager.executeCue05();
+                const result = this.soundManager.executeCue05();
+                
+                // 🎭 NEW: Provide feedback if CUE-05 was already executed
+                if (result === false) {
+                    this.addDebugMessage('⚠️ CUE-05 already executed (one-time trigger)', 'warning');
+                    this.addCueLogEntry('CUE-05 already executed - can only be triggered once', 'warning');
+                }
             } else {
                 console.error('❌ Sound manager not available for CUE-05 execution');
                 this.addCueLogEntry('Sound manager not available for CUE-05', 'error');
@@ -5932,12 +5934,6 @@ class TheatreClient {
         const cueDebugPanel = document.getElementById('cue-debug-panel');
         const cueDebugClose = document.getElementById('cue-debug-close');
         
-        // Ensure panel starts in expanded state for development
-        if (cueDebugPanel) {
-            cueDebugPanel.classList.remove('cue-debug-panel-hidden');
-            cueDebugPanel.classList.add('cue-debug-panel-expanded');
-        }
-        
         if (cueDebugToggle && cueDebugPanel) {
             cueDebugToggle.addEventListener('click', () => {
                 if (cueDebugPanel.classList.contains('cue-debug-panel-hidden')) {
@@ -5969,18 +5965,12 @@ class TheatreClient {
         // Initialize cue sequence display
         this.initializeCueSequenceDisplay();
         
-        // Initialize runtime clock
-        this.initRuntimeClock();
-        
-        // Add initial log entry
-        this.addCueLogEntry('Cue debug panel initialized', 'success');
-        
         console.log('🎭 Cue debug panel initialized successfully');
     }
     
     // 🎭 NEW: Setup cue control buttons
     setupCueControlButtons() {
-        // Start Performance Sequence button - CORRECTED ID
+        // Start Performance Sequence button
         const startSequenceBtn = document.getElementById('cue-start-sequence');
         if (startSequenceBtn) {
             startSequenceBtn.addEventListener('click', () => {
@@ -5991,18 +5981,32 @@ class TheatreClient {
             });
         }
         
-        // Trigger CUE-05 button - CORRECTED ID
+        // Trigger CUE-05 button
         const triggerCue05Btn = document.getElementById('cue-trigger-05');
         if (triggerCue05Btn) {
             triggerCue05Btn.addEventListener('click', () => {
                 console.log('🎭 Manual CUE-05 triggered');
-                this.socket.emit('cue-manual-trigger', {'cue': 'CUE-05'});
-                this.addCueLogEntry('CUE-05 triggered manually', 'success');
-                this.addDebugMessage('🎭 CUE-05 triggered from debug panel', 'success');
+                
+                // 🎭 NEW: Check if we can trigger CUE-05 directly via sound manager
+                if (this.soundManager) {
+                    const result = this.soundManager.executeCue05();
+                    if (result === false) {
+                        this.addCueLogEntry('CUE-05 already executed - can only be triggered once', 'warning');
+                        this.addDebugMessage('⚠️ CUE-05 already executed (one-time trigger)', 'warning');
+                    } else {
+                        this.addCueLogEntry('CUE-05 triggered manually from debug panel', 'success');
+                        this.addDebugMessage('🎭 CUE-05 triggered from debug panel', 'success');
+                    }
+                } else {
+                    // Fallback to socket emission if sound manager not available
+                    this.socket.emit('cue-manual-trigger', {'cue': 'CUE-05'});
+                    this.addCueLogEntry('CUE-05 triggered manually via socket', 'success');
+                    this.addDebugMessage('🎭 CUE-05 triggered from debug panel (socket)', 'success');
+                }
             });
         }
         
-        // Emergency Stop button - CORRECTED ID
+        // Emergency Stop button
         const emergencyStopBtn = document.getElementById('cue-emergency-stop');
         if (emergencyStopBtn) {
             emergencyStopBtn.addEventListener('click', () => {
@@ -6015,7 +6019,7 @@ class TheatreClient {
             });
         }
         
-        // Reset Cue System button - CORRECTED ID
+        // Reset Cue System button
         const resetSystemBtn = document.getElementById('cue-reset-system');
         if (resetSystemBtn) {
             resetSystemBtn.addEventListener('click', () => {
@@ -6029,15 +6033,57 @@ class TheatreClient {
             });
         }
         
-        // 🆕 NEW: Clear Log button
-        const clearLogBtn = document.getElementById('cue-clear-log');
-        if (clearLogBtn) {
-            clearLogBtn.addEventListener('click', () => {
-                const logContainer = document.getElementById('cue-event-log');
-                if (logContainer) {
-                    logContainer.innerHTML = '<div class="log-entry">Event log cleared</div>';
+        // 🎭 NEW: Setup virtual SD insert controls
+        this.setupVirtualSDControls();
+    }
+    
+    // 🎭 NEW: Setup virtual SD insert controls
+    setupVirtualSDControls() {
+        const virtualSDIncrement = document.getElementById('virtual-sd-increment');
+        const virtualSDReset = document.getElementById('virtual-sd-reset');
+        const virtualSDCount = document.getElementById('virtual-sd-count');
+        
+        // Initialize virtual SD count tracking
+        this.virtualSDCount = 0;
+        
+        if (virtualSDIncrement && virtualSDCount) {
+            virtualSDIncrement.addEventListener('click', () => {
+                this.virtualSDCount++;
+                virtualSDCount.value = this.virtualSDCount;
+                
+                // Update sound manager SD count if available
+                if (this.soundManager && this.soundManager.performanceState) {
+                    this.soundManager.performanceState.sdInsertCount = this.virtualSDCount;
                 }
-                this.addDebugMessage('🗑️ Cue event log cleared', 'info');
+                
+                // Emit virtual SD card insertion event
+                this.socket.emit('cue-sd-card-detected', {
+                    source: 'virtual',
+                    count: this.virtualSDCount,
+                    timestamp: Date.now()
+                });
+                
+                this.addCueLogEntry(`Virtual SD insert #${this.virtualSDCount} triggered`, 'info');
+                this.addDebugMessage(`📱 Virtual SD insert #${this.virtualSDCount}`, 'info');
+                
+                console.log(`🎭 Virtual SD insert triggered - Count: ${this.virtualSDCount}`);
+            });
+        }
+        
+        if (virtualSDReset && virtualSDCount) {
+            virtualSDReset.addEventListener('click', () => {
+                this.virtualSDCount = 0;
+                virtualSDCount.value = 0;
+                
+                // Reset sound manager SD count if available
+                if (this.soundManager && this.soundManager.performanceState) {
+                    this.soundManager.performanceState.sdInsertCount = 0;
+                }
+                
+                this.addCueLogEntry('Virtual SD count reset to 0', 'info');
+                this.addDebugMessage('📱 Virtual SD count reset', 'info');
+                
+                console.log('🎭 Virtual SD count reset to 0');
             });
         }
     }
@@ -6077,17 +6123,8 @@ class TheatreClient {
                 performanceState.className = 'status-value status-inactive';
             }
             
-            // Update current phase
-            const currentPhase = document.getElementById('cue-current-phase');
-            if (currentPhase && this.soundManager && this.soundManager.performanceState) {
-                const state = this.soundManager.performanceState;
-                currentPhase.textContent = state.currentPhase || '-';
-            } else if (currentPhase) {
-                currentPhase.textContent = '-';
-            }
-            
-            // Update active cues count - CORRECTED ID
-            const activeCues = document.getElementById('cue-active-count');
+            // Update active cues count
+            const activeCues = document.getElementById('cue-active-cues');
             if (activeCues && this.soundManager && this.soundManager.performanceState) {
                 const cueHistory = this.soundManager.performanceState.cueHistory || [];
                 activeCues.textContent = cueHistory.length;
@@ -6097,8 +6134,8 @@ class TheatreClient {
                 activeCues.className = 'status-value status-inactive';
             }
             
-            // Update SD insert count - CORRECTED ID
-            const sdInsertCount = document.getElementById('cue-sd-count');
+            // Update SD insert count
+            const sdInsertCount = document.getElementById('cue-sd-insert-count');
             if (sdInsertCount && this.soundManager && this.soundManager.performanceState) {
                 const insertCount = this.soundManager.performanceState.sdInsertCount || 0;
                 sdInsertCount.textContent = insertCount;
@@ -6108,22 +6145,8 @@ class TheatreClient {
                 sdInsertCount.className = 'status-value status-inactive';
             }
             
-            // Update traffic light rate - CORRECTED ID
-            const trafficRate = document.getElementById('cue-traffic-rate');
-            if (trafficRate && this.soundManager && this.soundManager.performanceState) {
-                const rate = this.soundManager.performanceState.trafficLightRate || 0.75;
-                trafficRate.textContent = `${rate.toFixed(2)}x`;
-                trafficRate.className = `status-value ${rate > 0.75 ? 'status-active' : 'status-inactive'}`;
-            } else if (trafficRate) {
-                trafficRate.textContent = '0.75x';
-                trafficRate.className = 'status-value status-inactive';
-            }
-            
             // Update audio track statuses
             this.updateAudioTrackStatuses();
-            
-            // 🕐 NEW: Update runtime clock display
-            this.updateRuntimeClockDisplay();
             
         } catch (error) {
             console.error('🎭 Error updating cue system status:', error);
@@ -6136,41 +6159,17 @@ class TheatreClient {
         
         try {
             const status = this.soundManager.getStatus();
-            const tracksContainer = document.getElementById('cue-audio-tracks');
             
-            if (!tracksContainer) return;
-            
-            // Clear existing tracks display
-            tracksContainer.innerHTML = '';
-            
-            // If no tracks are loaded yet, show loading message
-            if (!this.soundManager.tracks || this.soundManager.tracks.size === 0) {
-                tracksContainer.innerHTML = '<div class="track-placeholder">Loading audio tracks...</div>';
-                return;
-            }
-            
-            // Display each audio track with status
+            // Update tracks status
             this.soundManager.tracks.forEach((track, trackId) => {
-                const trackElement = document.createElement('div');
-                trackElement.className = 'audio-track-item';
-                
-                const trackName = this.getTrackDisplayName(trackId);
-                const statusText = track.isPlaying ? 'Playing' : (track.isLoaded ? 'Ready' : 'Loading');
-                const statusClass = track.isPlaying ? 'status-playing' : (track.isLoaded ? 'status-ready' : 'status-loading');
-                const statusIcon = track.isPlaying ? '▶️' : (track.isLoaded ? '⏸️' : '⏳');
-                
-                trackElement.innerHTML = `
-                    <div class="track-info">
-                        <span class="track-name">${trackName}</span>
-                        <span class="track-id">(${trackId})</span>
-                    </div>
-                    <div class="track-status-display">
-                        <span class="track-status-icon">${statusIcon}</span>
-                        <span class="track-status-text ${statusClass}">${statusText}</span>
-                    </div>
-                `;
-                
-                tracksContainer.appendChild(trackElement);
+                const trackElement = document.getElementById(`cue-track-${trackId}`);
+                if (trackElement) {
+                    const statusText = track.isPlaying ? 'Playing' : (track.isLoaded ? 'Ready' : 'Loading');
+                    const statusClass = track.isPlaying ? 'status-active' : (track.isLoaded ? 'status-ready' : 'status-inactive');
+                    
+                    trackElement.textContent = statusText;
+                    trackElement.className = `track-status ${statusClass}`;
+                }
             });
             
         } catch (error) {
@@ -6178,79 +6177,33 @@ class TheatreClient {
         }
     }
     
-    // 🆕 NEW: Get display name for audio track
-    getTrackDisplayName(trackId) {
-        const displayNames = {
-            'heartbeat': '💓 Heartbeat',
-            'sine-riser': '📈 Sine Riser',
-            'sublimation-completed': '🌅 Sublimation Completed',
-            'protocol-rebooting': '🔄 Protocol Rebooting',
-            'spirit-mining-initiating': '⛏️ Spirit Mining',
-            'traffic-light': '🚦 Traffic Light',
-            'spirits-possessed': '👻 Spirits Possessed',
-            'sublimation-initiated': '🌀 Sublimation Initiated',
-            'portal-departure': '🌌 Portal Departure',
-            'ambient-intro': '🌅 Ambient Intro',
-            'emergence-sound': '👁️ Emergence Sound',
-            'convergence-build': '⚡ Convergence Build'
-        };
-        
-        return displayNames[trackId] || `🎵 ${trackId}`;
-    }
-    
     // 🎭 NEW: Initialize cue sequence display
     initializeCueSequenceDisplay() {
-        // Reset all cue items to pending state
-        const allCueItems = document.querySelectorAll('[data-cue]');
-        allCueItems.forEach(item => {
-            const statusSpan = item.querySelector('.cue-status');
-            if (statusSpan) {
-                statusSpan.textContent = '⏸️';
-                statusSpan.title = 'Pending';
-                item.classList.add('cue-pending');
-                item.classList.remove('cue-active', 'cue-completed');
-            }
+        const cueSequences = [
+            'CUE-01', 'CUE-02', 'CUE-03', 'CUE-04', 'CUE-05', 'CUE-06', 'CUE-07',
+            'CUE-08', 'CUE-09', 'CUE-10', 'CUE-11', 'CUE-12', 'CUE-13', 'CUE-14'
+        ];
+        
+        // Reset all cue indicators to pending
+        cueSequences.forEach(cueId => {
+            this.updateCueSequenceDisplay(cueId, []);
         });
         
-        console.log(`🎭 Cue sequence display initialized - ${allCueItems.length} cues found`);
+        console.log('🎭 Cue sequence display initialized');
     }
     
     // 🎭 NEW: Update cue sequence display
     updateCueSequenceDisplay(currentCue, completedCues) {
-        // Find the cue item element using data-cue attribute
-        const cueItem = document.querySelector(`[data-cue="${currentCue}"]`);
-        if (cueItem) {
-            // Find the status span within this cue item
-            const statusSpan = cueItem.querySelector('.cue-status');
-            if (statusSpan) {
-                if (completedCues.includes(currentCue)) {
-                    statusSpan.textContent = '✅';
-                    statusSpan.title = 'Completed';
-                    cueItem.classList.add('cue-completed');
-                    cueItem.classList.remove('cue-active', 'cue-pending');
-                } else {
-                    statusSpan.textContent = '▶️';
-                    statusSpan.title = 'Currently Active';
-                    cueItem.classList.add('cue-active');
-                    cueItem.classList.remove('cue-completed', 'cue-pending');
-                }
+        const cueElement = document.getElementById(`cue-${currentCue.toLowerCase()}`);
+        if (cueElement) {
+            if (completedCues.includes(currentCue)) {
+                cueElement.textContent = '✅ Completed';
+                cueElement.className = 'cue-status cue-completed';
+            } else {
+                cueElement.textContent = '▶️ Active';
+                cueElement.className = 'cue-status cue-active';
             }
         }
-        
-        // 🆕 NEW: Also update all other cues to show pending status if not completed or active
-        const allCueItems = document.querySelectorAll('[data-cue]');
-        allCueItems.forEach(item => {
-            const cueId = item.getAttribute('data-cue');
-            if (cueId !== currentCue && !completedCues.includes(cueId)) {
-                const statusSpan = item.querySelector('.cue-status');
-                if (statusSpan) {
-                    statusSpan.textContent = '⏸️';
-                    statusSpan.title = 'Pending';
-                    item.classList.add('cue-pending');
-                    item.classList.remove('cue-active', 'cue-completed');
-                }
-            }
-        });
     }
     
     // 🎭 NEW: Add entry to cue event log
@@ -6300,180 +6253,9 @@ class TheatreClient {
         }
         console.log('🎭 Cue debug panel disposed');
     }
-    
-    // 🕐 NEW: Runtime Clock Methods
-    
-    // Initialize runtime clock functionality
-    initRuntimeClock() {
-        console.log('🕐 Initializing runtime clock...');
-        
-        // Set up reset button
-        const resetBtn = document.getElementById('runtime-clock-reset');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-                this.resetRuntimeClock();
-                this.addDebugMessage('🕐 Runtime clock reset', 'info');
-                this.addCueLogEntry('Runtime clock manually reset', 'info');
-            });
-        }
-        
-        // Initialize display
-        this.updateRuntimeClockDisplay();
-        
-        console.log('🕐 Runtime clock initialized');
-    }
-    
-    // Start the runtime clock (called when CUE-01 begins)
-    startRuntimeClock() {
-        if (!this.runtimeClock.isRunning) {
-            this.runtimeClock.startTime = Date.now();
-            this.runtimeClock.isRunning = true;
-            this.runtimeClock.status = 'running';
-            this.runtimeClock.elapsedTime = 0;
-            
-            // Start the clock update interval
-            this.runtimeClock.clockInterval = setInterval(() => {
-                this.updateRuntimeClock();
-            }, 100); // Update every 100ms for smooth display
-            
-            // Update display immediately
-            this.updateRuntimeClockDisplay();
-            
-            console.log('🕐 Runtime clock started');
-            this.addDebugMessage('🕐 Performance runtime clock started', 'success');
-            this.addCueLogEntry('Performance runtime clock started with CUE-01', 'success');
-        }
-    }
-    
-    // Stop the runtime clock
-    stopRuntimeClock() {
-        if (this.runtimeClock.isRunning) {
-            this.runtimeClock.isRunning = false;
-            this.runtimeClock.status = 'completed';
-            
-            if (this.runtimeClock.clockInterval) {
-                clearInterval(this.runtimeClock.clockInterval);
-                this.runtimeClock.clockInterval = null;
-            }
-            
-            // Final update
-            this.updateRuntimeClock();
-            this.updateRuntimeClockDisplay();
-            
-            console.log('🕐 Runtime clock stopped');
-            this.addDebugMessage('🕐 Performance runtime clock stopped', 'info');
-            this.addCueLogEntry('Performance runtime clock stopped', 'info');
-        }
-    }
-    
-    // Pause the runtime clock
-    pauseRuntimeClock() {
-        if (this.runtimeClock.isRunning) {
-            this.runtimeClock.isRunning = false;
-            this.runtimeClock.status = 'paused';
-            
-            if (this.runtimeClock.clockInterval) {
-                clearInterval(this.runtimeClock.clockInterval);
-                this.runtimeClock.clockInterval = null;
-            }
-            
-            this.updateRuntimeClockDisplay();
-            
-            console.log('🕐 Runtime clock paused');
-            this.addDebugMessage('🕐 Performance runtime clock paused', 'warning');
-        }
-    }
-    
-    // Reset the runtime clock
-    resetRuntimeClock() {
-        // Stop if running
-        if (this.runtimeClock.clockInterval) {
-            clearInterval(this.runtimeClock.clockInterval);
-            this.runtimeClock.clockInterval = null;
-        }
-        
-        // Reset all values
-        this.runtimeClock.startTime = null;
-        this.runtimeClock.isRunning = false;
-        this.runtimeClock.elapsedTime = 0;
-        this.runtimeClock.status = 'not-started';
-        
-        // Update display
-        this.updateRuntimeClockDisplay();
-        
-        console.log('🕐 Runtime clock reset');
-    }
-    
-    // Update the runtime clock calculation
-    updateRuntimeClock() {
-        if (this.runtimeClock.isRunning && this.runtimeClock.startTime) {
-            this.runtimeClock.elapsedTime = Date.now() - this.runtimeClock.startTime;
-        }
-    }
-    
-    // Update the runtime clock display
-    updateRuntimeClockDisplay() {
-        const clockDisplay = document.getElementById('runtime-clock-main');
-        const statusDisplay = document.getElementById('runtime-status');
-        const startTimeDisplay = document.getElementById('runtime-start-time');
-        
-        if (clockDisplay) {
-            const formattedTime = this.formatElapsedTime(this.runtimeClock.elapsedTime);
-            clockDisplay.textContent = formattedTime;
-            
-            // Add running animation class
-            if (this.runtimeClock.isRunning) {
-                clockDisplay.classList.add('running');
-            } else {
-                clockDisplay.classList.remove('running');
-            }
-        }
-        
-        if (statusDisplay) {
-            statusDisplay.textContent = this.getStatusDisplayText(this.runtimeClock.status);
-            statusDisplay.className = `runtime-status ${this.runtimeClock.status}`;
-        }
-        
-        if (startTimeDisplay && this.runtimeClock.startTime) {
-            const startTime = new Date(this.runtimeClock.startTime);
-            startTimeDisplay.textContent = `Started: ${startTime.toLocaleTimeString()}`;
-        } else if (startTimeDisplay) {
-            startTimeDisplay.textContent = '-';
-        }
-    }
-    
-    // Format elapsed time to HH:MM:SS format
-    formatElapsedTime(milliseconds) {
-        const totalSeconds = Math.floor(milliseconds / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    
-    // Get status display text
-    getStatusDisplayText(status) {
-        switch (status) {
-            case 'not-started': return 'Not Started';
-            case 'running': return 'Running';
-            case 'paused': return 'Paused';
-            case 'completed': return 'Completed';
-            default: return 'Unknown';
-        }
-    }
-    
-    // Get current runtime information
-    getRuntimeInfo() {
-        return {
-            elapsedTime: this.runtimeClock.elapsedTime,
-            formattedTime: this.formatElapsedTime(this.runtimeClock.elapsedTime),
-            isRunning: this.runtimeClock.isRunning,
-            status: this.runtimeClock.status,
-            startTime: this.runtimeClock.startTime
-        };
-    }
 }
 
-// Make TheatreClient globally accessible
-window.theatreClient = new TheatreClient(); 
+// Initialize the client when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    window.theatreClient = new TheatreClient();
+}); 

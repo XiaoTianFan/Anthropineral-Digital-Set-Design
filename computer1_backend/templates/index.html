@@ -30,24 +30,6 @@
                 <button id="cue-debug-close" class="cue-debug-close-btn">×</button>
             </div>
             
-            <!-- 🕐 NEW: Main Runtime Clock -->
-            <div class="cue-debug-section runtime-clock-section">
-                <div class="runtime-clock-container">
-                    <div class="runtime-clock-header">
-                        <h4>🕐 Performance Runtime</h4>
-                        <button id="runtime-clock-reset" class="runtime-reset-btn" title="Reset Clock">↺</button>
-                    </div>
-                    <div class="runtime-clock-display">
-                        <div class="runtime-clock-main" id="runtime-clock-main">00:00:00</div>
-                        <div class="runtime-clock-info">
-                            <span class="runtime-status" id="runtime-status">Not Started</span>
-                            <span class="runtime-separator">|</span>
-                            <span class="runtime-start-time" id="runtime-start-time">-</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Real-time Cue Status -->
             <div class="cue-debug-section">
                 <h4>🎵 Live Status</h4>
@@ -169,6 +151,22 @@
                     <button id="cue-trigger-05" class="cue-control-btn manual">🎵 Trigger CUE-05</button>
                     <button id="cue-emergency-stop" class="cue-control-btn danger">🛑 Emergency Stop</button>
                     <button id="cue-reset-system" class="cue-control-btn">↺ Reset System</button>
+                </div>
+                
+                <!-- 🎭 NEW: Virtual SD Insert Testing -->
+                <div class="virtual-sd-controls">
+                    <h5>📱 Virtual SD Insert Testing</h5>
+                    <div class="sd-insert-controls">
+                        <label for="virtual-sd-count">SD Insert Count:</label>
+                        <div class="sd-count-control">
+                            <input type="number" id="virtual-sd-count" min="0" max="99" value="0" readonly>
+                            <button id="virtual-sd-increment" class="cue-control-btn small">+1 SD Insert</button>
+                            <button id="virtual-sd-reset" class="cue-control-btn small">Reset Count</button>
+                        </div>
+                        <div class="sd-insert-info">
+                            <small>Simulates SD card insertion events for testing cue triggers</small>
+                        </div>
+                    </div>
                 </div>
             </div>
 

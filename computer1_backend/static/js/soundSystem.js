@@ -76,7 +76,7 @@ const SOUND_CONFIG = {
             url: '/static/audio/Sublimation Completed.mp3',
             volume: 0.8,
             loop: false,
-            fadeIn: 0.5,
+            fadeIn: 0.3,
             fadeOut: 1.5,
             playbackRate: 1.0          // Normal speed
         }
@@ -580,7 +580,8 @@ class SoundManager {
             sdInsertCount: 0,
             trafficLightRate: 0.75,
             cueHistory: [],
-            startTime: null
+            startTime: null,
+            cue05Executed: false          // 🎭 NEW: Track CUE-05 one-time execution
         };
         this.cueTimers = new Map();
         this.crossSystemEvents = new Map();
@@ -1194,7 +1195,7 @@ class SoundManager {
         this.executeCue({
             id: 'cue-03-sublimation',
             trackId: 'sublimation-completed',
-            fadeIn: 0.5,
+            fadeIn: 0.1,
             loop: false,
             onEnd: () => {
                 setTimeout(() => this.executeCue04(), 3000);
@@ -1222,7 +1223,20 @@ class SoundManager {
 
     // CUE 05-06: Manual + Traffic Light
     executeCue05() {
+        // 🎭 NEW: Check if CUE-05 has already been executed (one-time trigger)
+        if (this.performanceState.cue05Executed) {
+            console.log('🎭 CUE-05 already executed - ignoring repeat trigger');
+            this.emitCrossSystemEvent('cue-already-executed', {
+                cue: 'CUE-05',
+                message: 'CUE-05 can only be triggered once per performance'
+            });
+            return false;
+        }
+        
         console.log('🎭 Executing CUE 05: Spirit mining initiating (MANUAL)');
+        
+        // Mark CUE-05 as executed
+        this.performanceState.cue05Executed = true;
         
         this.executeCue({
             id: 'cue-05-spirit-mining',
@@ -1233,6 +1247,8 @@ class SoundManager {
                 setTimeout(() => this.executeCue06(), 3000);
             }
         });
+        
+        return true;
     }
 
     executeCue06() {
@@ -1506,7 +1522,8 @@ class SoundManager {
             sdInsertCount: 0,
             trafficLightRate: 0.75,
             cueHistory: [],
-            startTime: null
+            startTime: null,
+            cue05Executed: false          // 🎭 NEW: Track CUE-05 one-time execution
         };
         
         // Reset traffic light controller if exists
