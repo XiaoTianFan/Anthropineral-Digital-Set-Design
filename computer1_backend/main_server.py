@@ -197,6 +197,55 @@ def handle_keyboard_status_request():
         'cooldown_seconds': keyboard_listener.cooldown_seconds if keyboard_listener else None
     })
 
+# 🆕 NEW: Cue system event handlers
+@socketio.on('cue-system-start')
+def handle_cue_system_start():
+    """Start the complete performance cue sequence"""
+    print('🎭 Starting cue system performance')
+    emit('cue-execute', {'cue': 'CUE-01', 'source': 'system-start'})
+
+@socketio.on('cue-manual-trigger')
+def handle_manual_cue_trigger(data):
+    """Handle manual cue triggers (spacebar, etc.)"""
+    cue_id = data.get('cue', 'CUE-05')
+    print(f'🎭 Manual cue trigger: {cue_id}')
+    emit('cue-execute', {'cue': cue_id, 'source': 'manual'})
+
+@socketio.on('cue-spacebar-trigger')  # NEW
+def handle_spacebar_trigger(data):
+    """Handle context-aware spacebar triggers"""
+    print('🎭 Context-aware spacebar trigger received')
+    # Forward to frontend for context-aware decision
+    emit('cue-spacebar-context', {
+        'source': data.get('source', 'keyboard'),
+        'timestamp': data.get('timestamp', time.time())
+    })
+
+@socketio.on('sd-card-inserted')  # ENHANCE existing handler
+def handle_sd_card_insertion_enhanced(data):
+    """Enhanced SD card handler with cue integration"""
+    # Keep existing SD card logic...
+    if sd_card_monitor:
+        sd_card_monitor.handle_new_card(data)
+    
+    # 🆕 NEW: Add cue system integration
+    insert_count = data.get('insertCount', 1)
+    emit('cue-sd-card-detected', {
+        'insertCount': insert_count,
+        'timestamp': time.time(),
+        'triggerSpeedIncrease': insert_count <= 5
+    })
+    print(f'🎭 SD card cue trigger: Insert #{insert_count}')
+
+@socketio.on('cue-visual-trigger')  # NEW
+def handle_visual_trigger(data):
+    """Handle visual system triggers for sound cues"""
+    trigger_type = data.get('type')
+    print(f'🎭 Visual trigger received: {trigger_type}')
+    
+    # Forward to frontend for visual actions
+    emit('cue-visual-action', data)
+
 def send_existing_eye_images():
     """Send existing eye images to the requesting client"""
     try:

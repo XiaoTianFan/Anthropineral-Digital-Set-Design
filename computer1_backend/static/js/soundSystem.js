@@ -16,38 +16,6 @@ const SOUND_CONFIG = {
 
     // Audio track definitions
     tracks: {
-        'ambient-intro': {
-            url: '/static/audio/ambient-intro.mp3',
-            volume: 0.8,
-            loop: true,
-            fadeIn: 3.0,
-            fadeOut: 2.0,
-            playbackRate: 1.0          // Normal speed
-        },
-        'emergence-sound': {
-            url: '/static/audio/emergence.wav',
-            volume: 0.6,
-            loop: false,
-            fadeIn: 1.0,
-            fadeOut: 1.5,
-            playbackRate: 1.0          // Normal speed
-        },
-        'convergence-build': {
-            url: '/static/audio/convergence-build.mp3',
-            volume: 0.9,
-            loop: false,
-            fadeIn: 0.5,
-            fadeOut: 3.0,
-            playbackRate: 1.0          // Normal speed
-        },
-        'portal-departure': {
-            url: '/static/audio/portal-departure.wav',
-            volume: 1.0,
-            loop: false,
-            fadeIn: 0.0,
-            fadeOut: 0.0,
-            playbackRate: 1.0          // Normal speed
-        },
         'traffic-light': {
             url: '/static/audio/Traffic Light.mp3',
             volume: 0.8,
@@ -111,14 +79,6 @@ const SOUND_CONFIG = {
             fadeIn: 0.5,
             fadeOut: 1.5,
             playbackRate: 1.0          // Normal speed
-        },
-        'voice-over-all': {
-            url: '/static/audio/Voice Over_ALL.wav',
-            volume: 0.9,
-            loop: false,
-            fadeIn: 0.0,
-            fadeOut: 0.0,
-            playbackRate: 1.0          // Normal speed
         }
     },
 
@@ -152,112 +112,26 @@ const SOUND_CONFIG = {
 
     // Cue sequence programming
     cueSequence: [
+        // Note: Main cue system (CUE 01-14) is implemented separately
+        // These are just fallback/testing cues
         {
-            id: 'cue-1-ambient',
-            trackId: 'ambient-intro',
-            triggerType: 'manual',    // Right arrow key
-            delay: 0,
-            fadeIn: 3.0,
-            volume: 0.8,
-            loop: true
-        },
-        {
-            id: 'cue-2-emergence',
-            trackId: 'emergence-sound',
-            triggerType: 'visual-cue',
-            visualTrigger: 'phase2-transition', // Triggered by first eye shape emergence
-            delay: 1.0,               // 1 second after visual trigger
-            fadeIn: 1.0,
-            volume: 0.6,
-            loop: false
-        },
-        {
-            id: 'cue-3-convergence',
-            trackId: 'convergence-build',
-            triggerType: 'visual-cue',
-            visualTrigger: 'convergence-start', // Triggered by Down Arrow convergence
-            delay: 0.5,
-            fadeIn: 0.5,
-            volume: 0.9,
-            loop: false
-        },
-        {
-            id: 'cue-4-portal',
-            trackId: 'portal-departure',
-            triggerType: 'visual-cue',
-            visualTrigger: 'portal-departure-start',
-            delay: 0,
-            fadeIn: 0,
-            volume: 1.0,
-            loop: false
-        },
-        {
-            id: 'cue-5-traffic-light',
+            id: 'test-traffic-light',
             trackId: 'traffic-light',
-            triggerType: 'manual',    // Manual trigger for testing
+            triggerType: 'manual',
             delay: 0,
             fadeIn: 0.5,
             volume: 0.8,
             loop: true
         },
-        // 🎛️ SPEED MORPHING EXAMPLES - Same tracks at different speeds
         {
-            id: 'cue-6-heartbeat-slow',
+            id: 'test-heartbeat',
             trackId: 'heartbeat',
             triggerType: 'manual',
             delay: 0,
             fadeIn: 2.0,
-            volume: 0.7,
+            volume: 0.6,
             loop: true,
-            playbackRate: 0.5,        // Half speed - slow, ominous heartbeat
-            speedTransition: {
-                enabled: false         // Start immediately at target speed
-            }
-        },
-        {
-            id: 'cue-7-heartbeat-frantic',
-            trackId: 'heartbeat',
-            triggerType: 'visual-cue',
-            visualTrigger: 'tension-peak',
-            delay: 0,
-            fadeIn: 0.5,
-            volume: 0.9,
-            loop: true,
-            playbackRate: 2.5,        // 2.5x speed - frantic, panic heartbeat
-            speedTransition: {
-                enabled: true,         // Smooth transition to target speed
-                duration: 3.0,         // 3 second transition
-                startRate: 0.5         // Transition from slow to frantic
-            }
-        },
-        {
-            id: 'cue-8-sine-riser-supernatural',
-            trackId: 'sine-riser',
-            triggerType: 'manual',
-            delay: 0,
-            fadeIn: 1.0,
-            volume: 0.8,
-            loop: false,
-            playbackRate: 'supernatural', // Use preset (4.0x speed)
-            speedTransition: {
-                enabled: true,
-                duration: 5.0,         // Gradual build to supernatural speed
-                startRate: 'normal'    // Start at normal speed
-            }
-        },
-        {
-            id: 'cue-9-spirits-possessed-crawling',
-            trackId: 'spirits-possessed',
-            triggerType: 'visual-cue',
-            visualTrigger: 'possession-start',
-            delay: 1.0,
-            fadeIn: 2.0,
-            volume: 0.9,
-            loop: true,
-            playbackRate: 'crawling',  // Use preset (0.25x speed) - ultra slow, creepy
-            speedTransition: {
-                enabled: false
-            }
+            playbackRate: 1.0
         }
     ],
 
@@ -393,6 +267,9 @@ class AudioTrack {
         this.speedTransitionStartTime = 0;             // When speed transition started
         this.speedTransitionDuration = 0;              // Duration of speed transition
         this.speedTransitionStartRate = 1.0;           // Starting rate for transition
+        
+        // 🆕 NEW: Track end callback support
+        this.onEnd = null;                              // Callback function for track end
     }
 
     setAudioContext(audioContext, masterGainNode) {
@@ -450,6 +327,18 @@ class AudioTrack {
                     this.isPlaying = false;
                     if (SOUND_CONFIG.debug.enabled) {
                         console.log(`🎵 Track ${this.id} playback completed (non-looping)`);
+                    }
+                    
+                    // 🆕 NEW: Call onEnd callback if provided
+                    if (this.onEnd && typeof this.onEnd === 'function') {
+                        try {
+                            this.onEnd();
+                            if (SOUND_CONFIG.debug.enabled) {
+                                console.log(`🎵 Track ${this.id} onEnd callback executed`);
+                            }
+                        } catch (error) {
+                            console.error(`🎵 Error in onEnd callback for track ${this.id}:`, error);
+                        }
                     }
                 }
             };
@@ -682,6 +571,20 @@ class SoundManager {
         // Performance monitoring
         this.lastUpdateTime = 0;
         this.updateInterval = 100;                     // Update cues every 100ms
+        
+        // 🆕 NEW: Cue system extensions
+        this.socketConnection = null;
+        this.performanceState = {
+            isActive: false,
+            currentPhase: 'idle',
+            sdInsertCount: 0,
+            trafficLightRate: 0.75,
+            cueHistory: [],
+            startTime: null
+        };
+        this.cueTimers = new Map();
+        this.crossSystemEvents = new Map();
+        this.trafficLightController = null;
     }
 
     async init() {
@@ -1120,6 +1023,498 @@ class SoundManager {
             }
         });
         return playingTracks;
+    }
+
+    // 🆕 NEW: Initialize cue system
+    initCueSystem(socketConnection) {
+        this.socketConnection = socketConnection;
+        this.setupCueEventHandlers();
+        console.log('🎭 Cue system initialized');
+    }
+    
+    // 🆕 NEW: Setup cue-specific event handlers
+    setupCueEventHandlers() {
+        if (!this.socketConnection) return;
+        
+        this.socketConnection.on('cue-execute', (data) => {
+            this.handleCueExecution(data);
+        });
+        
+        this.socketConnection.on('cue-sd-card-detected', (data) => {
+            this.handleSDCardCue(data);
+        });
+        
+        this.socketConnection.on('cue-manual-trigger', (data) => {
+            this.handleManualCue(data);
+        });
+    }
+    
+    // 🆕 NEW: Handle SD card cue events
+    handleSDCardCue(data) {
+        console.log('🎭 SD Card cue received:', data);
+        if (data.cue) {
+            this.triggerCue(data.cue);
+        }
+    }
+    
+    // 🆕 NEW: Handle manual cue events
+    handleManualCue(data) {
+        console.log('🎭 Manual cue received:', data);
+        if (data.cue) {
+            this.triggerCue(data.cue);
+        }
+    }
+    
+    // 🆕 NEW: Enhanced cue execution handler
+    handleCueExecution(data) {
+        const cueId = data.cue || data.cueId;
+        const source = data.source || 'unknown';
+        console.log(`🎭 Executing cue: ${cueId} from ${source}`);
+        
+        try {
+            // Handle different cue types
+            switch(cueId) {
+                case 'CUE-01':
+                    this.executeCue01();
+                    break;
+                case 'CUE-02':
+                    this.executeCue02();
+                    break;
+                case 'CUE-03':
+                    this.executeCue03();
+                    break;
+                case 'CUE-04':
+                    this.executeCue04();
+                    break;
+                case 'CUE-05':
+                    this.executeCue05();
+                    break;
+                case 'CUE-06':
+                    this.executeCue06();
+                    break;
+                case 'CUE-07':
+                    this.executeCue07();
+                    break;
+                case 'CUE-08':
+                    this.executeCue08();
+                    break;
+                case 'CUE-09':
+                    this.executeCue09();
+                    break;
+                case 'CUE-10':
+                    this.executeCue10();
+                    break;
+                case 'CUE-11':
+                    this.executeCue11();
+                    break;
+                case 'CUE-12':
+                    this.executeCue12();
+                    break;
+                case 'CUE-13':
+                    this.executeCue13();
+                    break;
+                case 'CUE-14':
+                    this.executeCue14();
+                    break;
+                default:
+                    console.warn(`🎭 Unknown cue: ${cueId}`);
+                    break;
+            }
+            
+            // Emit cross-system event to notify other components
+            this.emitCrossSystemEvent('cue-executed', {
+                cue: cueId,
+                source: source,
+                timestamp: Date.now()
+            });
+            
+        } catch (error) {
+            console.error(`🎭 Error executing cue ${cueId}:`, error);
+            this.emitCrossSystemEvent('cue-error', {
+                cue: cueId,
+                error: error.message,
+                source: source
+            });
+        }
+    }
+    
+    // 🆕 NEW: SPECIFIC CUE IMPLEMENTATIONS
+    
+    // CUE 01-04: Opening Sequence
+    executeCue01() {
+        console.log('🎭 executeCue01() called - Executing CUE 01: Opening sequence');
+        
+        try {
+            console.log('🎵 Starting heartbeat track...');
+            // Start both tracks simultaneously using existing methods
+            this.executeCue({
+                id: 'cue-01-heartbeat',
+                trackId: 'heartbeat',
+                fadeIn: 5.0,
+                loop: true,
+                volume: 0.6
+            });
+            
+            console.log('🎵 Starting sine riser track...');
+            this.executeCue({
+                id: 'cue-01-riser',
+                trackId: 'sine-riser',
+                fadeIn: 0.0,
+                loop: false,
+                volume: 0.7
+            });
+            
+            console.log('⏰ Scheduling CUE 02 for 14 seconds...');
+            // Schedule CUE 02 after 14 seconds using existing timer system
+            this.scheduleCue(14.0, { cue: 'CUE-02' }, 'cue-02-trigger');
+            
+            console.log('✅ CUE 01 setup completed');
+        } catch (error) {
+            console.error('❌ Error in executeCue01():', error);
+        }
+    }
+
+    executeCue02() {
+        console.log('🎭 Executing CUE 02: Stop opening tracks');
+        
+        // Stop both tracks with fade using existing methods
+        const heartbeat = this.tracks.get('heartbeat');
+        const riser = this.tracks.get('sine-riser');
+        
+        if (heartbeat) heartbeat.stop(0.5);
+        if (riser) riser.stop(0.5);
+        
+        // Schedule CUE 03 after 5 second silence
+        this.scheduleCue(5.5, { cue: 'CUE-03' }, 'cue-03-trigger');
+    }
+
+    executeCue03() {
+        console.log('🎭 Executing CUE 03: Sublimation completed');
+        
+        this.executeCue({
+            id: 'cue-03-sublimation',
+            trackId: 'sublimation-completed',
+            fadeIn: 0.5,
+            loop: false,
+            onEnd: () => {
+                setTimeout(() => this.executeCue04(), 3000);
+            }
+        });
+    }
+
+    executeCue04() {
+        console.log('🎭 Executing CUE 04: Protocol rebooting + visual trigger');
+        
+        // Start audio using existing system
+        this.executeCue({
+            id: 'cue-04-protocol',
+            trackId: 'protocol-rebooting',
+            fadeIn: 0.5,
+            loop: false
+        });
+        
+        // Trigger visual system using existing SocketIO
+        this.emitCrossSystemEvent('black-filter-disengage', {
+            cueId: 'CUE-04',
+            timing: 'immediate'
+        });
+    }
+
+    // CUE 05-06: Manual + Traffic Light
+    executeCue05() {
+        console.log('🎭 Executing CUE 05: Spirit mining initiating (MANUAL)');
+        
+        this.executeCue({
+            id: 'cue-05-spirit-mining',
+            trackId: 'spirit-mining-initiating',
+            fadeIn: 0.5,
+            loop: false,
+            onEnd: () => {
+                setTimeout(() => this.executeCue06(), 3000);
+            }
+        });
+    }
+
+    executeCue06() {
+        console.log('🎭 Executing CUE 06: Traffic light start');
+        
+        // Initialize traffic light controller if not exists
+        if (!this.trafficLightController) {
+            this.trafficLightController = new TrafficLightController(this);
+        }
+        
+        // Start traffic light at 0.75x speed
+        this.trafficLightController.start();
+        
+        // Update performance state
+        this.performanceState.currentPhase = 'interactive';
+        this.performanceState.trafficLightActive = true;
+    }
+
+    // CUE 07-10: Convergence Sequence
+    executeCue07() {
+        console.log('🎭 Executing CUE 07: Traffic light fade out');
+        
+        if (this.trafficLightController) {
+            this.trafficLightController.fadeOut(5.0, () => {
+                this.executeCue08();
+            });
+        } else {
+            // Fallback if controller not available
+            this.executeCue08();
+        }
+    }
+
+    executeCue08() {
+        console.log('🎭 Executing CUE 08: Spirits possessed + convergence trigger');
+        
+        this.executeCue({
+            id: 'cue-08-spirits',
+            trackId: 'spirits-possessed',
+            fadeIn: 0.5,
+            loop: false,
+            onEnd: () => this.executeCue09()
+        });
+        
+        // Trigger visual convergence using existing system
+        this.emitCrossSystemEvent('convergence-start', {
+            cueId: 'CUE-08',
+            timing: 'immediate'
+        });
+    }
+
+    executeCue09() {
+        console.log('🎭 Executing CUE 09: Sublimation initiated');
+        
+        this.executeCue({
+            id: 'cue-09-sublimation',
+            trackId: 'sublimation-initiated',
+            fadeIn: 0.5,
+            loop: false,
+            onEnd: () => this.executeCue10()
+        });
+    }
+
+    executeCue10() {
+        console.log('🎭 Executing CUE 10: Heartbeat return');
+        
+        this.executeCue({
+            id: 'cue-10-heartbeat-return',
+            trackId: 'heartbeat',
+            fadeIn: 5.0,
+            loop: true,
+            volume: 0.6
+        });
+        
+        // Schedule CUE 11 after 20 seconds
+        this.scheduleCue(20.0, { cue: 'CUE-11' }, 'cue-11-trigger');
+    }
+
+    // CUE 11-14: Final Sequence
+    executeCue11() {
+        console.log('🎭 Executing CUE 11: Final sine riser');
+        
+        this.executeCue({
+            id: 'cue-11-riser-final',
+            trackId: 'sine-riser',
+            fadeIn: 0.0,
+            loop: false,
+            volume: 0.7
+        });
+        
+        // Schedule departure trigger 6 seconds after riser starts
+        this.scheduleCue(6.0, { cue: 'CUE-12' }, 'cue-12-trigger');
+    }
+
+    executeCue12() {
+        console.log('🎭 Executing CUE 12: Departure phase trigger');
+        
+        // Trigger visual departure using existing system
+        this.emitCrossSystemEvent('departure-start', {
+            cueId: 'CUE-12',
+            timing: 'immediate'
+        });
+        
+        // Schedule heartbeat stop 7 seconds later
+        this.scheduleCue(7.0, { cue: 'CUE-13' }, 'cue-13-trigger');
+    }
+
+    executeCue13() {
+        console.log('🎭 Executing CUE 13: Heartbeat stop');
+        
+        const heartbeat = this.tracks.get('heartbeat');
+        if (heartbeat && heartbeat.isPlaying) {
+            heartbeat.stop(0);
+        }
+        
+        // Schedule final cue 5 seconds later
+        this.scheduleCue(5.0, { cue: 'CUE-14' }, 'cue-14-trigger');
+    }
+
+    executeCue14() {
+        console.log('🎭 Executing CUE 14: Final sublimation completed');
+        
+        this.executeCue({
+            id: 'cue-14-final',
+            trackId: 'sublimation-completed',
+            fadeIn: 0.5,
+            loop: false,
+            onEnd: () => {
+                this.performanceState.currentPhase = 'complete';
+                this.performanceState.isActive = false;
+                console.log('🎭 Performance sequence completed');
+            }
+        });
+    }
+    
+    // 🆕 NEW: Start complete performance sequence
+    startPerformanceSequence() {
+        console.log('🎭 startPerformanceSequence() called');
+        console.log('🔍 Current performance state before starting:', this.performanceState);
+        
+        this.performanceState.isActive = true;
+        this.performanceState.currentPhase = 'opening';
+        this.performanceState.startTime = Date.now();
+        
+        console.log('🎭 Performance state updated:', this.performanceState);
+        console.log('🎭 Starting performance sequence - calling executeCue01()');
+        
+        try {
+            this.executeCue01();
+            console.log('✅ executeCue01() called successfully');
+        } catch (error) {
+            console.error('❌ Error calling executeCue01():', error);
+        }
+    }
+    
+    // 🆕 NEW: Emergency stop with existing system
+    emergencyStop() {
+        // Use existing stopAllAudio method
+        this.stopAllAudio(0.5);
+        
+        // Clear all scheduled cues
+        this.cueTimers.forEach(timer => clearTimeout(timer));
+        this.cueTimers.clear();
+        
+        // Reset performance state
+        this.performanceState.isActive = false;
+        this.performanceState.currentPhase = 'stopped';
+        
+        console.log('🛑 Emergency stop - all cues cancelled');
+    }
+
+    // 🆕 NEW: Enhanced cue execution using existing track system
+    async executeCue(cueData) {
+        const track = this.tracks.get(cueData.trackId);
+        if (!track) {
+            console.error(`❌ Cue execution failed: Track ${cueData.trackId} not found`);
+            return false;
+        }
+        
+        // Log cue execution
+        this.performanceState.cueHistory.push({
+            cue: cueData.id || cueData.trackId,
+            timestamp: Date.now(),
+            trackId: cueData.trackId
+        });
+        
+        console.log(`🎵 Executing cue: ${cueData.id || cueData.trackId}`);
+        
+        // Configure track settings before playing
+        if (cueData.volume !== undefined) {
+            track.setVolume(cueData.volume);
+        }
+        
+        if (cueData.loop !== undefined) {
+            track.setLoop(cueData.loop);
+        }
+        
+        if (cueData.playbackRate !== undefined) {
+            track.setPlaybackRate(cueData.playbackRate, 0);
+        }
+        
+        // Set track end callback for cue chaining
+        if (cueData.onEnd && typeof cueData.onEnd === 'function') {
+            track.onEnd = cueData.onEnd;
+        }
+        
+        // Use existing play method with fade in parameter
+        const fadeIn = cueData.fadeIn || 0;
+        const success = track.play(fadeIn);
+        
+        return success;
+    }
+    
+    // 🆕 NEW: Schedule delayed cue execution
+    scheduleCue(delay, cueData, cueId) {
+        if (this.cueTimers.has(cueId)) {
+            clearTimeout(this.cueTimers.get(cueId));
+        }
+        
+        const timer = setTimeout(() => {
+            // Handle scheduled cue execution
+            this.handleCueExecution(cueData);
+            this.cueTimers.delete(cueId);
+        }, delay * 1000);
+        
+        this.cueTimers.set(cueId, timer);
+        console.log(`⏰ Scheduled cue ${cueId} in ${delay}s`);
+    }
+    
+    // 🆕 NEW: Enhanced speed morphing for traffic light
+    morphTrafficLightSpeed() {
+        const track = this.tracks.get('traffic-light');
+        if (!track || !track.isPlaying) return false;
+        
+        const newRate = Math.min(this.performanceState.trafficLightRate + 0.25, 1.75);
+        this.performanceState.trafficLightRate = newRate;
+        
+        // Use existing speed morphing with smooth transition
+        track.setPlaybackRate(newRate, 1.0);
+        console.log(`🚦 Traffic light speed increased to ${newRate}x`);
+        
+        return newRate < 1.75; // Return false when max speed reached
+    }
+    
+    // 🆕 NEW: Cross-system event emission
+    emitCrossSystemEvent(eventType, data = {}) {
+        if (this.socketConnection) {
+            this.socketConnection.emit('cue-visual-trigger', {
+                type: eventType,
+                timestamp: Date.now(),
+                data: data
+            });
+            console.log(`🌐 Cross-system event: ${eventType}`);
+        }
+    }
+    
+    // 🆕 NEW: Reset cue system to initial state
+    resetCueSystem() {
+        console.log('🔄 Resetting cue system...');
+        
+        // Stop all audio with quick fade
+        this.stopAllAudio(0.5);
+        
+        // Clear all scheduled cues
+        this.cueTimers.forEach(timer => clearTimeout(timer));
+        this.cueTimers.clear();
+        
+        // Reset performance state
+        this.performanceState = {
+            isActive: false,
+            currentPhase: 'idle',
+            sdInsertCount: 0,
+            trafficLightRate: 0.75,
+            cueHistory: [],
+            startTime: null
+        };
+        
+        // Reset traffic light controller if exists
+        if (this.trafficLightController) {
+            this.trafficLightController.reset();
+        }
+        
+        console.log('🔄 Cue system reset completed');
     }
 }
 

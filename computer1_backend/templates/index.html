@@ -23,6 +23,178 @@
             <span>🔧</span>
         </button>
 
+        <!-- 🎭 NEW: Cue System Debug Panel (Left Side) -->
+        <section id="cue-debug-panel" class="cue-debug-panel-expanded">
+            <div class="cue-debug-header">
+                <h3>🎭 Cue System Monitor</h3>
+                <button id="cue-debug-close" class="cue-debug-close-btn">×</button>
+            </div>
+            
+            <!-- 🕐 NEW: Main Runtime Clock -->
+            <div class="cue-debug-section runtime-clock-section">
+                <div class="runtime-clock-container">
+                    <div class="runtime-clock-header">
+                        <h4>🕐 Performance Runtime</h4>
+                        <button id="runtime-clock-reset" class="runtime-reset-btn" title="Reset Clock">↺</button>
+                    </div>
+                    <div class="runtime-clock-display">
+                        <div class="runtime-clock-main" id="runtime-clock-main">00:00:00</div>
+                        <div class="runtime-clock-info">
+                            <span class="runtime-status" id="runtime-status">Not Started</span>
+                            <span class="runtime-separator">|</span>
+                            <span class="runtime-start-time" id="runtime-start-time">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Real-time Cue Status -->
+            <div class="cue-debug-section">
+                <h4>🎵 Live Status</h4>
+                <div class="cue-status-grid">
+                    <div class="status-item">
+                        <span class="status-label">Audio Context:</span>
+                        <span id="cue-audio-context-status" class="status-value">Unknown</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Performance State:</span>
+                        <span id="cue-performance-state" class="status-value">Idle</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Current Phase:</span>
+                        <span id="cue-current-phase" class="status-value">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Active Cues:</span>
+                        <span id="cue-active-count" class="status-value">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">SD Insert Count:</span>
+                        <span id="cue-sd-count" class="status-value">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Traffic Light Rate:</span>
+                        <span id="cue-traffic-rate" class="status-value">0.75x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cue Sequence Progress -->
+            <div class="cue-debug-section">
+                <h4>📋 Cue Sequence</h4>
+                <div class="cue-sequence-list" id="cue-sequence-list">
+                    <div class="cue-item" data-cue="CUE-01">
+                        <span class="cue-number">01</span>
+                        <span class="cue-name">Opening (Heartbeat + Riser)</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-02">
+                        <span class="cue-number">02</span>
+                        <span class="cue-name">Stop Opening Tracks</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-03">
+                        <span class="cue-number">03</span>
+                        <span class="cue-name">Sublimation Completed</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-04">
+                        <span class="cue-number">04</span>
+                        <span class="cue-name">Protocol + Black Filter</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item manual" data-cue="CUE-05">
+                        <span class="cue-number">05</span>
+                        <span class="cue-name">Spirit Mining (MANUAL)</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-06">
+                        <span class="cue-number">06</span>
+                        <span class="cue-name">Traffic Light Start</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item interactive" data-cue="SD-PHASE">
+                        <span class="cue-number">📱</span>
+                        <span class="cue-name">SD Card Interactive Phase</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-07">
+                        <span class="cue-number">07</span>
+                        <span class="cue-name">Traffic Light Fade</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-08">
+                        <span class="cue-number">08</span>
+                        <span class="cue-name">Spirits + Convergence</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-09">
+                        <span class="cue-number">09</span>
+                        <span class="cue-name">Sublimation Initiated</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-10">
+                        <span class="cue-number">10</span>
+                        <span class="cue-name">Heartbeat Return</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-11">
+                        <span class="cue-number">11</span>
+                        <span class="cue-name">Final Riser</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-12">
+                        <span class="cue-number">12</span>
+                        <span class="cue-name">Departure Trigger</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-13">
+                        <span class="cue-number">13</span>
+                        <span class="cue-name">Heartbeat Stop</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-14">
+                        <span class="cue-number">14</span>
+                        <span class="cue-name">Final Sublimation</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Controls -->
+            <div class="cue-debug-section">
+                <h4>🎮 Manual Controls</h4>
+                <div class="cue-controls-grid">
+                    <button id="cue-start-sequence" class="cue-control-btn primary">▶️ Start Sequence</button>
+                    <button id="cue-trigger-05" class="cue-control-btn manual">🎵 Trigger CUE-05</button>
+                    <button id="cue-emergency-stop" class="cue-control-btn danger">🛑 Emergency Stop</button>
+                    <button id="cue-reset-system" class="cue-control-btn">↺ Reset System</button>
+                </div>
+            </div>
+
+            <!-- Audio Track Status -->
+            <div class="cue-debug-section">
+                <h4>🎵 Audio Tracks</h4>
+                <div class="audio-tracks-list" id="cue-audio-tracks">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Event Log -->
+            <div class="cue-debug-section">
+                <h4>📝 Event Log</h4>
+                <div class="cue-event-log" id="cue-event-log">
+                    <div class="log-entry">System initialized</div>
+                </div>
+                <button id="cue-clear-log" class="cue-control-btn small">Clear Log</button>
+            </div>
+        </section>
+
+        <!-- Cue Debug Panel Toggle Button (Left Side) -->
+        <button id="cue-debug-toggle" class="cue-debug-toggle-btn">
+            <span>🎭</span>
+        </button>
+
         <!-- Debug Panel (full height, collapsible) -->
         <section id="debug-panel" class="debug-panel-expanded">
             <div class="debug-header">
@@ -984,6 +1156,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.js"></script>
     <!-- 🎵 NEW: Sound system -->
+    <script src="{{ url_for('static', filename='js/trafficLightController.js') }}"></script>
     <script src="{{ url_for('static', filename='js/soundSystem.js') }}"></script>
     <script src="{{ url_for('static', filename='js/client.js') }}"></script>
     

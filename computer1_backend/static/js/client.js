@@ -112,7 +112,7 @@ const VISUAL_CONFIG = {
             // Shape flickering/instability effect
             flickering: {
                 enabled: true,        // Enable opacity flickering
-                frequency: 8.0,       // Flickers per second (higher = more frantic)
+                frequency: 5.0,       // Flickers per second (higher = more frantic)
                 minOpacity: 0.1,      // Minimum opacity during flicker
                 maxOpacity: 1.0,      // Maximum opacity during flicker
                 intensityIncrease: true, // Increase flicker intensity over time
@@ -446,7 +446,7 @@ class ArtisticTextureProcessor {
         try {
             // Check cache first if enabled
             const cacheKey = this.generateCacheKey(sourceImage.src);
-            console.log('🎨 Processing texture with cache key:', cacheKey);
+            // console.log('🎨 Processing texture with cache key:', cacheKey);
             
             // 🔧 TEMPORARILY DISABLE CACHE for debugging
             // if (VISUAL_CONFIG.artisticProcessing.performance.cacheProcessed && this.processedCache.has(cacheKey)) {
@@ -479,7 +479,7 @@ class ArtisticTextureProcessor {
             processingCanvas.width = canvasWidth;
             processingCanvas.height = canvasHeight;
             
-            console.log(`🎨 Processing canvas size: ${canvasWidth}x${canvasHeight} for ${sourceImage.src}`);
+            // console.log(`🎨 Processing canvas size: ${canvasWidth}x${canvasHeight} for ${sourceImage.src}`);
             
             // Draw source image to the new canvas
             processingCtx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -506,14 +506,14 @@ class ArtisticTextureProcessor {
                 canvasId: `canvas_${Math.random().toString(36).substr(2, 9)}`
             };
             
-            console.log(`🎨 Created unique texture:`, processedTexture.userData);
+            // console.log(`🎨 Created unique texture:`, processedTexture.userData);
             
             // Cache the result if enabled (currently disabled for debugging)
             // if (VISUAL_CONFIG.artisticProcessing.performance.cacheProcessed) {
             //     this.processedCache.set(cacheKey, processedTexture);
             // }
             
-            console.log('🎨 Applied artistic processing: high-contrast B&W edges');
+            // console.log('🎨 Applied artistic processing: high-contrast B&W edges');
             callback(processedTexture);
             
         } catch (error) {
@@ -1434,7 +1434,7 @@ class ParticleSystem {
     setAttractionMode(enabled, attractors = []) {
         this.attractionMode = enabled;
         this.attractors = attractors;
-        console.log(`Particle attraction mode: ${enabled ? 'enabled' : 'disabled'}`);
+        // console.log(`Particle attraction mode: ${enabled ? 'enabled' : 'disabled'}`);
     }
 
     dispose() {
@@ -1573,7 +1573,7 @@ class EyeShape {
         
         // 🔄 NEW: Mark texture processing as started
         this.isTextureProcessing = true;
-        console.log(`🔄 Starting texture processing for shape: ${this.id}`);
+        // console.log(`🔄 Starting texture processing for shape: ${this.id}`);
         
         loader.load(
             this.textureUrl,
@@ -1585,7 +1585,7 @@ class EyeShape {
                     img.crossOrigin = 'anonymous';
                     
                     img.onload = () => {
-                        console.log(`🎨 Processing texture artistically for shape: ${this.id}`);
+                        // console.log(`🎨 Processing texture artistically for shape: ${this.id}`);
                         // Process the texture artistically
                         this.artisticProcessor.processTexture(img, (processedTexture) => {
                             // Apply the processed texture
@@ -1659,7 +1659,7 @@ class EyeShape {
         this.isLoaded = true;
         
         const processingStatus = artistic.enabled ? '(with artistic B&W edges)' : '(original)';
-        console.log(`🎨 Eye texture applied to shape: ${this.id} ${processingStatus}`);
+        // console.log(`🎨 Eye texture applied to shape: ${this.id} ${processingStatus}`);
     }
 
     // 🔄 NEW: Complete texture processing and trigger emergence
@@ -1667,7 +1667,7 @@ class EyeShape {
         this.isTextureProcessing = false;
         this.isTextureProcessed = true;
         
-        console.log(`✅ Texture processing completed for shape: ${this.id}`);
+        // console.log(`✅ Texture processing completed for shape: ${this.id}`);
         
         // Trigger the emergence callback if it exists
         if (this.onTextureProcessed && typeof this.onTextureProcessed === 'function') {
@@ -1725,7 +1725,7 @@ class EyeShape {
             this.isConverging = true;
             this.convergenceStartTime = currentTime;
             this.convergenceProgress = 0;
-            console.log(`Starting convergence for shape: ${this.id}`);
+            //console.log(`Starting convergence for shape: ${this.id}`);
         }
     }
 
@@ -1735,7 +1735,7 @@ class EyeShape {
             this.isEmerging = true;
             this.emergenceStartTime = currentTime || performance.now() / 1000;
             this.emergenceProgress = 0;
-            console.log(`🌟 Starting emergence for shape: ${this.id}`);
+            // console.log(`🌟 Starting emergence for shape: ${this.id}`);
         }
     }
 
@@ -1770,7 +1770,7 @@ class EyeShape {
         if (this.emergenceProgress >= 1.0) {
             this.isEmerging = false;
             this.hasCompletedEmergence = true;
-            console.log(`🌟 Emergence completed for shape: ${this.id}`);
+            // console.log(`🌟 Emergence completed for shape: ${this.id}`);
         }
     }
 
@@ -1846,7 +1846,7 @@ class EyeShape {
                 this.originalScale = this.mesh.scale.x; // Assume uniform scaling
             }
             
-            console.log(`🌀 Starting portal departure for shape: ${this.id}`);
+            // console.log(`🌀 Starting portal departure for shape: ${this.id}`);
         }
     }
 
@@ -2172,7 +2172,7 @@ class MorphingEyeShape extends EyeShape {
         
         // Debug logging for displacement (more frequent for debugging)
         if (Math.floor(this.morphTimer * 10) % 50 === 0) {
-            console.log(`🔄 Applied noise to ${this.id}: maxDisplacement=${maxDisplacement.toFixed(4)}, vertices=${vertexCount}, intensity=${config.intensity}, amplitude=${advanced.noiseAmplitude}, timer=${this.morphTimer.toFixed(2)}`);
+            // console.log(`🔄 Applied noise to ${this.id}: maxDisplacement=${maxDisplacement.toFixed(4)}, vertices=${vertexCount}, intensity=${config.intensity}, amplitude=${advanced.noiseAmplitude}, timer=${this.morphTimer.toFixed(2)}`);
         }
         
         // Mark positions as needing update
@@ -2302,7 +2302,7 @@ class ShapeManager {
             if (VISUAL_CONFIG.shapes.emergence.enabled) {
                 const currentTime = performance.now() / 1000;
                 eyeShape.startEmergence(currentTime);
-                console.log(`🌟 Starting delayed emergence for ${eyeShape.id} after texture processing`);
+                // console.log(`🌟 Starting delayed emergence for ${eyeShape.id} after texture processing`);
             }
         };
         
@@ -2552,52 +2552,48 @@ class ShapeManager {
 
 class TheatreClient {
     constructor() {
-        this.socket = null;
+        // Initialize visual configuration
+        this.visualConfig = { ...VISUAL_CONFIG };
+        
+        // Initialize components
+        this.shapeManager = new ShapeManager();
+        this.particleSystem = new ParticleSystem();
+        this.artisticProcessor = new ArtisticTextureProcessor();
+        
+        // Initialize state
         this.scene = null;
         this.camera = null;
         this.renderer = null;
-        this.animationMeshes = [];
-        this.isAnimationTriggered = false;
-        
-        // Visual effects system
-        this.particleSystem = null;
-        this.shapeManager = null; // New shape manager for eye-textured shapes
-        this.eyeShapes = []; // Legacy - keeping for compatibility
-        this.visualPhase = 1; // 1: particles only, 2: particles + shapes, 3: convergence, 4: dispersion, 5: portal departure
-        this.lastTime = 0;
-        
-        // Phase 4 tracking
-        this.isInShellTransition = false;
-        this.shellTransitionStartTime = 0;
-        this.isInDispersionPhase = false;
-        this.dispersionCompleted = false;
-        
-        // 🌀 NEW: Phase 5 portal departure tracking
-        this.isInPortalDeparture = false;
-        this.portalDepartureStartTime = 0;
-        this.allShapesDisappeared = false;
-        this.portalReturnStartTime = 0;
-        this.isReturningToPhase1 = false;
-        
-        // 🕐 NEW: Auto-trigger system tracking
-        this.autoTriggerEnabled = false;
-        this.autoTriggerStartTime = 0;
-        this.autoTriggerTimeoutId = null;
-        this.countdownIntervalId = null;
-        this.manualTriggerAllowed = false;
-        this.lastAutoTriggerDebugTime = 0;
-        this.isManualPhase4Transition = false; // Track if Phase 4 was manually triggered
-        
-        // Camera rotation tracking
-        this.cameraRotationTime = 0;
-        this.baseRadius = VISUAL_CONFIG.scene.camera.position.z;
-        
-        // 🎨 NEW: Artistic texture processor
-        this.artisticProcessor = null;
-        
-        // 🎵 NEW: Sound system integration
+        this.composer = null;
+        this.animationId = null;
+        this.socket = null;
         this.soundManager = null;
         
+        // Visual state management
+        this.currentPhase = 1;
+        this.shapesInScene = [];
+        this.visualEffectsEnabled = true;
+        this.performanceMetrics = {
+            frameCount: 0,
+            lastFpsUpdate: 0,
+            fps: 0
+        };
+        
+        // Auto-trigger portal departure system
+        this.autoTriggerActive = false;
+        this.autoTriggerTimeout = null;
+        this.countdownInterval = null;
+        
+        // 🕐 NEW: Runtime clock system
+        this.runtimeClock = {
+            startTime: null,
+            isRunning: false,
+            elapsedTime: 0,
+            clockInterval: null,
+            status: 'not-started' // 'not-started', 'running', 'paused', 'completed'
+        };
+        
+        // Initialize systems
         this.init();
     }
 
@@ -2677,27 +2673,69 @@ class TheatreClient {
         if (SOUND_CONFIG.master.enabled) {
             try {
                 this.soundManager = new SoundManager();
-                const success = await this.soundManager.init();
                 
-                if (success) {
-                    this.setupSoundEventHandlers();
-                    this.addDebugMessage('🎵 Sound system initialized successfully');
+                // 🆕 FIX: Add user interaction requirement for Web Audio API
+                this.addDebugMessage('🎵 Sound system requires user interaction to start');
+                this.addCueLogEntry('Audio system waiting for user interaction', 'info');
+                
+                // Create a one-time click handler to initialize audio
+                const initAudioOnInteraction = async () => {
+                    try {
+                        const success = await this.soundManager.init();
+                        
+                        if (success) {
+                            // 🆕 NEW: Initialize cue system with socket connection
+                            this.soundManager.initCueSystem(this.socket);
+                            
+                            // 🆕 NEW: Initialize traffic light controller
+                            this.soundManager.trafficLightController = new TrafficLightController(this.soundManager);
+                            
+                            this.setupSoundEventHandlers();
+                            this.addDebugMessage('🎵 Sound system initialized successfully');
+                            this.addDebugMessage('🎭 Cue system ready with cross-system integration');
+                            this.addCueLogEntry('Sound system initialized successfully', 'success');
+                            
+                            // Log sound system status
+                            const status = this.soundManager.getStatus();
+                            this.addDebugMessage(`🎵 Loaded ${status.tracksLoaded} audio tracks, ${status.totalCues} cues programmed`);
+                            this.addCueLogEntry(`Loaded ${status.tracksLoaded} audio tracks`, 'info');
+                            
+                            // 🎵 NEW: Initialize audio debug panel
+                            this.initAudioDebugPanel();
+                            
+                            // 🎭 NEW: Initialize cue debug panel
+                            this.initCueDebugPanel();
+                            
+                            // Update cue system status
+                            this.updateCueSystemStatus();
+                            
+                        } else {
+                            this.addDebugMessage('🎵 Sound system initialization failed', 'error');
+                            this.addCueLogEntry('Sound system initialization failed', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Sound system initialization error:', error);
+                        this.addDebugMessage(`🎵 Sound system error: ${error.message}`, 'error');
+                        this.addCueLogEntry(`Sound system error: ${error.message}`, 'error');
+                    }
                     
-                    // Log sound system status
-                    const status = this.soundManager.getStatus();
-                    this.addDebugMessage(`🎵 Loaded ${status.tracksLoaded} audio tracks, ${status.totalCues} cues programmed`);
-                    
-                    // 🎵 NEW: Initialize audio debug panel
-                    this.initAudioDebugPanel();
-                } else {
-                    this.addDebugMessage('🎵 Sound system initialization failed', 'error');
-                }
+                    // Remove the event listener after first interaction
+                    document.removeEventListener('click', initAudioOnInteraction);
+                    document.removeEventListener('keydown', initAudioOnInteraction);
+                };
+                
+                // Add event listeners for user interaction
+                document.addEventListener('click', initAudioOnInteraction);
+                document.addEventListener('keydown', initAudioOnInteraction);
+                
             } catch (error) {
-                console.error('🎵 Sound system initialization error:', error);
-                this.addDebugMessage(`🎵 Sound system error: ${error.message}`, 'error');
+                console.error('Sound system setup error:', error);
+                this.addDebugMessage(`🎵 Sound system setup error: ${error.message}`, 'error');
+                this.addCueLogEntry(`Sound system setup error: ${error.message}`, 'error');
             }
         } else {
             this.addDebugMessage('🎵 Sound system disabled in configuration');
+            this.addCueLogEntry('Sound system disabled in configuration', 'warning');
         }
     }
 
@@ -2776,7 +2814,7 @@ class TheatreClient {
         });
 
         this.socket.on('connection_status', (data) => {
-            console.log('Connection status update:', data);
+            // console.log('Connection status update:', data);
             this.updateSystemStatus(data);
             
             // If there's an error, show it in debug
@@ -2885,8 +2923,35 @@ class TheatreClient {
 
         // Keyboard trigger event handlers
         this.socket.on('keyboard_status', (data) => {
-            console.log('Keyboard status update:', data);
+            // Only log if the status actually changed
+            const statusChanged = !this.lastKeyboardStatus || 
+                                this.lastKeyboardStatus.active !== data.active ||
+                                this.lastKeyboardStatus.hotkey !== data.hotkey ||
+                                this.lastKeyboardStatus.cooldown_seconds !== data.cooldown_seconds;
+            
+            if (statusChanged) {
+                console.log('Keyboard status update:', data);
+            }
+            
+            this.lastKeyboardStatus = { ...data };
             this.updateKeyboardStatus(data);
+        });
+
+        // 🆕 NEW: Cue system event handlers
+        this.socket.on('cue-visual-action', (data) => {
+            this.handleVisualCueAction(data);
+        });
+        
+        this.socket.on('cue-execute', (data) => {
+            this.handleCueExecution(data);
+        });
+        
+        this.socket.on('cue-sd-card-detected', (data) => {
+            this.handleSDCardCue(data);
+        });
+
+        this.socket.on('cue-spacebar-context', (data) => {
+            this.handleSpacebarContext(data);
         });
 
         // Request status updates periodically
@@ -3209,14 +3274,14 @@ class TheatreClient {
                 const processedCount = shapes.filter(s => s.isTextureProcessed).length;
                 const emergingCount = shapes.filter(s => s.isEmerging).length;
                 
-                console.log(`📊 Texture Processing Status: ${processingCount} processing, ${processedCount} processed, ${emergingCount} emerging`);
+                // console.log(`📊 Texture Processing Status: ${processingCount} processing, ${processedCount} processed, ${emergingCount} emerging`);
             }, 1000); // Check after 1 second
             
             // Enable particle attraction to eye shapes
             if (this.particleSystem) {
                 const attractionPoints = this.shapeManager.getAttractionPoints();
                 this.particleSystem.setAttractionMode(true, attractionPoints);
-                console.log(`Enabled particle attraction to ${attractionPoints.length} eye shapes`);
+                // console.log(`Enabled particle attraction to ${attractionPoints.length} eye shapes`);
             }
         }
         
@@ -3792,7 +3857,7 @@ class TheatreClient {
         
         // Optional: Debug logging for speed changes (can be removed later)
         if (Math.floor(this.cameraRotationTime * 10) % 50 === 0) { // Log every ~5 seconds
-            console.log(`📷 Camera rotation speed: ${(speedMultiplier * 100).toFixed(1)}% (${currentShapes}/${maxShapes} shapes)`);
+            // console.log(`📷 Camera rotation speed: ${(speedMultiplier * 100).toFixed(1)}% (${currentShapes}/${maxShapes} shapes)`);
         }
         
         // Update UI display for camera rotation speed
@@ -4447,6 +4512,7 @@ class TheatreClient {
             
             // 🎵 NEW: Sound system keyboard controls
             if (this.soundManager) {
+
                 // Manual sound cue trigger (Right Arrow)
                 if (event.code === SOUND_CONFIG.controls.manualCueKey) {
                     event.preventDefault();
@@ -4737,7 +4803,7 @@ class TheatreClient {
     requestStatusUpdate() {
         this.socket.emit('request_status');
         this.socket.emit('request_keyboard_status');
-        this.addDebugMessage('Requested system status update');
+        // Note: Debug message removed to prevent console spam (runs every 5s)
     }
 
     requestExistingEyes() {
@@ -4886,7 +4952,7 @@ class TheatreClient {
         this.updateTextureCount(processedCount);
         this.updateLastTextureUpdate();
         
-        console.log(`🖼️ Refreshed texture display - showing ${processedCount} processed textures`);
+        // console.log(`🖼️ Refreshed texture display - showing ${processedCount} processed textures`);
     }
     
     createTextureItem(shape, index) {
@@ -4901,9 +4967,9 @@ class TheatreClient {
         if (shape.mesh.material.map && shape.mesh.material.map.image) {
             try {
                 const texture = shape.mesh.material.map;
-                console.log(`🖼️ Processing texture ${index} with userData:`, texture.userData);
-                console.log(`🖼️ Texture image type:`, texture.image.constructor.name);
-                console.log(`🖼️ Texture image dimensions:`, texture.image.width, 'x', texture.image.height);
+                // console.log(`🖼️ Processing texture ${index} with userData:`, texture.userData);
+                // console.log(`🖼️ Texture image type:`, texture.image.constructor.name);
+                // console.log(`🖼️ Texture image dimensions:`, texture.image.width, 'x', texture.image.height);
                 
                 // Create a NEW canvas to convert the texture to a data URL
                 const displayCanvas = document.createElement('canvas');
@@ -4921,7 +4987,7 @@ class TheatreClient {
                 img.src = dataUrl;
                 img.alt = `Processed texture ${index + 1}`;
                 
-                console.log(`🖼️ Created display image for texture ${index}, data URL length:`, dataUrl.length);
+                // console.log(`🖼️ Created display image for texture ${index}, data URL length:`, dataUrl.length);
                 
                 // Store the display canvas for potential download (use unique key)
                 const uniqueKey = `${index}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
@@ -4943,7 +5009,7 @@ class TheatreClient {
         
         img.addEventListener('load', () => {
             item.classList.remove('loading');
-            console.log(`🖼️ Texture image ${index} loaded successfully`);
+            // console.log(`🖼️ Texture image ${index} loaded successfully`);
         });
         
         img.addEventListener('error', () => {
@@ -4975,7 +5041,7 @@ class TheatreClient {
     
     enlargeTexture(shape, index) {
         // Optional: Create a modal or popup to show enlarged texture
-        console.log(`🖼️ Enlarging texture ${index} for shape:`, shape.filename);
+        // console.log(`🖼️ Enlarging texture ${index} for shape:`, shape.filename);
         // This could be implemented as a modal overlay
     }
     
@@ -5120,7 +5186,7 @@ class TheatreClient {
             this.reprocessAllShapeTextures();
         }
         
-        console.log('🎨 Updated artistic processing settings');
+        // console.log('🎨 Updated artistic processing settings');
     }
     
     reprocessAllShapeTextures() {
@@ -5145,7 +5211,7 @@ class TheatreClient {
             }
         });
         
-        console.log(`🎨 Reprocessing ${processedCount} shape textures with new artistic settings`);
+        // console.log(`🎨 Reprocessing ${processedCount} shape textures with new artistic settings`);
     }
     
     resetArtisticDefaults() {
@@ -5199,7 +5265,7 @@ class TheatreClient {
         // Apply the changes
         this.updateArtisticProcessing();
         
-        console.log('🎨 Reset artistic processing to default settings');
+        // console.log('🎨 Reset artistic processing to default settings');
     }
     
     updateArtisticUIControls() {
@@ -5347,7 +5413,7 @@ class TheatreClient {
         this.manualTriggerAllowed = config.allowEarlyTrigger;
         
         // Set up automatic trigger timeout
-        this.autoTriggerTimeoutId = setTimeout(() => {
+        this.autoTriggerTimeout = setTimeout(() => {
             this.triggerPortalDepartureAuto();
         }, config.maxWaitTime * 1000);
         
@@ -5364,7 +5430,7 @@ class TheatreClient {
     startCountdownDisplay() {
         const config = VISUAL_CONFIG.attraction.portalDeparture.autoTrigger;
         
-        this.countdownIntervalId = setInterval(() => {
+        this.countdownInterval = setInterval(() => {
             if (!this.autoTriggerEnabled) {
                 this.stopCountdownDisplay();
                 return;
@@ -5413,9 +5479,9 @@ class TheatreClient {
     }
 
     stopCountdownDisplay() {
-        if (this.countdownIntervalId) {
-            clearInterval(this.countdownIntervalId);
-            this.countdownIntervalId = null;
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+            this.countdownInterval = null;
         }
         
         // Clear countdown display
@@ -5433,9 +5499,9 @@ class TheatreClient {
 
     stopAutoTriggerSystem() {
         // Clear timeout
-        if (this.autoTriggerTimeoutId) {
-            clearTimeout(this.autoTriggerTimeoutId);
-            this.autoTriggerTimeoutId = null;
+        if (this.autoTriggerTimeout) {
+            clearTimeout(this.autoTriggerTimeout);
+            this.autoTriggerTimeout = null;
         }
         
         // Stop countdown
@@ -5693,6 +5759,12 @@ class TheatreClient {
                 this.updateTrackStatus(trackId, trackStatus);
             });
 
+            // Update audio track statuses
+            this.updateAudioTrackStatuses();
+            
+            // 🕐 NEW: Update runtime clock display
+            this.updateRuntimeClockDisplay();
+            
         } catch (error) {
             console.error('🎵 Error updating audio debug status:', error);
         }
@@ -5704,9 +5776,704 @@ class TheatreClient {
             this.audioStatusInterval = null;
         }
     }
+
+    handleVisualCueAction(data) {
+        const actionType = data.type;
+        console.log(`🎭 Visual cue action: ${actionType}`);
+        this.addDebugMessage(`🎨 Visual cue: ${actionType}`, 'info');
+        
+        // 🎭 NEW: Update cue debug panel
+        this.addCueLogEntry(`Visual action: ${actionType}`, 'info');
+        
+        // Handle specific visual actions
+        switch(actionType) {
+            case 'black-filter-disengage':
+                this.disengageBlackFilter();
+                break;
+            case 'convergence-start':
+                this.triggerConvergencePhase();
+                break;
+            case 'departure-start':
+                this.triggerDeparturePhase();
+                break;
+            default:
+                console.warn(`Unknown visual cue action: ${actionType}`);
+        }
+    }
+
+    handleCueExecution(data) {
+        const cueId = data.cue;
+        const source = data.source || 'unknown';
+        console.log(`🎭 Cue execution received: ${cueId} from ${source}`);
+        this.addDebugMessage(`🎵 Cue: ${cueId} (${source})`, 'info');
+        
+        // 🎭 NEW: Update cue debug panel
+        this.addCueLogEntry(`Executing ${cueId} from ${source}`, 'info');
+        this.updateCueSequenceDisplay(cueId, this.getCompletedCues());
+        
+        // 🕐 NEW: Start runtime clock on CUE-01
+        if (cueId === 'CUE-01' && !this.runtimeClock.isRunning) {
+            this.startRuntimeClock();
+        }
+        
+        // Forward to sound manager if available
+        if (this.soundManager) {
+            this.soundManager.handleCueExecution(data);
+        } else {
+            console.warn('🎵 Sound manager not available for cue execution');
+            this.addCueLogEntry('Sound manager not available for cue execution', 'error');
+        }
+    }
+
+    handleSDCardCue(data) {
+        const insertCount = data.insertCount;
+        console.log(`🎭 SD card cue: Insert #${insertCount}`);
+        this.addDebugMessage(`💾 SD Card Insert #${insertCount} - Traffic light speed increase`, 'info');
+        
+        // 🎭 NEW: Update cue debug panel
+        this.addCueLogEntry(`SD Card Insert #${insertCount} - Speed increase triggered`, 'info');
+        
+        // Update traffic light controller if available
+        if (this.soundManager && this.soundManager.trafficLightController) {
+            this.soundManager.trafficLightController.handleSDCardInsert(insertCount);
+        }
+        
+        // Update status display
+        this.updateCueSystemStatus();
+    }
+
+    handleSpacebarContext(data) {
+        console.log('🎭 Context-aware spacebar trigger received', data);
+        this.addDebugMessage('🎭 Spacebar context trigger received', 'info');
+        
+        // 🎭 NEW: Update cue debug panel
+        this.addCueLogEntry('Spacebar context trigger received', 'info');
+        
+        // Get current performance state
+        const performanceState = this.soundManager ? this.soundManager.performanceState : null;
+        const isPerformanceActive = performanceState && performanceState.isActive;
+        const currentPhase = performanceState ? performanceState.currentPhase : 'idle';
+        
+        console.log('🔍 Performance state check:', {
+            soundManagerExists: !!this.soundManager,
+            performanceState: performanceState,
+            isPerformanceActive: isPerformanceActive,
+            currentPhase: currentPhase
+        });
+        
+        if (!isPerformanceActive || currentPhase === 'idle') {
+            // No performance active - start the main sequence
+            console.log('🎭 Starting main performance sequence (Spacebar)');
+            this.addDebugMessage('🎭 Starting main sequence (Spacebar)', 'info');
+            this.addCueLogEntry('Starting main performance sequence (Spacebar)', 'info');
+            if (this.soundManager) {
+                console.log('🎵 Calling soundManager.startPerformanceSequence()...');
+                this.soundManager.startPerformanceSequence();
+            } else {
+                console.error('❌ Sound manager not available for starting performance sequence');
+                this.addDebugMessage('❌ Sound manager not available', 'error');
+                this.addCueLogEntry('Sound manager not available for starting sequence', 'error');
+            }
+        } else if (currentPhase === 'interactive' || currentPhase === 'opening') {
+            // Performance active and in interactive or opening phase - trigger CUE-05
+            console.log(`🎭 Triggering CUE-05 during ${currentPhase} phase (Spacebar)`);
+            this.addDebugMessage(`🎭 Manual CUE-05 trigger (${currentPhase}) (Spacebar)`, 'info');
+            this.addCueLogEntry(`Manual CUE-05 trigger during ${currentPhase} phase (Spacebar)`, 'info');
+            if (this.soundManager) {
+                console.log('🎵 Calling soundManager.executeCue05()...');
+                this.soundManager.executeCue05();
+            } else {
+                console.error('❌ Sound manager not available for CUE-05 execution');
+                this.addCueLogEntry('Sound manager not available for CUE-05', 'error');
+            }
+        } else {
+            // Performance active but not in interactive or opening phase - show status
+            console.log(`🎭 Performance active in ${currentPhase} phase - spacebar ignored`);
+            this.addDebugMessage(`⚠️ Performance active (${currentPhase}) - spacebar ignored`, 'warning');
+            this.addCueLogEntry(`Performance active in ${currentPhase} phase - spacebar ignored`, 'warning');
+        }
+    }
+    
+    // 🎭 NEW: Get completed cues (helper method)
+    getCompletedCues() {
+        if (!this.soundManager || !this.soundManager.performanceState) {
+            return [];
+        }
+        
+        const cueHistory = this.soundManager.performanceState.cueHistory || [];
+        return cueHistory.map(entry => entry.cue);
+    }
+    
+    // 🎭 NEW: Visual action methods
+    disengageBlackFilter() {
+        console.log('🎨 Disengaging black filter');
+        this.addCueLogEntry('Disengaging black filter', 'info');
+        this.fadeOutBlackFilter(); // Use existing method
+    }
+    
+    triggerConvergencePhase() {
+        console.log('🎨 Triggering convergence phase');
+        this.addCueLogEntry('Triggering convergence phase', 'info');
+        this.transitionToPhase3(); // Use existing method
+    }
+    
+    triggerDeparturePhase() {
+        console.log('🎨 Triggering departure phase');
+        this.addCueLogEntry('Triggering departure phase', 'info');
+        this.transitionToPhase5(); // Use existing method
+    }
+
+    // 🎭 NEW: Initialize Cue Debug Panel
+    initCueDebugPanel() {
+        console.log('🎭 Initializing cue debug panel...');
+        
+        // Set up cue debug panel toggle functionality
+        const cueDebugToggle = document.getElementById('cue-debug-toggle');
+        const cueDebugPanel = document.getElementById('cue-debug-panel');
+        const cueDebugClose = document.getElementById('cue-debug-close');
+        
+        // Ensure panel starts in expanded state for development
+        if (cueDebugPanel) {
+            cueDebugPanel.classList.remove('cue-debug-panel-hidden');
+            cueDebugPanel.classList.add('cue-debug-panel-expanded');
+        }
+        
+        if (cueDebugToggle && cueDebugPanel) {
+            cueDebugToggle.addEventListener('click', () => {
+                if (cueDebugPanel.classList.contains('cue-debug-panel-hidden')) {
+                    cueDebugPanel.classList.remove('cue-debug-panel-hidden');
+                    cueDebugPanel.classList.add('cue-debug-panel-expanded');
+                    this.addDebugMessage('🎭 Cue debug panel opened');
+                } else {
+                    cueDebugPanel.classList.remove('cue-debug-panel-expanded');
+                    cueDebugPanel.classList.add('cue-debug-panel-hidden');
+                    this.addDebugMessage('🎭 Cue debug panel closed');
+                }
+            });
+        }
+        
+        if (cueDebugClose && cueDebugPanel) {
+            cueDebugClose.addEventListener('click', () => {
+                cueDebugPanel.classList.remove('cue-debug-panel-expanded');
+                cueDebugPanel.classList.add('cue-debug-panel-hidden');
+                this.addDebugMessage('🎭 Cue debug panel closed');
+            });
+        }
+        
+        // Set up manual control buttons
+        this.setupCueControlButtons();
+        
+        // Start real-time status updates
+        this.startCueStatusUpdates();
+        
+        // Initialize cue sequence display
+        this.initializeCueSequenceDisplay();
+        
+        // Initialize runtime clock
+        this.initRuntimeClock();
+        
+        // Add initial log entry
+        this.addCueLogEntry('Cue debug panel initialized', 'success');
+        
+        console.log('🎭 Cue debug panel initialized successfully');
+    }
+    
+    // 🎭 NEW: Setup cue control buttons
+    setupCueControlButtons() {
+        // Start Performance Sequence button - CORRECTED ID
+        const startSequenceBtn = document.getElementById('cue-start-sequence');
+        if (startSequenceBtn) {
+            startSequenceBtn.addEventListener('click', () => {
+                console.log('🎭 Manual start sequence triggered');
+                this.socket.emit('cue-system-start');
+                this.addCueLogEntry('Performance sequence started manually', 'success');
+                this.addDebugMessage('🎭 Starting performance sequence from debug panel', 'success');
+            });
+        }
+        
+        // Trigger CUE-05 button - CORRECTED ID
+        const triggerCue05Btn = document.getElementById('cue-trigger-05');
+        if (triggerCue05Btn) {
+            triggerCue05Btn.addEventListener('click', () => {
+                console.log('🎭 Manual CUE-05 triggered');
+                this.socket.emit('cue-manual-trigger', {'cue': 'CUE-05'});
+                this.addCueLogEntry('CUE-05 triggered manually', 'success');
+                this.addDebugMessage('🎭 CUE-05 triggered from debug panel', 'success');
+            });
+        }
+        
+        // Emergency Stop button - CORRECTED ID
+        const emergencyStopBtn = document.getElementById('cue-emergency-stop');
+        if (emergencyStopBtn) {
+            emergencyStopBtn.addEventListener('click', () => {
+                console.log('🎭 Emergency stop triggered');
+                if (this.soundManager) {
+                    this.soundManager.emergencyStop();
+                }
+                this.addCueLogEntry('Emergency stop triggered', 'warning');
+                this.addDebugMessage('🛑 Emergency stop from debug panel', 'warning');
+            });
+        }
+        
+        // Reset Cue System button - CORRECTED ID
+        const resetSystemBtn = document.getElementById('cue-reset-system');
+        if (resetSystemBtn) {
+            resetSystemBtn.addEventListener('click', () => {
+                console.log('🎭 Cue system reset triggered');
+                if (this.soundManager) {
+                    this.soundManager.resetCueSystem();
+                }
+                this.addCueLogEntry('Cue system reset', 'info');
+                this.addDebugMessage('🔄 Cue system reset from debug panel', 'info');
+                this.updateCueSystemStatus();
+            });
+        }
+        
+        // 🆕 NEW: Clear Log button
+        const clearLogBtn = document.getElementById('cue-clear-log');
+        if (clearLogBtn) {
+            clearLogBtn.addEventListener('click', () => {
+                const logContainer = document.getElementById('cue-event-log');
+                if (logContainer) {
+                    logContainer.innerHTML = '<div class="log-entry">Event log cleared</div>';
+                }
+                this.addDebugMessage('🗑️ Cue event log cleared', 'info');
+            });
+        }
+    }
+    
+    // 🎭 NEW: Start real-time cue status updates
+    startCueStatusUpdates() {
+        // Update status every second
+        this.cueStatusInterval = setInterval(() => {
+            this.updateCueSystemStatus();
+        }, 1000);
+        
+        console.log('🎭 Cue status updates started');
+    }
+    
+    // 🎭 NEW: Update cue system status in debug panel
+    updateCueSystemStatus() {
+        try {
+            // Update audio context status
+            const audioContextStatus = document.getElementById('cue-audio-context-status');
+            if (audioContextStatus && this.soundManager) {
+                const status = this.soundManager.getStatus();
+                audioContextStatus.textContent = status.audioContextState || 'Unknown';
+                audioContextStatus.className = `status-value ${status.audioContextState === 'running' ? 'status-active' : 'status-inactive'}`;
+            } else if (audioContextStatus) {
+                audioContextStatus.textContent = 'Not Available';
+                audioContextStatus.className = 'status-value status-inactive';
+            }
+            
+            // Update performance state
+            const performanceState = document.getElementById('cue-performance-state');
+            if (performanceState && this.soundManager && this.soundManager.performanceState) {
+                const state = this.soundManager.performanceState;
+                performanceState.textContent = state.currentPhase || 'Idle';
+                performanceState.className = `status-value ${state.isActive ? 'status-active' : 'status-inactive'}`;
+            } else if (performanceState) {
+                performanceState.textContent = 'Idle';
+                performanceState.className = 'status-value status-inactive';
+            }
+            
+            // Update current phase
+            const currentPhase = document.getElementById('cue-current-phase');
+            if (currentPhase && this.soundManager && this.soundManager.performanceState) {
+                const state = this.soundManager.performanceState;
+                currentPhase.textContent = state.currentPhase || '-';
+            } else if (currentPhase) {
+                currentPhase.textContent = '-';
+            }
+            
+            // Update active cues count - CORRECTED ID
+            const activeCues = document.getElementById('cue-active-count');
+            if (activeCues && this.soundManager && this.soundManager.performanceState) {
+                const cueHistory = this.soundManager.performanceState.cueHistory || [];
+                activeCues.textContent = cueHistory.length;
+                activeCues.className = `status-value ${cueHistory.length > 0 ? 'status-active' : 'status-inactive'}`;
+            } else if (activeCues) {
+                activeCues.textContent = '0';
+                activeCues.className = 'status-value status-inactive';
+            }
+            
+            // Update SD insert count - CORRECTED ID
+            const sdInsertCount = document.getElementById('cue-sd-count');
+            if (sdInsertCount && this.soundManager && this.soundManager.performanceState) {
+                const insertCount = this.soundManager.performanceState.sdInsertCount || 0;
+                sdInsertCount.textContent = insertCount;
+                sdInsertCount.className = `status-value ${insertCount > 0 ? 'status-active' : 'status-inactive'}`;
+            } else if (sdInsertCount) {
+                sdInsertCount.textContent = '0';
+                sdInsertCount.className = 'status-value status-inactive';
+            }
+            
+            // Update traffic light rate - CORRECTED ID
+            const trafficRate = document.getElementById('cue-traffic-rate');
+            if (trafficRate && this.soundManager && this.soundManager.performanceState) {
+                const rate = this.soundManager.performanceState.trafficLightRate || 0.75;
+                trafficRate.textContent = `${rate.toFixed(2)}x`;
+                trafficRate.className = `status-value ${rate > 0.75 ? 'status-active' : 'status-inactive'}`;
+            } else if (trafficRate) {
+                trafficRate.textContent = '0.75x';
+                trafficRate.className = 'status-value status-inactive';
+            }
+            
+            // Update audio track statuses
+            this.updateAudioTrackStatuses();
+            
+            // 🕐 NEW: Update runtime clock display
+            this.updateRuntimeClockDisplay();
+            
+        } catch (error) {
+            console.error('🎭 Error updating cue system status:', error);
+        }
+    }
+    
+    // 🎭 NEW: Update audio track statuses in cue panel
+    updateAudioTrackStatuses() {
+        if (!this.soundManager) return;
+        
+        try {
+            const status = this.soundManager.getStatus();
+            const tracksContainer = document.getElementById('cue-audio-tracks');
+            
+            if (!tracksContainer) return;
+            
+            // Clear existing tracks display
+            tracksContainer.innerHTML = '';
+            
+            // If no tracks are loaded yet, show loading message
+            if (!this.soundManager.tracks || this.soundManager.tracks.size === 0) {
+                tracksContainer.innerHTML = '<div class="track-placeholder">Loading audio tracks...</div>';
+                return;
+            }
+            
+            // Display each audio track with status
+            this.soundManager.tracks.forEach((track, trackId) => {
+                const trackElement = document.createElement('div');
+                trackElement.className = 'audio-track-item';
+                
+                const trackName = this.getTrackDisplayName(trackId);
+                const statusText = track.isPlaying ? 'Playing' : (track.isLoaded ? 'Ready' : 'Loading');
+                const statusClass = track.isPlaying ? 'status-playing' : (track.isLoaded ? 'status-ready' : 'status-loading');
+                const statusIcon = track.isPlaying ? '▶️' : (track.isLoaded ? '⏸️' : '⏳');
+                
+                trackElement.innerHTML = `
+                    <div class="track-info">
+                        <span class="track-name">${trackName}</span>
+                        <span class="track-id">(${trackId})</span>
+                    </div>
+                    <div class="track-status-display">
+                        <span class="track-status-icon">${statusIcon}</span>
+                        <span class="track-status-text ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+                
+                tracksContainer.appendChild(trackElement);
+            });
+            
+        } catch (error) {
+            console.error('🎭 Error updating audio track statuses:', error);
+        }
+    }
+    
+    // 🆕 NEW: Get display name for audio track
+    getTrackDisplayName(trackId) {
+        const displayNames = {
+            'heartbeat': '💓 Heartbeat',
+            'sine-riser': '📈 Sine Riser',
+            'sublimation-completed': '🌅 Sublimation Completed',
+            'protocol-rebooting': '🔄 Protocol Rebooting',
+            'spirit-mining-initiating': '⛏️ Spirit Mining',
+            'traffic-light': '🚦 Traffic Light',
+            'spirits-possessed': '👻 Spirits Possessed',
+            'sublimation-initiated': '🌀 Sublimation Initiated',
+            'portal-departure': '🌌 Portal Departure',
+            'ambient-intro': '🌅 Ambient Intro',
+            'emergence-sound': '👁️ Emergence Sound',
+            'convergence-build': '⚡ Convergence Build'
+        };
+        
+        return displayNames[trackId] || `🎵 ${trackId}`;
+    }
+    
+    // 🎭 NEW: Initialize cue sequence display
+    initializeCueSequenceDisplay() {
+        // Reset all cue items to pending state
+        const allCueItems = document.querySelectorAll('[data-cue]');
+        allCueItems.forEach(item => {
+            const statusSpan = item.querySelector('.cue-status');
+            if (statusSpan) {
+                statusSpan.textContent = '⏸️';
+                statusSpan.title = 'Pending';
+                item.classList.add('cue-pending');
+                item.classList.remove('cue-active', 'cue-completed');
+            }
+        });
+        
+        console.log(`🎭 Cue sequence display initialized - ${allCueItems.length} cues found`);
+    }
+    
+    // 🎭 NEW: Update cue sequence display
+    updateCueSequenceDisplay(currentCue, completedCues) {
+        // Find the cue item element using data-cue attribute
+        const cueItem = document.querySelector(`[data-cue="${currentCue}"]`);
+        if (cueItem) {
+            // Find the status span within this cue item
+            const statusSpan = cueItem.querySelector('.cue-status');
+            if (statusSpan) {
+                if (completedCues.includes(currentCue)) {
+                    statusSpan.textContent = '✅';
+                    statusSpan.title = 'Completed';
+                    cueItem.classList.add('cue-completed');
+                    cueItem.classList.remove('cue-active', 'cue-pending');
+                } else {
+                    statusSpan.textContent = '▶️';
+                    statusSpan.title = 'Currently Active';
+                    cueItem.classList.add('cue-active');
+                    cueItem.classList.remove('cue-completed', 'cue-pending');
+                }
+            }
+        }
+        
+        // 🆕 NEW: Also update all other cues to show pending status if not completed or active
+        const allCueItems = document.querySelectorAll('[data-cue]');
+        allCueItems.forEach(item => {
+            const cueId = item.getAttribute('data-cue');
+            if (cueId !== currentCue && !completedCues.includes(cueId)) {
+                const statusSpan = item.querySelector('.cue-status');
+                if (statusSpan) {
+                    statusSpan.textContent = '⏸️';
+                    statusSpan.title = 'Pending';
+                    item.classList.add('cue-pending');
+                    item.classList.remove('cue-active', 'cue-completed');
+                }
+            }
+        });
+    }
+    
+    // 🎭 NEW: Add entry to cue event log
+    addCueLogEntry(message, level = 'info') {
+        const logContainer = document.getElementById('cue-event-log');
+        if (!logContainer) return;
+        
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('div');
+        logEntry.className = `cue-log-entry cue-log-${level}`;
+        
+        const timeIcon = level === 'error' ? '❌' : 
+                        level === 'warning' ? '⚠️' : 
+                        level === 'success' ? '✅' : 'ℹ️';
+        
+        logEntry.innerHTML = `
+            <span class="cue-log-time">${timestamp}</span>
+            <span class="cue-log-icon">${timeIcon}</span>
+            <span class="cue-log-message">${message}</span>
+        `;
+        
+        // Add to top of log
+        logContainer.insertBefore(logEntry, logContainer.firstChild);
+        
+        // Limit log entries (keep last 50)
+        while (logContainer.children.length > 50) {
+            logContainer.removeChild(logContainer.lastChild);
+        }
+        
+        // Auto-scroll to top for new entries
+        logContainer.scrollTop = 0;
+    }
+    
+    // 🎭 NEW: Get completed cues list
+    getCompletedCues() {
+        if (!this.soundManager || !this.soundManager.performanceState) return [];
+        
+        const cueHistory = this.soundManager.performanceState.cueHistory || [];
+        return cueHistory.map(entry => entry.cue);
+    }
+    
+    // 🎭 NEW: Dispose cue debug panel
+    disposeCueDebugPanel() {
+        if (this.cueStatusInterval) {
+            clearInterval(this.cueStatusInterval);
+            this.cueStatusInterval = null;
+        }
+        console.log('🎭 Cue debug panel disposed');
+    }
+    
+    // 🕐 NEW: Runtime Clock Methods
+    
+    // Initialize runtime clock functionality
+    initRuntimeClock() {
+        console.log('🕐 Initializing runtime clock...');
+        
+        // Set up reset button
+        const resetBtn = document.getElementById('runtime-clock-reset');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.resetRuntimeClock();
+                this.addDebugMessage('🕐 Runtime clock reset', 'info');
+                this.addCueLogEntry('Runtime clock manually reset', 'info');
+            });
+        }
+        
+        // Initialize display
+        this.updateRuntimeClockDisplay();
+        
+        console.log('🕐 Runtime clock initialized');
+    }
+    
+    // Start the runtime clock (called when CUE-01 begins)
+    startRuntimeClock() {
+        if (!this.runtimeClock.isRunning) {
+            this.runtimeClock.startTime = Date.now();
+            this.runtimeClock.isRunning = true;
+            this.runtimeClock.status = 'running';
+            this.runtimeClock.elapsedTime = 0;
+            
+            // Start the clock update interval
+            this.runtimeClock.clockInterval = setInterval(() => {
+                this.updateRuntimeClock();
+            }, 100); // Update every 100ms for smooth display
+            
+            // Update display immediately
+            this.updateRuntimeClockDisplay();
+            
+            console.log('🕐 Runtime clock started');
+            this.addDebugMessage('🕐 Performance runtime clock started', 'success');
+            this.addCueLogEntry('Performance runtime clock started with CUE-01', 'success');
+        }
+    }
+    
+    // Stop the runtime clock
+    stopRuntimeClock() {
+        if (this.runtimeClock.isRunning) {
+            this.runtimeClock.isRunning = false;
+            this.runtimeClock.status = 'completed';
+            
+            if (this.runtimeClock.clockInterval) {
+                clearInterval(this.runtimeClock.clockInterval);
+                this.runtimeClock.clockInterval = null;
+            }
+            
+            // Final update
+            this.updateRuntimeClock();
+            this.updateRuntimeClockDisplay();
+            
+            console.log('🕐 Runtime clock stopped');
+            this.addDebugMessage('🕐 Performance runtime clock stopped', 'info');
+            this.addCueLogEntry('Performance runtime clock stopped', 'info');
+        }
+    }
+    
+    // Pause the runtime clock
+    pauseRuntimeClock() {
+        if (this.runtimeClock.isRunning) {
+            this.runtimeClock.isRunning = false;
+            this.runtimeClock.status = 'paused';
+            
+            if (this.runtimeClock.clockInterval) {
+                clearInterval(this.runtimeClock.clockInterval);
+                this.runtimeClock.clockInterval = null;
+            }
+            
+            this.updateRuntimeClockDisplay();
+            
+            console.log('🕐 Runtime clock paused');
+            this.addDebugMessage('🕐 Performance runtime clock paused', 'warning');
+        }
+    }
+    
+    // Reset the runtime clock
+    resetRuntimeClock() {
+        // Stop if running
+        if (this.runtimeClock.clockInterval) {
+            clearInterval(this.runtimeClock.clockInterval);
+            this.runtimeClock.clockInterval = null;
+        }
+        
+        // Reset all values
+        this.runtimeClock.startTime = null;
+        this.runtimeClock.isRunning = false;
+        this.runtimeClock.elapsedTime = 0;
+        this.runtimeClock.status = 'not-started';
+        
+        // Update display
+        this.updateRuntimeClockDisplay();
+        
+        console.log('🕐 Runtime clock reset');
+    }
+    
+    // Update the runtime clock calculation
+    updateRuntimeClock() {
+        if (this.runtimeClock.isRunning && this.runtimeClock.startTime) {
+            this.runtimeClock.elapsedTime = Date.now() - this.runtimeClock.startTime;
+        }
+    }
+    
+    // Update the runtime clock display
+    updateRuntimeClockDisplay() {
+        const clockDisplay = document.getElementById('runtime-clock-main');
+        const statusDisplay = document.getElementById('runtime-status');
+        const startTimeDisplay = document.getElementById('runtime-start-time');
+        
+        if (clockDisplay) {
+            const formattedTime = this.formatElapsedTime(this.runtimeClock.elapsedTime);
+            clockDisplay.textContent = formattedTime;
+            
+            // Add running animation class
+            if (this.runtimeClock.isRunning) {
+                clockDisplay.classList.add('running');
+            } else {
+                clockDisplay.classList.remove('running');
+            }
+        }
+        
+        if (statusDisplay) {
+            statusDisplay.textContent = this.getStatusDisplayText(this.runtimeClock.status);
+            statusDisplay.className = `runtime-status ${this.runtimeClock.status}`;
+        }
+        
+        if (startTimeDisplay && this.runtimeClock.startTime) {
+            const startTime = new Date(this.runtimeClock.startTime);
+            startTimeDisplay.textContent = `Started: ${startTime.toLocaleTimeString()}`;
+        } else if (startTimeDisplay) {
+            startTimeDisplay.textContent = '-';
+        }
+    }
+    
+    // Format elapsed time to HH:MM:SS format
+    formatElapsedTime(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Get status display text
+    getStatusDisplayText(status) {
+        switch (status) {
+            case 'not-started': return 'Not Started';
+            case 'running': return 'Running';
+            case 'paused': return 'Paused';
+            case 'completed': return 'Completed';
+            default: return 'Unknown';
+        }
+    }
+    
+    // Get current runtime information
+    getRuntimeInfo() {
+        return {
+            elapsedTime: this.runtimeClock.elapsedTime,
+            formattedTime: this.formatElapsedTime(this.runtimeClock.elapsedTime),
+            isRunning: this.runtimeClock.isRunning,
+            status: this.runtimeClock.status,
+            startTime: this.runtimeClock.startTime
+        };
+    }
 }
 
-// Initialize the client when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    window.theatreClient = new TheatreClient();
-}); 
+// Make TheatreClient globally accessible
+window.theatreClient = new TheatreClient(); 

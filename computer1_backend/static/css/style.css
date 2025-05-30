@@ -1532,4 +1532,693 @@ body.production .debug-toggle-btn {
     .keyboard-item .description {
         font-size: 0.8em;
     }
+}
+
+/* 🎭 NEW: Cue System Debug Panel (Left Side) */
+.cue-debug-toggle-btn {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    z-index: 1100;
+    background: rgba(255, 100, 100, 0.15);
+    color: rgba(255, 150, 150, 0.9);
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    visibility: visible;
+    box-shadow: 0 2px 12px rgba(255, 100, 100, 0.3);
+}
+
+.cue-debug-toggle-btn:hover {
+    background: rgba(255, 100, 100, 0.25);
+    border-color: rgba(255, 100, 100, 0.7);
+    color: rgba(255, 150, 150, 1.0);
+    opacity: 1.0;
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(255, 100, 100, 0.5);
+}
+
+#cue-debug-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 350px;
+    height: 100vh;
+    background: rgba(20, 0, 0, 0.95);
+    border-right: 2px solid #660000;
+    backdrop-filter: blur(10px);
+    z-index: 1002;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: transform 0.4s ease-in-out;
+    font-size: 0.85em;
+    color: #ffcccc;
+}
+
+.cue-debug-panel-expanded {
+    transform: translateX(0);
+}
+
+.cue-debug-panel-hidden {
+    transform: translateX(-100%);
+}
+
+.cue-debug-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #660000;
+    background: rgba(40, 0, 0, 0.9);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.cue-debug-header h3 {
+    margin: 0;
+    color: #ff9999;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.cue-debug-close-btn {
+    background: none;
+    border: none;
+    color: #ff9999;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.cue-debug-close-btn:hover {
+    background: rgba(255, 100, 100, 0.2);
+    color: #ffcccc;
+}
+
+.cue-debug-section {
+    padding: 15px 20px;
+    border-bottom: 1px solid #440000;
+}
+
+.cue-debug-section h4 {
+    margin: 0 0 12px 0;
+    color: #ff9999;
+    font-size: 1.0em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Status Grid */
+.cue-status-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border-left: 3px solid #660000;
+}
+
+.status-label {
+    font-size: 0.9em;
+    color: #cccccc;
+}
+
+.status-value {
+    font-weight: bold;
+    color: #ff9999;
+    font-size: 0.9em;
+}
+
+/* Cue Sequence List */
+.cue-sequence-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #440000;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.cue-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #330000;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.cue-item:last-child {
+    border-bottom: none;
+}
+
+.cue-item:hover {
+    background: rgba(255, 100, 100, 0.1);
+}
+
+.cue-item.active {
+    background: rgba(255, 150, 0, 0.2);
+    border-left: 4px solid #ff9900;
+}
+
+.cue-item.completed {
+    background: rgba(0, 255, 100, 0.1);
+    border-left: 4px solid #00ff66;
+}
+
+.cue-item.manual {
+    border-left: 4px solid #ff6600;
+}
+
+.cue-item.interactive {
+    border-left: 4px solid #6600ff;
+}
+
+.cue-number {
+    font-weight: bold;
+    color: #ff9999;
+    min-width: 25px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.cue-name {
+    flex: 1;
+    margin-left: 10px;
+    color: #cccccc;
+    font-size: 0.85em;
+}
+
+.cue-status {
+    font-size: 1.1em;
+    min-width: 25px;
+    text-align: center;
+}
+
+/* Control Buttons */
+.cue-controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.cue-control-btn {
+    padding: 8px 12px;
+    border: 1px solid #660000;
+    border-radius: 4px;
+    background: rgba(255, 100, 100, 0.1);
+    color: #ff9999;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.cue-control-btn:hover {
+    background: rgba(255, 100, 100, 0.2);
+    border-color: #ff6666;
+    transform: translateY(-1px);
+}
+
+.cue-control-btn.primary {
+    background: rgba(0, 255, 100, 0.15);
+    border-color: #00ff66;
+    color: #66ff99;
+}
+
+.cue-control-btn.primary:hover {
+    background: rgba(0, 255, 100, 0.25);
+    border-color: #00ff99;
+}
+
+.cue-control-btn.manual {
+    background: rgba(255, 150, 0, 0.15);
+    border-color: #ff9900;
+    color: #ffcc66;
+}
+
+.cue-control-btn.manual:hover {
+    background: rgba(255, 150, 0, 0.25);
+    border-color: #ffaa00;
+}
+
+.cue-control-btn.danger {
+    background: rgba(255, 50, 50, 0.15);
+    border-color: #ff3333;
+    color: #ff6666;
+}
+
+.cue-control-btn.danger:hover {
+    background: rgba(255, 50, 50, 0.25);
+    border-color: #ff5555;
+}
+
+.cue-control-btn.small {
+    padding: 4px 8px;
+    font-size: 0.7em;
+    grid-column: span 2;
+    margin-top: 8px;
+}
+
+/* Audio Tracks List */
+.audio-tracks-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #440000;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.audio-track-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid #330000;
+    font-size: 0.8em;
+}
+
+.audio-track-item:last-child {
+    border-bottom: none;
+}
+
+.track-name {
+    color: #cccccc;
+    flex: 1;
+}
+
+.track-status {
+    color: #ff9999;
+    font-weight: bold;
+    font-size: 0.75em;
+}
+
+/* Event Log */
+.cue-event-log {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #440000;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75em;
+}
+
+.log-entry {
+    padding: 2px 0;
+    color: #cccccc;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-entry.info {
+    color: #66ccff;
+}
+
+.log-entry.warning {
+    color: #ffcc66;
+}
+
+.log-entry.error {
+    color: #ff6666;
+}
+
+.log-entry.success {
+    color: #66ff99;
+}
+
+/* 🎭 Cue Status Indicators */
+.status-value {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+
+.status-value.status-active {
+    background-color: #22c55e;
+    color: white;
+}
+
+.status-value.status-inactive {
+    background-color: #64748b;
+    color: white;
+}
+
+.status-value.status-ready {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.status-value.status-loading {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.status-value.status-playing {
+    background-color: #ef4444;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+/* 🎭 Cue Sequence Visual States */
+.cue-item.cue-pending {
+    opacity: 0.7;
+    background-color: rgba(100, 116, 139, 0.1);
+}
+
+.cue-item.cue-active {
+    background-color: rgba(34, 197, 94, 0.2);
+    border-left: 3px solid #22c55e;
+    animation: pulse 2s infinite;
+}
+
+.cue-item.cue-completed {
+    background-color: rgba(59, 130, 246, 0.2);
+    border-left: 3px solid #3b82f6;
+    opacity: 0.8;
+}
+
+/* 🎵 Audio Track Status Display */
+.audio-track-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background-color: rgba(31, 41, 55, 0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(55, 65, 81, 0.5);
+}
+
+.track-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.track-name {
+    font-weight: bold;
+    color: #e5e7eb;
+}
+
+.track-id {
+    font-size: 0.8em;
+    color: #9ca3af;
+    font-family: monospace;
+}
+
+.track-status-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.track-status-icon {
+    font-size: 1.2em;
+}
+
+.track-status-text {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.track-status-text.status-playing {
+    background-color: #ef4444;
+    color: white;
+}
+
+.track-status-text.status-ready {
+    background-color: #22c55e;
+    color: white;
+}
+
+.track-status-text.status-loading {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.track-placeholder {
+    text-align: center;
+    padding: 20px;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* 🎭 Cue Event Log Styling */
+.cue-log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+
+.cue-log-entry.cue-log-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-left: 3px solid #3b82f6;
+}
+
+.cue-log-entry.cue-log-success {
+    background-color: rgba(34, 197, 94, 0.1);
+    border-left: 3px solid #22c55e;
+}
+
+.cue-log-entry.cue-log-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid #f59e0b;
+}
+
+.cue-log-entry.cue-log-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid #ef4444;
+}
+
+.cue-log-time {
+    color: #9ca3af;
+    min-width: 65px;
+    font-size: 0.8em;
+}
+
+.cue-log-icon {
+    min-width: 20px;
+}
+
+.cue-log-message {
+    color: #e5e7eb;
+    flex: 1;
+}
+
+/* 🎭 Control Button Enhancements */
+.cue-control-btn {
+    transition: all 0.2s ease;
+}
+
+.cue-control-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cue-control-btn.primary {
+    background: linear-gradient(45deg, #22c55e, #16a34a);
+}
+
+.cue-control-btn.manual {
+    background: linear-gradient(45deg, #3b82f6, #2563eb);
+}
+
+.cue-control-btn.danger {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+}
+
+.cue-control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Animation Keyframes */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* 🕐 Runtime Clock Styling */
+.runtime-clock-section {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 197, 94, 0.1));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.runtime-clock-container {
+    padding: 12px 16px;
+}
+
+.runtime-clock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.runtime-clock-header h4 {
+    margin: 0;
+    color: #3b82f6;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.runtime-reset-btn {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    border-radius: 4px;
+    color: #3b82f6;
+    padding: 4px 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.runtime-reset-btn:hover {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.6);
+    transform: scale(1.05);
+}
+
+.runtime-clock-display {
+    text-align: center;
+}
+
+.runtime-clock-main {
+    font-family: 'Courier New', monospace;
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #22c55e;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+}
+
+.runtime-clock-main.running {
+    animation: clock-pulse 2s infinite;
+}
+
+.runtime-clock-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85em;
+    color: #9ca3af;
+}
+
+.runtime-status {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+
+.runtime-status.not-started {
+    background-color: rgba(100, 116, 139, 0.3);
+    color: #64748b;
+}
+
+.runtime-status.running {
+    background-color: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+    animation: status-pulse 3s infinite;
+}
+
+.runtime-status.paused {
+    background-color: rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+}
+
+.runtime-status.completed {
+    background-color: rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+}
+
+.runtime-separator {
+    color: #4b5563;
+    font-weight: bold;
+}
+
+.runtime-start-time {
+    font-family: 'Courier New', monospace;
+    color: #6b7280;
+}
+
+/* Runtime Clock Animations */
+@keyframes clock-pulse {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+    }
+}
+
+@keyframes status-pulse {
+    0%, 100% {
+        background-color: rgba(34, 197, 94, 0.3);
+    }
+    50% {
+        background-color: rgba(34, 197, 94, 0.5);
+    }
+}
+
+/* Mobile responsiveness for runtime clock */
+@media (max-width: 768px) {
+    .runtime-clock-main {
+        font-size: 1.8em;
+        letter-spacing: 1px;
+    }
+    
+    .runtime-clock-info {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .runtime-separator {
+        display: none;
+    }
 } 
