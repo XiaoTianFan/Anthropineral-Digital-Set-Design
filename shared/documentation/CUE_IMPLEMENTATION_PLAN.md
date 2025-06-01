@@ -426,6 +426,10 @@ class VisualCueHandler {
                 this.client.fadeOutBlackFilter(); // Use existing method!
                 break;
                 
+            case 'black-filter-engage':
+                this.client.fadeInBlackFilter(); // Re-engage blackout for performance end
+                break;
+                
             case 'convergence-start':
                 this.client.transitionToPhase3(); // Use existing method!
                 break;
@@ -667,6 +671,71 @@ executeCue14() {
 }
 ```
 
+### **CUE 15-16: Long Season Finale** *(New Cue Implementation)*
+```javascript
+executeCue15() {
+    console.log('🎭 Executing CUE 15: Long Season fade in');
+    
+    this.executeCue({
+        id: 'cue-15-long-season',
+        trackId: 'long-season',
+        fadeIn: 10.0,              // 10 second fade in as requested
+        loop: false,
+        volume: 0.7
+    });
+    
+    // Schedule CUE 16 after 30 seconds to end the track
+    this.scheduleCue(30.0, { cue: 'CUE-16' }, 'cue-16-trigger');
+    
+    // Update performance phase
+    this.performanceState.currentPhase = 'long-season';
+}
+
+executeCue16() {
+    console.log('🎭 Executing CUE 16: Long Season fade out and performance end');
+    
+    const longSeasonTrack = this.tracks.get('long-season');
+    if (longSeasonTrack && longSeasonTrack.isPlaying) {
+        // Fade out over 5 seconds (using track's configured fadeOut)
+        longSeasonTrack.stop(5.0);
+        
+        // 🆕 NEW: Emit visual trigger to re-engage overall blackout
+        this.emitCrossSystemEvent('black-filter-engage', {
+            cueId: 'CUE-16',
+            timing: 'immediate',
+            reason: 'performance-ending'
+        });
+        console.log('🌐 Visual trigger sent: Re-engaging overall blackout');
+        
+        // Schedule performance end after fade completes
+        setTimeout(() => {
+            this.performanceState.currentPhase = 'complete';
+            this.performanceState.isActive = false;
+            console.log('🎭 Performance sequence completed with Long Season');
+            
+            // Emit final completion event
+            this.emitCrossSystemEvent('performance-complete', {
+                cueId: 'CUE-16',
+                totalDuration: Date.now() - this.performanceState.startTime,
+                finalPhase: 'long-season-complete'
+            });
+        }, 5000);
+    } else {
+        console.warn('🎭 Long Season track not playing, ending performance immediately');
+        
+        // Still trigger blackout even if track isn't playing
+        this.emitCrossSystemEvent('black-filter-engage', {
+            cueId: 'CUE-16',
+            timing: 'immediate',
+            reason: 'performance-ending-immediate'
+        });
+        
+        this.performanceState.currentPhase = 'complete';
+        this.performanceState.isActive = false;
+    }
+}
+```
+
 ---
 
 ## 🧪 **TESTING STRATEGY**
@@ -725,7 +794,7 @@ executeCue14() {
 
 #### **🌐 Cross-System Communication**
 - **Backend SocketIO Handlers**: All cue events implemented (`cue-system-start`, `cue-manual-trigger`, `sd-card-inserted`, `cue-visual-trigger`)
-- **Frontend Visual Handlers**: Complete visual cue action handlers (`black-filter-disengage`, `convergence-start`, `departure-start`)
+- **Frontend Visual Handlers**: Complete visual cue action handlers (`black-filter-disengage`, `black-filter-engage`, `convergence-start`, `departure-start`)
 - **Keyboard Integration**: Spacebar trigger for CUE-05 implemented with cooldown
 - **SD Card Integration**: Automatic traffic light speed increases on card insertion
 
@@ -735,6 +804,7 @@ executeCue14() {
 - **SD Card Phase**: Progressive speed increases (0.75x → 1.75x) over 5 insertions
 - **Convergence Sequence (CUE 07-10)**: Traffic light fadeout → spirits possessed + visual convergence → sublimation initiated → heartbeat return
 - **Final Sequence (CUE 11-14)**: Final sine riser → departure visual trigger → heartbeat stop → final sublimation
+- **🆕 Extended Finale (CUE 15-16)**: Long Season fade in (10s) → Long Season fade out (5s) + **blackout re-engagement** → performance complete
 
 ### **📁 Files Modified:**
 - ✅ `computer1_backend/static/js/soundSystem.js` - **Extended with complete cue system**
@@ -748,18 +818,19 @@ executeCue14() {
 - ✅ **Backend ↔ Frontend**: Cross-system visual triggers
 - ✅ **SD Card System ↔ Audio**: Speed morphing integration
 - ✅ **Keyboard ↔ Cue System**: Manual trigger support
-- ✅ **Visual System ↔ Audio**: Black filter, convergence, departure triggers
+- ✅ **Visual System ↔ Audio**: Black filter (disengage/engage), convergence, departure triggers
 
 ---
 
 ## 🚀 **NEXT STEPS - PHASE 4 TASKS**
 
 ### **1. Full Sequence Testing** 🧪
-- [ ] Test complete CUE 01-14 sequence end-to-end
+- [ ] Test complete CUE 01-16 sequence end-to-end
 - [ ] Verify all timing intervals are correct
 - [ ] Test manual spacebar trigger for CUE-05
 - [ ] Validate SD card speed morphing (5 insertions)
 - [ ] Confirm cross-system visual triggers work
+- [ ] Test blackout re-engagement in CUE-16
 
 ### **2. Error Handling Integration** 🛡️
 - [ ] Test graceful degradation if audio files missing
@@ -1076,4 +1147,182 @@ emit('cue-spacebar-context') → Client.handleSpacebarContext() → CUE executio
 ---
 
 **Session Status**: 🎉 **MAJOR BREAKTHROUGH - Spacebar Issue Resolved**
-**Next Priority**: 🔧 **Complete Client.js Integration & Audio System Testing** 
+**Next Priority**: 🔧 **Complete Client.js Integration & Audio System Testing**
+
+## 🆕 **LATEST UPDATE: EXTENDED CUE SEQUENCE (CUE-15 & CUE-16)**
+**Date**: Current Session  
+**Status**: ✅ **FULLY IMPLEMENTED**
+
+### **🎵 NEW LONG SEASON FINALE**
+
+#### **✅ COMPLETED: Extended Audio Sequence**
+**New Track Added**: `Long Season.mp3`
+**New Cues Implemented**: CUE-15 and CUE-16
+**Total Sequence Length**: Extended from 14 to 16 cues
+
+#### **🎭 CUE-15: Long Season Fade In**
+**Implementation**: ✅ **COMPLETE**
+- **Trigger**: Automatic after CUE-14 (Final Sublimation) completes
+- **Action**: Start "Long Season.mp3" with 10-second fade in
+- **Volume**: 0.7 (atmospheric level)
+- **Duration**: 30 seconds before triggering CUE-16
+- **Phase**: New "long-season" performance phase
+
+```javascript
+executeCue15() {
+    console.log('🎭 Executing CUE 15: Long Season fade in');
+    
+    this.executeCue({
+        id: 'cue-15-long-season',
+        trackId: 'long-season',
+        fadeIn: 10.0,              // 10 second fade in as requested
+        loop: false,
+        volume: 0.7
+    });
+    
+    // Schedule CUE 16 after 30 seconds to end the track
+    this.scheduleCue(30.0, { cue: 'CUE-16' }, 'cue-16-trigger');
+    
+    // Update performance phase
+    this.performanceState.currentPhase = 'long-season';
+}
+```
+
+#### **🎭 CUE-16: Long Season End & Performance Complete**
+**Implementation**: ✅ **COMPLETE**
+- **Trigger**: Automatic 30 seconds after CUE-15 starts
+- **Action**: Fade out "Long Season.mp3" over 5 seconds
+- **Result**: Complete performance sequence and mark as finished
+- **Events**: Emits `performance-complete` cross-system event
+
+```javascript
+executeCue16() {
+    console.log('🎭 Executing CUE 16: Long Season fade out and performance end');
+    
+    const longSeasonTrack = this.tracks.get('long-season');
+    if (longSeasonTrack && longSeasonTrack.isPlaying) {
+        // Fade out over 5 seconds (using track's configured fadeOut)
+        longSeasonTrack.stop(5.0);
+        
+        // 🆕 NEW: Emit visual trigger to re-engage overall blackout
+        this.emitCrossSystemEvent('black-filter-engage', {
+            cueId: 'CUE-16',
+            timing: 'immediate',
+            reason: 'performance-ending'
+        });
+        console.log('🌐 Visual trigger sent: Re-engaging overall blackout');
+        
+        // Schedule performance end after fade completes
+        setTimeout(() => {
+            this.performanceState.currentPhase = 'complete';
+            this.performanceState.isActive = false;
+            console.log('🎭 Performance sequence completed with Long Season');
+            
+            // Emit final completion event
+            this.emitCrossSystemEvent('performance-complete', {
+                cueId: 'CUE-16',
+                totalDuration: Date.now() - this.performanceState.startTime,
+                finalPhase: 'long-season-complete'
+            });
+        }, 5000);
+    } else {
+        console.warn('🎭 Long Season track not playing, ending performance immediately');
+        
+        // Still trigger blackout even if track isn't playing
+        this.emitCrossSystemEvent('black-filter-engage', {
+            cueId: 'CUE-16',
+            timing: 'immediate',
+            reason: 'performance-ending-immediate'
+        });
+        
+        this.performanceState.currentPhase = 'complete';
+        this.performanceState.isActive = false;
+    }
+}
+```
+
+#### **🎛️ Audio Track Configuration**
+**Location**: `Program/computer1_backend/static/js/soundSystem.js`
+```javascript
+'long-season': {
+    url: '/static/audio/Long Season.mp3',
+    volume: 0.7,
+    loop: false,
+    fadeIn: 10.0,              // 10 second fade in as requested
+    fadeOut: 5.0,              // 5 second fade out for smooth ending
+    playbackRate: 1.0          // Normal speed
+}
+```
+
+#### **🎨 UI Debug Panel Updates**
+**Location**: `Program/computer1_backend/templates/index.html`
+**Added**:
+- CUE-15 display: "Long Season Fade In"
+- CUE-16 display: "Long Season End"
+- Updated cue sequence visual tracking for 16 total cues
+
+#### **📋 Switch Case Integration**
+**Location**: `handleCueExecution()` method in `soundSystem.js`
+```javascript
+case 'CUE-15':
+    this.executeCue15();
+    break;
+case 'CUE-16':
+    this.executeCue16();
+    break;
+```
+
+#### **⚠️ IMPORTANT: Required Audio File**
+**Status**: ⚠️ **PENDING USER ACTION**
+- **File Required**: `Long Season.mp3`
+- **Location**: `Program/computer1_backend/static/audio/Long Season.mp3`
+- **Current Status**: File not found in directory
+- **Action Needed**: User must add the audio file to complete implementation
+
+### **🎯 Updated Performance Sequence**
+```
+CUE 01-14: [Existing sequence unchanged]
+    ↓ (CUE-14 onEnd callback)
+CUE 15: Long Season.mp3 starts (10s fade in, 0.7 volume)
+    ↓ (30 seconds automatic timer)
+CUE 16: Long Season.mp3 ends (5s fade out) → Performance Complete
+```
+
+### **📊 Updated Implementation Status**
+
+#### **✅ Extended Sequence COMPLETE**
+- [x] **CUE-15 Implementation**: Long Season fade in with 10s transition
+- [x] **CUE-16 Implementation**: Long Season fade out with performance completion
+- [x] **Chain Logic**: CUE-14 → CUE-15 → CUE-16 automatic sequencing
+- [x] **Switch Case Integration**: Both cues added to handleCueExecution
+- [x] **Debug Panel Update**: CUE-15 and CUE-16 visible in UI
+- [x] **Audio Track Configuration**: Long Season track added to SOUND_CONFIG
+- [x] **Performance State**: New "long-season" phase tracking
+- [x] **Cross-System Events**: Performance completion notifications
+- [x] **Error Handling**: Graceful degradation if audio not available
+
+#### **⏸️ Pending Action Required**
+- [ ] **Audio File**: User must add "Long Season.mp3" to `/static/audio/` directory
+
+### **🧪 Updated Testing Requirements**
+
+#### **Extended Testing Checklist**:
+- [ ] **CUE-15 Execution**: Verify 10-second fade in works correctly
+- [ ] **CUE-16 Timing**: Confirm 30-second delay triggers properly
+- [ ] **Performance Completion**: Validate final state and event emission
+- [ ] **Long Season Audio**: Test with actual "Long Season.mp3" file
+- [ ] **Debug Panel**: Verify CUE-15 and CUE-16 display in sequence
+- [ ] **Performance State**: Check "long-season" phase tracking
+- [ ] **Complete Sequence**: Test full CUE 01-16 performance flow
+
+#### **Ready for Testing Once**:
+1. ✅ All code implementation completed
+2. ⚠️ "Long Season.mp3" file added to `/static/audio/`
+3. ✅ Debug panel shows all 16 cues
+4. ✅ CUE-14 chains to CUE-15 correctly
+
+---
+
+**Session Status**: 🎉 **MAJOR BREAKTHROUGH - Spacebar Issue Resolved**
+**Latest Update**: 🎵 **Extended Sequence Complete - Ready for Audio File**
+**Next Priority**: 🔧 **Complete Client.js Integration & Extended Sequence Testing** 

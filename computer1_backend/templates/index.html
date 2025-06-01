@@ -145,6 +145,16 @@
                         <span class="cue-name">Final Sublimation</span>
                         <span class="cue-status">⏸️</span>
                     </div>
+                    <div class="cue-item" data-cue="CUE-15">
+                        <span class="cue-number">15</span>
+                        <span class="cue-name">Long Season Fade In</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
+                    <div class="cue-item" data-cue="CUE-16">
+                        <span class="cue-number">16</span>
+                        <span class="cue-name">Long Season End + Blackout</span>
+                        <span class="cue-status">⏸️</span>
+                    </div>
                 </div>
             </div>
 
@@ -484,9 +494,11 @@
                         <div class="config-controls">
                             <div class="button-group">
                                 <button id="remove-black-filter">🖤 Reveal Digital Space</button>
+                                <button id="reset-black-filter">🔄 Reset Filter</button>
                             </div>
                             <div class="portal-instructions">
                                 <p>💡 Click to fade out the black overlay and reveal the digital program</p>
+                                <p>🔄 Use Reset to restore black filter to normal mode after cue system use</p>
                             </div>
                         </div>
                     </div>
@@ -1229,6 +1241,17 @@
                             statusSpan.textContent = 'Removed';
                             statusSpan.className = 'config-status disabled';
                         }
+                    }
+                });
+            }
+            
+            // 🆕 NEW: Black filter reset button
+            const resetBlackFilterBtn = document.getElementById('reset-black-filter');
+            if (resetBlackFilterBtn) {
+                resetBlackFilterBtn.addEventListener('click', function() {
+                    // Call the TheatreClient reset method if available
+                    if (window.theatreClient && typeof window.theatreClient.resetBlackFilterToNormalMode === 'function') {
+                        window.theatreClient.resetBlackFilterToNormalMode();
                     }
                 });
             }

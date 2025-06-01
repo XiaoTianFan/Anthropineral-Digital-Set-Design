@@ -79,6 +79,14 @@ const SOUND_CONFIG = {
             fadeIn: 0.3,
             fadeOut: 1.5,
             playbackRate: 1.0          // Normal speed
+        },
+        'long-season': {
+            url: '/static/audio/Long Season.mp3',
+            volume: 0.7,
+            loop: false,
+            fadeIn: 10.0,              // 10 second fade in as requested
+            fadeOut: 5.0,              // 5 second fade out for smooth ending
+            playbackRate: 1.0          // Normal speed
         }
     },
 
@@ -1172,6 +1180,12 @@ class SoundManager {
                 case 'CUE-14':
                     this.executeCue14();
                     break;
+                case 'CUE-15':
+                    this.executeCue15();
+                    break;
+                case 'CUE-16':
+                    this.executeCue16();
+                    break;
                 default:
                     console.warn(`🎭 Unknown cue: ${cueId}`);
                     return false;
@@ -1211,7 +1225,7 @@ class SoundManager {
                 trackId: 'heartbeat',
                 fadeIn: 5.0,
                 loop: true,
-                volume: 0.6
+                volume: 0.8
             });
             
             console.log('🎵 Starting sine riser track...');
@@ -1220,7 +1234,7 @@ class SoundManager {
                 trackId: 'sine-riser',
                 fadeIn: 0.0,
                 loop: false,
-                volume: 0.7
+                volume: 0.8
             });
             
             console.log('⏰ Scheduling CUE 02 for 14 seconds...');
@@ -1302,7 +1316,7 @@ class SoundManager {
             fadeIn: 0.5,
             loop: false,
             onEnd: () => {
-                setTimeout(() => this.executeCue06(), 3000);
+                setTimeout(() => this.executeCue06(), 2000);
             }
         });
         
@@ -1330,7 +1344,7 @@ class SoundManager {
         console.log('🎭 Executing CUE 07: Traffic light fade out');
         
         if (this.trafficLightController) {
-            this.trafficLightController.fadeOut(5.0, () => {
+            this.trafficLightController.fadeOut(3.0, () => {
                 this.executeCue08();
             });
         } else {
@@ -1377,7 +1391,7 @@ class SoundManager {
             trackId: 'heartbeat',
             fadeIn: 5.0,
             loop: true,
-            volume: 0.6
+            volume: 0.7
         });
         
         // Schedule CUE 11 after 20 seconds
@@ -1393,7 +1407,7 @@ class SoundManager {
             trackId: 'sine-riser',
             fadeIn: 0.0,
             loop: false,
-            volume: 0.7
+            volume: 0.8
         });
         
         // Schedule departure trigger 6 seconds after riser starts
@@ -1434,11 +1448,78 @@ class SoundManager {
             fadeIn: 0.5,
             loop: false,
             onEnd: () => {
-                this.performanceState.currentPhase = 'complete';
-                this.performanceState.isActive = false;
-                console.log('🎭 Performance sequence completed');
+                // Chain to CUE-15 with 5-second delay after ending performance
+                console.log('🎭 CUE 14 completed - scheduling CUE-15 in 5 seconds');
+                setTimeout(() => {
+                    this.executeCue15();
+                }, 5000); // 5-second delay
             }
         });
+    }
+
+    // 🆕 NEW: CUE 15-16: Long Season Sequence
+    executeCue15() {
+        console.log('🎭 Executing CUE 15: Long Season fade in');
+        
+        this.executeCue({
+            id: 'cue-15-long-season',
+            trackId: 'long-season',
+            fadeIn: 15.0,              // 10 second fade in as requested
+            loop: false,
+            volume: 0.85
+        });
+        
+        // Schedule CUE 16 after 30 seconds to end the track
+        this.scheduleCue(43.0, { cue: 'CUE-16' }, 'cue-16-trigger');
+        
+        // Update performance phase
+        this.performanceState.currentPhase = 'long-season';
+        console.log('🎭 Performance entered Long Season phase');
+    }
+
+    executeCue16() {
+        console.log('🎭 Executing CUE 16: Long Season fade out and performance end');
+        
+        const longSeasonTrack = this.tracks.get('long-season');
+        if (longSeasonTrack && longSeasonTrack.isPlaying) {
+            // Fade out over 5 seconds (using track's configured fadeOut)
+            longSeasonTrack.stop(3);
+            
+            // 🆕 NEW: Emit visual trigger to re-engage overall blackout
+            this.emitCrossSystemEvent('black-filter-engage', {
+                cueId: 'CUE-16',
+                timing: 'immediate',
+                reason: 'performance-ending'
+            });
+            console.log('🌐 Visual trigger sent: Re-engaging overall blackout');
+            
+            // Schedule performance end after fade completes
+            setTimeout(() => {
+                this.performanceState.currentPhase = 'complete';
+                this.performanceState.isActive = false;
+                console.log('🎭 Performance sequence completed with Long Season');
+                
+                // Emit final completion event
+                this.emitCrossSystemEvent('performance-complete', {
+                    cueId: 'CUE-16',
+                    totalDuration: Date.now() - this.performanceState.startTime,
+                    finalPhase: 'long-season-complete'
+                });
+            }, 5000);
+        } else {
+            console.warn('🎭 Long Season track not playing, ending performance immediately');
+            
+            // Still trigger blackout even if track isn't playing
+            this.emitCrossSystemEvent('black-filter-engage', {
+                cueId: 'CUE-16',
+                timing: 'immediate',
+                reason: 'performance-ending-immediate'
+            });
+            console.log('🌐 Visual trigger sent: Re-engaging overall blackout (immediate)');
+            
+            this.performanceState.currentPhase = 'complete';
+            this.performanceState.isActive = false;
+        }
     }
     
     // 🆕 NEW: Start complete performance sequence

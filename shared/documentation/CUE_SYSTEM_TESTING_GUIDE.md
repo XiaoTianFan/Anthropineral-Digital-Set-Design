@@ -234,7 +234,7 @@ Ensure these audio files exist in `Program/computer1_backend/static/audio/`:
 
 ---
 
-### **TEST 6: Final Sequence (CUE 11-14)** ⏱️ 1 minute
+### **TEST 6: Final Sequence (CUE 11-16)** ⏱️ 2 minutes 🆕 **EXTENDED**
 
 **PREREQUISITE**: Complete TEST 5 (heartbeat playing)
 
@@ -243,6 +243,8 @@ Ensure these audio files exist in `Program/computer1_backend/static/audio/`:
 2. Listen for sine riser
 3. Observe departure visual effect
 4. Listen for sequence completion
+5. 🆕 **NEW**: Wait for Long Season fade in
+6. 🆕 **NEW**: Wait for Long Season completion and final fade out
 
 #### **Expected Timeline:**
 ```
@@ -250,7 +252,10 @@ Ensure these audio files exist in `Program/computer1_backend/static/audio/`:
 00:06 - CUE 12: Departure visual effect triggers
 00:13 - CUE 13: Heartbeat stops immediately
 00:18 - CUE 14: Final "Sublimation Completed"
-00:22 - SEQUENCE COMPLETE
+00:22 - 🆕 CUE 15: "Long Season" fade in (10s fade)
+00:32 - Long Season playing at full volume
+01:02 - 🆕 CUE 16: "Long Season" fade out (5s fade)
+01:07 - SEQUENCE COMPLETE 🎉
 ```
 
 #### **Expected Console Sequence:**
@@ -264,17 +269,59 @@ Ensure these audio files exist in `Program/computer1_backend/static/audio/`:
 🎭 Executing CUE 13: Heartbeat stop
 ⏰ Scheduled cue cue-14-trigger in 5s
 🎭 Executing CUE 14: Final sublimation completed
-🎭 Performance sequence completed
+🎭 CUE 14 completed - chaining to CUE-15
+🎭 Executing CUE 15: Long Season fade in
+🎭 Performance entered Long Season phase
+⏰ Scheduled cue cue-16-trigger in 30s
+🎭 Executing CUE 16: Long Season fade out and performance end
+🎭 Performance sequence completed with Long Season
+🌐 Cross-system event: performance-complete
 ```
 
 #### **Expected Visual:**
 - Departure phase visual effect starts with CUE 12
+- Performance state shows "long-season" phase during CUE 15-16
 
 #### **✅ Pass Criteria:**
-- Precise timing (6s, 7s, 5s intervals)
+- Precise timing (6s, 7s, 5s intervals for CUE 11-14)
 - Heartbeat stops cleanly
 - Visual departure effect triggers
-- Final audio plays and sequence completes
+- 🆕 **Long Season Track**: 
+  - 10-second fade in works smoothly
+  - Track plays for 30 seconds at 0.7 volume
+  - 5-second fade out completes sequence
+  - Performance state transitions to "complete"
+  - Final cross-system event emitted
+- **Total sequence duration**: ~67 seconds from CUE 11 start to complete
+
+---
+
+### **🆕 NEW: TEST 6A: Long Season Isolation Test** ⏱️ 1 minute
+
+**PURPOSE**: Test only the new CUE-15 and CUE-16 functionality
+
+#### **Steps:**
+1. Use browser console: `window.theatreClient.soundManager.executeCue15()`
+2. Observe 10-second fade in
+3. Wait 30 seconds for automatic CUE-16 trigger
+4. Observe 5-second fade out
+
+#### **Expected Behavior:**
+```
+🎭 Executing CUE 15: Long Season fade in
+🎭 Performance entered Long Season phase
+⏰ Scheduled cue cue-16-trigger in 30s
+[... 30 seconds later ...]
+🎭 Executing CUE 16: Long Season fade out and performance end
+🎭 Performance sequence completed with Long Season
+```
+
+#### **✅ Pass Criteria:**
+- Fade in is smooth and takes exactly 10 seconds
+- Track plays at correct volume (0.7)
+- Automatic trigger after 30 seconds works
+- Fade out is smooth and takes 5 seconds
+- Performance state changes to "complete"
 
 ---
 
@@ -322,9 +369,11 @@ Ensure these audio files exist in `Program/computer1_backend/static/audio/`:
 
 ### **Debug Panel Checks:**
 1. **Audio Context Status**: Should show "running"
-2. **Tracks Loaded**: Should show "8/8"
+2. **Tracks Loaded**: Should show "9/9"
 3. **Master Volume**: Should be adjustable
 4. **Cue History**: Should log all executed cues
+5. **Cue Sequence Display**: Should show all 16 cues (CUE-01 through CUE-16)
+6. **Performance Phase**: Should show "long-season" during CUE-15/16
 
 ### **Console Monitoring:**
 - Look for any error messages (❌)
@@ -380,15 +429,16 @@ window.theatreClient.soundManager.performanceState
 ## 🎯 **SUCCESS CRITERIA SUMMARY**
 
 ### **✅ PASSING TESTS:**
-1. All audio tracks load successfully
+1. All audio tracks load successfully (9 tracks total) 🆕 **Updated**
 2. Spacebar triggers CUE-05 immediately
 3. Traffic light progressive speed increase (5 steps)
 4. Complete opening sequence with correct timing
 5. Convergence sequence with visual triggers
-6. Final sequence completion
-7. Emergency stop works immediately
-8. Graceful error handling
-9. SocketIO reconnection works
+6. Final sequence completion through CUE-16 🆕 **Extended**
+7. 🆕 **Long Season Extended Finale**: CUE-15 and CUE-16 work correctly
+8. Emergency stop works immediately
+9. Graceful error handling
+10. SocketIO reconnection works
 
 ### **📈 PERFORMANCE EXPECTATIONS:**
 - Audio latency < 100ms
@@ -396,8 +446,11 @@ window.theatreClient.soundManager.performanceState
 - Timing accuracy ±100ms
 - Zero audio dropouts
 - Smooth speed morphing
+- 🆕 **Extended Sequence**: Total performance duration ~8-10 minutes (including Long Season)
+- 🆕 **Long Season Fades**: 10s fade in and 5s fade out must be smooth
 
 ---
 
-**Total Testing Time: ~20 minutes for full sequence**
+**Total Testing Time: ~25 minutes for full sequence** 🆕 **(Updated from 20 minutes)**
+**🆕 New Requirements**: Ensure "Long Season.mp3" file is present in `/static/audio/` directory
 **Recommended**: Test each section individually first, then run complete end-to-end test 

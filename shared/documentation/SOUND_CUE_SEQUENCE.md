@@ -61,6 +61,13 @@
 | **CUE 13** | Auto (7s after CUE 12) | • Stop `heartbeat` (looping) | +7s | Heartbeat cessation |
 | **CUE 14** | Auto (5s after CUE 13) | • Start `sublimation-completed` | +5s | Final resolution |
 
+### **Phase 6: Long Season Finale** 🆕 **NEW**
+
+| Cue | Trigger | Action | Timing | Notes |
+|-----|---------|--------|--------|-------|
+| **CUE 15** | Auto (after CUE 14 ends) | • Start `long-season` (fade in 10s) | Immediate | Extended finale |
+| **CUE 16** | Auto (30s after CUE 15 start) | • Fade out `long-season` (5s fade)<br>• **→ VISUAL TRIGGER:** Re-engage blackout<br>• **Performance Complete** | +30s | Final completion with blackout |
+
 ---
 
 ## 🔗 **CROSS-SYSTEM INTEGRATION**
@@ -71,6 +78,7 @@
 | CUE 04 | `protocol-rebooting` starts | Disengage black filter | Simultaneous |
 | CUE 08 | `spirits-possessed` starts | Start convergence phase | Simultaneous |
 | CUE 12 | 6s after `sine-riser` starts | Start departure phase | +6s delay |
+| **CUE 16** | **`long-season` fade out starts** | **Re-engage overall blackout** | **Simultaneous** |
 
 ### **Visual → Sound Triggers**
 | Event | Visual System Event | Sound System Action | Timing |
@@ -98,6 +106,8 @@
 ????+26 CUE 12 - Departure phase trigger
 ????+33 CUE 13 - Heartbeat stop
 ????+38 CUE 14 - Final Sublimation Completed
+????   CUE 15 - 🆕 Long Season fade in (10s)
+????+30 CUE 16 - 🆕 Long Season fade out (5s) + Blackout trigger → COMPLETE
 ```
 
 ---
@@ -108,6 +118,7 @@
 | Track | Default Rate | Modified Rate | Context |
 |-------|-------------|---------------|---------|
 | `traffic-light` | 1.0x | 0.75x → 1.75x | Interactive speed morphing |
+| `long-season` | 1.0x | 1.0x | 🆕 Extended finale track |
 | All others | 1.0x | 1.0x | Standard playback |
 
 ### **Fade Specifications**
@@ -116,12 +127,25 @@
 | `heartbeat` | 5s | - | Yes | Opening & closing |
 | `sine-riser` | 0s | 0.5s | No | Atmospheric builds |
 | `traffic-light` | 0s | 5s | Yes | Interactive phase |
+| `long-season` | 10s | 5s | No | 🆕 Extended finale with long fade |
 | Others | Standard | Standard | No | Story elements |
+
+### **🆕 NEW Audio Track Configuration**
+```javascript
+'long-season': {
+    url: '/static/audio/Long Season.mp3',
+    volume: 0.7,                    // Slightly lower for atmospheric effect
+    loop: false,                    // Single playthrough
+    fadeIn: 10.0,                   // Extended 10-second fade in
+    fadeOut: 5.0,                   // 5-second fade out for smooth ending
+    playbackRate: 1.0               // Normal speed
+}
+```
 
 ### **Variable Tracking Required**
 - **SD_INSERT_COUNT**: Integer (0-5)
 - **TRAFFIC_LIGHT_RATE**: Float (0.75x-1.75x)
-- **PHASE_STATE**: Enum (Opening, Interactive, Convergence, Departure, End)
+- **PHASE_STATE**: Enum (Opening, Interactive, Convergence, Departure, LongSeason, End)
 
 ---
 
@@ -147,6 +171,7 @@
 3. **Variable Persistence**: SD_INSERT_COUNT must persist through entire performance
 4. **Graceful Degradation**: System should handle missing audio files or visual system disconnection
 5. **Performance Logging**: Log all cue executions for post-performance analysis
+6. **🆕 Long Season Integration**: Ensure "Long Season.mp3" file is present in `/static/audio/` directory
 
 ---
 
@@ -155,9 +180,18 @@
 ```
 [Play Start] → Opening → [Manual Spacebar] → Interactive → 
 [5 SD Inserts] → Convergence → [Auto Sequence] → Departure → 
-[Final Cue] → End
+[Extended Finale] → Long Season → [Final Cue] → End
 ```
 
 ---
+
+## 🆕 **UPDATED PERFORMANCE SUMMARY**
+
+**Total Cues**: 16 (previously 14)
+**New Phase**: Long Season Finale
+**New Track**: `Long Season.mp3`
+**Extended Duration**: +35 seconds (10s fade in + 30s play + 5s fade out)
+**Final Visual Action**: Re-engage overall blackout via CUE-16 cross-system trigger
+**Performance Completion**: CUE-16 marks final end of sequence with blackout
 
 *This document serves as the master reference for implementing the complete audio-visual cue sequence. All timing values are approximate and may need adjustment based on actual audio track durations.* 

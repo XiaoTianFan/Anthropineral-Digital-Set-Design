@@ -40,12 +40,20 @@ body {
     pointer-events: none;
 }
 
+/* 🖤 NEW: Fade-in class for 5-second transition */
+#black-filter-overlay.filter-fadein {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 5s ease-in-out, visibility 5s ease-in-out;
+}
+
 /* 🖤 NEW: Fullscreen support for black filter */
 :fullscreen #black-filter-overlay,
 :-webkit-full-screen #black-filter-overlay,
 :-moz-full-screen #black-filter-overlay,
 :-ms-fullscreen #black-filter-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;

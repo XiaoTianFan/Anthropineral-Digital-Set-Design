@@ -2636,10 +2636,12 @@ class TheatreClient {
     initBlackFilter() {
         this.blackFilterActive = true;
         this.blackFilterRemoved = false;
-        console.log('🖤 Black filter overlay initialized and active');
+        // 🆕 NEW: Track if user manually removed filter in normal browser mode
+        this.blackFilterManuallyRemoved = false;
+        console.log('🖤 Black filter initialized - ready for both normal and performance modes');
     }
 
-    // 🖤 NEW: Method to fade out black filter (called from debug panel)
+    // 🖤 UPDATED: Method to fade out black filter (called from debug panel)
     fadeOutBlackFilter() {
         if (!this.blackFilterRemoved && this.blackFilterActive) {
             const blackFilter = document.getElementById('black-filter-overlay');
@@ -2647,8 +2649,10 @@ class TheatreClient {
                 blackFilter.classList.add('filter-fadeout');
                 this.blackFilterRemoved = true;
                 this.blackFilterActive = false;
-                console.log('🖤 Black filter fading out...');
-                this.addDebugMessage('🖤 Black filter overlay removed - revealing the digital space', 'success');
+                // 🆕 NEW: Mark as manually removed to prevent CUE-16 from re-engaging
+                this.blackFilterManuallyRemoved = true;
+                console.log('🖤 Black filter fading out (normal browser mode)...');
+                this.addDebugMessage('🖤 Black filter overlay removed - revealing the digital space (permanent)', 'success');
                 
                 // Update debug panel UI if elements exist
                 const blackFilterBtn = document.getElementById('remove-black-filter');
@@ -2660,7 +2664,7 @@ class TheatreClient {
                 }
                 
                 if (statusSpan) {
-                    statusSpan.textContent = 'Removed';
+                    statusSpan.textContent = 'Removed (Permanent)';
                     statusSpan.className = 'config-status disabled';
                 }
                 
@@ -2668,10 +2672,67 @@ class TheatreClient {
                 setTimeout(() => {
                     if (blackFilter.parentNode) {
                         blackFilter.parentNode.removeChild(blackFilter);
-                        console.log('🖤 Black filter completely removed');
+                        console.log('🖤 Black filter completely removed (normal browser mode)');
                     }
                 }, 2000); // Match the CSS transition duration
             }
+        }
+    }
+
+    // 🖤 UPDATED: Method to fade in black filter (re-engage blackout for performance end)
+    fadeInBlackFilter() {
+        // 🆕 NEW: Respect user's choice in normal browser mode
+        if (this.blackFilterManuallyRemoved) {
+            console.log('🖤 Black filter not re-engaged: User manually removed in normal browser mode');
+            this.addDebugMessage('🖤 Black filter remains removed - respecting user choice in normal mode', 'info');
+            return;
+        }
+        
+        if (this.blackFilterRemoved || !this.blackFilterActive) {
+            // Check if the element still exists
+            let blackFilter = document.getElementById('black-filter-overlay');
+            
+            if (!blackFilter) {
+                // Recreate the black filter element if it was removed
+                blackFilter = document.createElement('div');
+                blackFilter.id = 'black-filter-overlay';
+                
+                // Start with it hidden, let CSS handle positioning and styling
+                blackFilter.style.opacity = '0';
+                blackFilter.style.visibility = 'hidden';
+                
+                // Add to the document body
+                document.body.appendChild(blackFilter);
+                console.log('🖤 Black filter element recreated for performance mode');
+            }
+            
+            // Remove fadeout class and add fadein class for proper transition
+            blackFilter.classList.remove('filter-fadeout');
+            blackFilter.offsetHeight; // Force reflow
+            
+            // Add the fade-in class which includes the 5-second transition
+            blackFilter.classList.add('filter-fadein');
+            
+            this.blackFilterRemoved = false;
+            this.blackFilterActive = true;
+            console.log('🖤 Black filter fading in over 5 seconds (performance mode blackout)...');
+            this.addDebugMessage('🖤 Black filter re-engaged - performance ending blackout (5s fade)', 'info');
+            
+            // 🆕 NEW: Only update debug panel if this wasn't manually removed
+            const blackFilterBtn = document.getElementById('remove-black-filter');
+            const statusSpan = document.getElementById('black-filter-status');
+            
+            if (blackFilterBtn && !this.blackFilterManuallyRemoved) {
+                blackFilterBtn.disabled = false;
+                blackFilterBtn.textContent = '🖤 Reveal Digital Space';
+            }
+            
+            if (statusSpan && !this.blackFilterManuallyRemoved) {
+                statusSpan.textContent = 'Active (Performance)';
+                statusSpan.className = 'config-status enabled';
+            }
+            
+            console.log('🖤 Black filter re-engaged for performance end');
         }
     }
 
@@ -5804,6 +5865,9 @@ class TheatreClient {
             case 'black-filter-disengage':
                 this.disengageBlackFilter();
                 break;
+            case 'black-filter-engage':
+                this.engageBlackFilter();
+                break;
             case 'convergence-start':
                 this.triggerConvergencePhase();
                 break;
@@ -5934,6 +5998,12 @@ class TheatreClient {
         this.fadeOutBlackFilter(); // Use existing method
     }
     
+    engageBlackFilter() {
+        console.log('🎨 Engaging black filter');
+        this.addCueLogEntry('Re-engaging black filter (blackout)', 'info');
+        this.fadeInBlackFilter(); // Use new method
+    }
+    
     triggerConvergencePhase() {
         console.log('🎨 Triggering convergence phase');
         this.addCueLogEntry('Triggering convergence phase', 'info');
@@ -6048,6 +6118,9 @@ class TheatreClient {
                 if (this.soundManager) {
                     this.soundManager.resetCueSystem();
                 }
+                // 🆕 NEW: Also reset black filter to normal mode
+                this.resetBlackFilterToNormalMode();
+                
                 this.addCueLogEntry('Cue system reset', 'info');
                 this.addDebugMessage('🔄 Cue system reset from debug panel', 'info');
                 this.updateCueSystemStatus();
@@ -6285,6 +6358,49 @@ class TheatreClient {
             this.cueStatusInterval = null;
         }
         console.log('🎭 Cue debug panel disposed');
+    }
+
+    // 🆕 NEW: Reset black filter to normal mode (for development/testing)
+    resetBlackFilterToNormalMode() {
+        console.log('🔄 Resetting black filter to normal mode...');
+        
+        // Reset all state flags
+        this.blackFilterActive = true;
+        this.blackFilterRemoved = false;
+        this.blackFilterManuallyRemoved = false;
+        
+        // Check if black filter element exists
+        let blackFilter = document.getElementById('black-filter-overlay');
+        
+        if (!blackFilter) {
+            // Recreate the black filter element for normal mode
+            blackFilter = document.createElement('div');
+            blackFilter.id = 'black-filter-overlay';
+            document.body.appendChild(blackFilter);
+            console.log('🖤 Black filter element recreated for normal mode');
+        }
+        
+        // Reset CSS classes
+        blackFilter.classList.remove('filter-fadeout', 'filter-fadein');
+        blackFilter.style.opacity = '1';
+        blackFilter.style.visibility = 'visible';
+        
+        // Reset debug panel UI
+        const blackFilterBtn = document.getElementById('remove-black-filter');
+        const statusSpan = document.getElementById('black-filter-status');
+        
+        if (blackFilterBtn) {
+            blackFilterBtn.disabled = false;
+            blackFilterBtn.textContent = '🖤 Reveal Digital Space';
+        }
+        
+        if (statusSpan) {
+            statusSpan.textContent = 'Active';
+            statusSpan.className = 'config-status enabled';
+        }
+        
+        console.log('🔄 Black filter reset to normal mode completed');
+        this.addDebugMessage('🔄 Black filter reset to normal mode - ready for user interaction', 'success');
     }
 }
 

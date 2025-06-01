@@ -5,8 +5,8 @@
 class TrafficLightController {
     constructor(soundManager) {
         this.soundManager = soundManager;
-        this.currentRate = 0.5;        // Starting speed (slower than normal)
-        this.maxRate = 3;           // Maximum speed
+        this.currentRate = 1;        // Starting speed (slower than normal)
+        this.maxRate = 5;           // Maximum speed
         this.rateIncrement = 0.5;     // Speed increase per SD card insertion
         this.isActive = false;         // Whether traffic light is currently playing
     }
